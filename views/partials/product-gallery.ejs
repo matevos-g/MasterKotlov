@@ -1,0 +1,33 @@
+<% const productImages = product.images && product.images.length ? product.images : (product.image ? [product.image] : []); %>
+<% if (productImages.length) { %>
+	<div class="product-carousel product-carousel--large" data-product-carousel aria-label="<%= product.name %>">
+		<div class="product-carousel__viewport">
+			<% productImages.forEach((image, imageIndex) => { %>
+				<img
+					class="product-carousel__slide <%= imageIndex === 0 ? 'is-active' : '' %>"
+					data-carousel-slide
+					src="<%= image %>"
+					alt="<%= `${product.name} ${imageIndex + 1}` %>"
+					loading="<%= imageIndex === 0 ? 'eager' : 'lazy' %>"
+					decoding="async"
+				/>
+			<% }) %>
+		</div>
+		<% if (productImages.length > 1) { %>
+			<div class="product-carousel__dots">
+				<% productImages.forEach((image, imageIndex) => { %>
+					<button
+						class="product-carousel__dot <%= imageIndex === 0 ? 'is-active' : '' %>"
+						data-carousel-dot
+						type="button"
+						aria-label="<%= `${product.name} ${imageIndex + 1}` %>"
+					></button>
+				<% }) %>
+			</div>
+		<% } %>
+	</div>
+<% } else { %>
+	<div class="product-carousel product-carousel--empty product-carousel--large">
+		<span class="product-carousel__empty">Նկար դեռ ավելացված չէ</span>
+	</div>
+<% } %>

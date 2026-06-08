@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="hy">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MasterKotlov - Ապրանքներ</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@300;400;500;600;700&family=Noto+Serif+Armenian:wght@600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link rel="stylesheet" href="/styles.css" />
+	</head>
+	<body id="main">
+		<%- include('partials/navbar', { config, activePath }) %>
+
+		<main class="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+			<section class="mt-8" id="products">
+				<h1 class="reveal text-2xl font-bold text-slate-900 sm:text-3xl">Ապրանքներ</h1>
+				<p class="reveal delay-1 mt-3 max-w-3xl text-slate-700">
+					Ամբողջ տեսականին՝ պահեստամասեր, սարքավորումներ և անհրաժեշտ նյութեր սպասարկման համար։
+				</p>
+				<% if (products && products.length) { %>
+					<div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+						<% products.forEach((product, index) => { %>
+							<%- include('partials/product-card', { product, index }) %>
+						<% }) %>
+					</div>
+				<% } %>
+			</section>
+		</main>
+
+		<footer class="mt-4 bg-gradient-to-br from-slate-900 via-blue-900 to-blue-800" id="footer">
+			<div class="mx-auto grid max-w-7xl gap-6 px-4 pb-12 pt-10 text-blue-50 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
+				<div>
+					<h4 class="text-lg font-semibold">MasterKotlov</h4>
+					<p class="mt-2 text-sm leading-relaxed text-blue-100/80">
+						Կաթսաների վերանորոգում և սպասարկում ձեր քաղաքում։ Աշխատում ենք առանց միջնորդների և տալիս ենք հստակ երաշխիք։
+					</p>
+				</div>
+				<div>
+					<h4 class="text-lg font-semibold">Կոնտակտներ</h4>
+					<p class="mt-2 text-sm text-blue-100/80">Հեռախոս: <%= config.phone %></p>
+					<p class="mt-1 text-sm text-blue-100/80">Աշխատանքային ժամեր: 08:00-22:00, առանց հանգստյան օրերի</p>
+				</div>
+				<div>
+					<h4 class="text-lg font-semibold">Ծառայություններ</h4>
+					<p class="mt-2 text-sm text-blue-100/80">Ախտորոշում, վերանորոգում, սպասարկում և գործարկման կարգավորում։</p>
+				</div>
+			</div>
+			<div class="mx-auto max-w-7xl px-4 pb-8 text-xs text-blue-100/60 sm:px-6 lg:px-8">2026. Երաշխիք մինչև 12 ամիս։</div>
+		</footer>
+
+		<%- include('partials/call-modal', { config }) %>
+		<script src="/product-carousel.js"></script>
+		<script src="/site.js"></script>
+	</body>
+</html>

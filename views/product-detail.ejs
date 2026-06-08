@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="hy">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MasterKotlov - <%= product.name %></title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@300;400;500;600;700&family=Noto+Serif+Armenian:wght@600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link rel="stylesheet" href="/styles.css" />
+	</head>
+	<body id="main">
+		<%- include('partials/navbar', { config, activePath }) %>
+
+		<main class="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+			<a class="back-link reveal" href="/products">Վերադառնալ ապրանքներին</a>
+			<section class="product-detail reveal mt-5 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-start">
+				<div class="product-detail__media">
+					<%- include('partials/product-gallery', { product }) %>
+				</div>
+				<div class="panel product-detail__content p-6 sm:p-8">
+					<h1 class="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl"><%= product.name %></h1>
+					<% if (product.price) { %>
+						<p class="mt-4 text-xl font-semibold text-blue-800"><%= product.price %></p>
+					<% } %>
+					<p class="mt-5 text-base leading-8 text-slate-700 sm:text-lg"><%= product.description %></p>
+					<div class="mt-7 flex flex-col gap-3 sm:flex-row">
+						<button class="btn-primary" type="button" data-call-modal-open>Զանգահարել</button>
+						<a class="btn-secondary" href="/products">Այլ ապրանքներ</a>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<%- include('partials/call-modal', { config }) %>
+		<script src="/product-carousel.js"></script>
+		<script src="/site.js"></script>
+	</body>
+</html>

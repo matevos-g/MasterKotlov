@@ -1,0 +1,41 @@
+<% const productImages = product.images && product.images.length ? product.images : (product.image ? [product.image] : []); %>
+<article class="service-card product-card reveal <%= `delay-${(index % 3) + 1}` %> p-5">
+	<% if (productImages.length) { %>
+		<div class="product-carousel" data-product-carousel aria-label="<%= product.name %>">
+			<div class="product-carousel__viewport">
+				<% productImages.forEach((image, imageIndex) => { %>
+					<img
+						class="product-carousel__slide <%= imageIndex === 0 ? 'is-active' : '' %>"
+						data-carousel-slide
+						src="<%= image %>"
+						alt="<%= `${product.name} ${imageIndex + 1}` %>"
+						loading="lazy"
+						decoding="async"
+					/>
+				<% }) %>
+			</div>
+			<% if (productImages.length > 1) { %>
+				<div class="product-carousel__dots">
+					<% productImages.forEach((image, imageIndex) => { %>
+						<button
+							class="product-carousel__dot <%= imageIndex === 0 ? 'is-active' : '' %>"
+							data-carousel-dot
+							type="button"
+							aria-label="<%= `${product.name} ${imageIndex + 1}` %>"
+						></button>
+					<% }) %>
+				</div>
+			<% } %>
+		</div>
+	<% } else { %>
+		<div class="product-carousel product-carousel--empty">
+			<span class="product-carousel__empty">Նկար դեռ ավելացված չէ</span>
+		</div>
+	<% } %>
+	<h3 class="mt-4 text-lg font-semibold text-blue-900"><%= product.name %></h3>
+	<p class="mt-2 text-sm leading-relaxed text-slate-700"><%= product.desk %></p>
+	<% if (product.price) { %>
+		<p class="mt-4 text-base font-semibold text-slate-900"><%= product.price %></p>
+	<% } %>
+	<a class="product-card__link mt-4" href="<%= product.url %>">Մանրամասն</a>
+</article>
