@@ -36,6 +36,22 @@
 		<!-- ========================================== -->
 		<main class="w-full flex-1 px-4 pb-32" style="padding-top: max(36px, calc(env(safe-area-inset-top) + 24px));">
 
+			<!-- NOTIFICATION PERMISSION BANNER FOR MOBILE / IOS -->
+			<div id="notif-permission-banner" class="hidden mb-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white shadow-md transition-all">
+				<div class="flex items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="text-2xl">🔔</span>
+						<div>
+							<h4 class="text-sm font-extrabold">Միացրեք Ծանուցումները</h4>
+							<p class="text-xs text-amber-100 font-medium">Նոր պատվերներ ստանալիս ակնթարթային ազդանշան ստանալու համար։</p>
+						</div>
+					</div>
+					<button onclick="enableNotificationsFromBanner()" class="shrink-0 rounded-xl bg-white px-4 py-2 text-xs font-extrabold text-amber-800 shadow-sm hover:bg-amber-50 active:scale-95 transition">
+						Միացնել
+					</button>
+				</div>
+			</div>
+
 			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ) -->
 			<section id="page-orders" class="space-y-4">
 				<!-- Top Bar: ONLY Status Picker Dropdown + '+' Add Order Button -->
@@ -506,59 +522,135 @@
 				});
 			}
 
+			function playOrderNotificationSound() {
+				try {
+					const AudioContext = window.AudioContext || window.webkitAudioContext;
+					if (!AudioContext) return;
+					const ctx = new AudioContext();
+					if (ctx.state === 'suspended') {
+						ctx.resume();
+					}
+
+					const now = ctx.currentTime;
+
+					// High pleasant 2-tone chime (A5 -> E6)
+					const osc1 = ctx.createOscillator();
+					const gain1 = ctx.createGain();
+					osc1.type = 'sine';
+					osc1.frequency.setValueAtTime(880, now);
+					gain1.gain.setValueAtTime(0.3, now);
+					gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+					osc1.connect(gain1);
+					gain1.connect(ctx.destination);
+					osc1.start(now);
+					osc1.stop(now + 0.3);
+
+					const osc2 = ctx.createOscillator();
+					const gain2 = ctx.createGain();
+					osc2.type = 'sine';
+					osc2.frequency.setValueAtTime(1320, now + 0.15);
+					gain2.gain.setValueAtTime(0.4, now + 0.15);
+					gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+					osc2.connect(gain2);
+					gain2.connect(ctx.destination);
+					osc2.start(now + 0.15);
+					osc2.stop(now + 0.6);
+				} catch (e) {
+					console.warn('Audio play error:', e);
+				}
+			}
+
 			function triggerArmenianPushNotification(order) {
 				const clientName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || order.name || order.customer_name || 'Հաճախորդ';
 				const title = 'Նոր Պատվեր';
 				const body = clientName;
 
+				// Play audio sound on mobile
+				playOrderNotificationSound();
+
 				if (navigator.vibrate) {
-					navigator.vibrate([200, 100, 200]);
+					try { navigator.vibrate([200, 100, 200, 100, 200]); } catch (e) {}
 				}
 
 				if ('Notification' in window && Notification.permission === 'granted') {
-					if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-						navigator.serviceWorker.ready.then(reg => {
-							reg.showNotification(title, {
-								body: body,
-								icon: '/images/icon.svg',
-								badge: '/images/icon.svg',
-								vibrate: [200, 100, 200],
-								data: { url: '/admin/mobile/' },
-								tag: 'order-' + (order.id || Date.now()),
-								renotify: true
-							});
-						});
-					} else {
-						new Notification(title, {
-							body: body,
-							icon: '/images/icon.svg',
-							data: { url: '/admin/mobile/' }
-						});
+					const options = {
+						body: body,
+						icon: '/images/icon.svg',
+						badge: '/images/icon.svg',
+						vibrate: [200, 100, 200],
+						data: { url: '/admin/mobile/' },
+						tag: 'order-' + (order.id || Date.now()),
+						renotify: true
+					};
+
+					if ('serviceWorker' in navigator) {
+						navigator.serviceWorker.getRegistration().then(reg => {
+							if (reg && reg.showNotification) {
+								reg.showNotification(title, options).catch(() => {});
+							}
+						}).catch(() => {});
 					}
 				}
 			}
 
-			async function requestNotificationPermission() {
+			function checkNotificationBannerState() {
+				const banner = document.getElementById('notif-permission-banner');
+				if (!banner) return;
 				if ('Notification' in window && Notification.permission !== 'granted') {
+					banner.classList.remove('hidden');
+				} else {
+					banner.classList.add('hidden');
+				}
+			}
+
+			async function enableNotificationsFromBanner() {
+				if ('Notification' in window) {
+					try {
+						const permission = await Notification.requestPermission();
+						checkNotificationBannerState();
+						if (permission === 'granted') {
+							playOrderNotificationSound();
+							triggerArmenianPushNotification({
+								id: 'test-' + Date.now(),
+								first_name: 'Ծանուցումները',
+								last_name: 'Միացված են',
+								status: 'new'
+							});
+						} else if (permission === 'denied') {
+							alert('Ծանուցումներն արգելված են ձեր հեռախոսի կարգավորումներից։ Խնդրում ենք թույլատրել դրանք Safari/Browser/iOS Settings-ից։');
+						}
+					} catch (e) {
+						console.warn('Notification permission request error:', e);
+					}
+				} else {
+					alert('Ձեր դիտարկիչը չի աջակցում Web Push։ iOS-ում ավելացրեք հավելվածը Home Screen-ում (Add to Home Screen)։');
+				}
+			}
+
+			async function requestNotificationPermission() {
+				checkNotificationBannerState();
+				if ('Notification' in window && Notification.permission === 'default') {
 					try {
 						await Notification.requestPermission();
+						checkNotificationBannerState();
 					} catch (e) {
 						console.warn('Notification permission error:', e);
 					}
 				}
 			}
 
-			// Force prompt on first touch/click if not already granted
+			// Force prompt check on first touch/click if not already granted
 			document.addEventListener('click', function promptNotifPermissionOnce() {
-				if ('Notification' in window && Notification.permission !== 'granted') {
-					Notification.requestPermission().catch(() => {});
-				}
+				checkNotificationBannerState();
 			}, { once: true });
 			document.addEventListener('touchstart', function promptNotifPermissionOnceTouch() {
-				if ('Notification' in window && Notification.permission !== 'granted') {
-					Notification.requestPermission().catch(() => {});
-				}
+				checkNotificationBannerState();
 			}, { once: true });
+
+			// Poll every 5 seconds so new orders trigger instantly on mobile even if WebSockets drop
+			setInterval(() => {
+				fetchOrders();
+			}, 5000);
 
 			function setupSupabaseRealtime() {
 				if (window.supabaseClient) {
