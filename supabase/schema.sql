@@ -42,28 +42,25 @@ ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS Policies for Products
+-- 5. RLS Policies for Products (Open Read/Write)
 DROP POLICY IF EXISTS "Public read products" ON public.products;
-CREATE POLICY "Public read products" ON public.products
-    FOR SELECT USING (true);
-
 DROP POLICY IF EXISTS "Admin full control products" ON public.products;
-CREATE POLICY "Admin full control products" ON public.products
-    FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow all for products" ON public.products;
+CREATE POLICY "Allow all for products" ON public.products
+    FOR ALL USING (true) WITH CHECK (true);
 
--- 6. RLS Policies for Service Requests
+-- 6. RLS Policies for Service Requests (Open Read/Write)
 DROP POLICY IF EXISTS "Public insert service requests" ON public.service_requests;
-CREATE POLICY "Public insert service requests" ON public.service_requests
-    FOR INSERT WITH CHECK (true);
-
 DROP POLICY IF EXISTS "Admin full control service requests" ON public.service_requests;
-CREATE POLICY "Admin full control service requests" ON public.service_requests
-    FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow all for service requests" ON public.service_requests;
+CREATE POLICY "Allow all for service requests" ON public.service_requests
+    FOR ALL USING (true) WITH CHECK (true);
 
--- 7. RLS Policies for Finance Ledger
+-- 7. RLS Policies for Finance Ledger (Open Read/Write)
 DROP POLICY IF EXISTS "Admin full control finance ledger" ON public.finance_ledger;
-CREATE POLICY "Admin full control finance ledger" ON public.finance_ledger
-    FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow all for finance ledger" ON public.finance_ledger;
+CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger
+    FOR ALL USING (true) WITH CHECK (true);
 
 -- 8. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 
@@ -75,15 +72,15 @@ DROP POLICY IF EXISTS "Public Read Product Images" ON storage.objects;
 CREATE POLICY "Public Read Product Images" ON storage.objects
     FOR SELECT USING (bucket_id = 'product-images');
 
-DROP POLICY IF EXISTS "Admin Upload Product Images" ON storage.objects;
-CREATE POLICY "Admin Upload Product Images" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Public Upload Product Images" ON storage.objects;
+CREATE POLICY "Public Upload Product Images" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = 'product-images');
 
-DROP POLICY IF EXISTS "Admin Delete Product Images" ON storage.objects;
-CREATE POLICY "Admin Delete Product Images" ON storage.objects
-    FOR DELETE USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Public Delete Product Images" ON storage.objects;
+CREATE POLICY "Public Delete Product Images" ON storage.objects
+    FOR DELETE USING (bucket_id = 'product-images');
 
--- 9. Seed Initial Product Data
+-- 9. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
 INSERT INTO public.products (id, name, price, desk, top, images) VALUES
 (1, 'Հոսքի սենսոր', '18000-25000 դրամ', 'Վերահսկում է ջրի հոսքը կաթսայի համակարգում և ապահովում սարքի ճիշտ աշխատանքը տաք ջրի օգտագործման ժամանակ։', true, ARRAY['/parts/1/photo_2026-09-24_22-10-10.jpg', '/parts/1/photo_2026-09-24_22-10-11 (2).jpg', '/parts/1/photo_2026-09-24_22-10-11.jpg', '/parts/1/photo_2026-09-24_22-10-12.jpg', '/parts/1/photo_2026-09-24_22-10-13 (2).jpg', '/parts/1/photo_2026-09-24_22-10-13.jpg', '/parts/1/photo_2026-09-24_22-10-14.jpg', '/parts/1/photo_2026-09-24_22-10-15.jpg']),
 (2, 'Նասոս', '45000-85000 դրամ', 'Ապահովում է ջրի մշտական շրջանառությունը ջեռուցման համակարգում՝ պահպանելով արդյունավետ ջերմափոխանակությունը։', true, ARRAY['/parts/2/photo_2026-09-24_22-10-33 (2).jpg', '/parts/2/photo_2026-09-24_22-10-33.jpg', '/parts/2/photo_2026-09-24_22-10-34.jpg']),

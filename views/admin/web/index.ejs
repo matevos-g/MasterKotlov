@@ -491,13 +491,13 @@
 					let actionButtonsHTML = '';
 					if (o.status === 'new') {
 						actionButtonsHTML = `
-							<button onclick="event.stopPropagation(); changeOrderStatus('${o.id}', 'in_progress')" class="rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 text-xs font-medium">Ընթացքի մեջ</button>
-							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-2 py-1 text-xs font-medium">Չեղարկել</button>
+							<button onclick="event.stopPropagation(); changeOrderStatus('${o.id}', 'in_progress')" class="rounded-lg bg-blue-600 text-white hover:bg-blue-700 px-3.5 py-1.5 text-xs font-semibold shadow-xs transition">Սկսել</button>
+							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-lg bg-red-600 text-white hover:bg-red-700 px-3 py-1.5 text-xs font-semibold shadow-xs transition">Չեղարկել</button>
 						`;
 					} else if (o.status === 'in_progress') {
 						actionButtonsHTML = `
-							<button onclick="event.stopPropagation(); openEarningsModal('${o.id}')" class="rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 text-xs font-semibold">Ավարտել</button>
-							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-2 py-1 text-xs font-medium">Չեղարկել</button>
+							<button onclick="event.stopPropagation(); openEarningsModal('${o.id}')" class="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 px-3.5 py-1.5 text-xs font-semibold shadow-xs transition">Ավարտել</button>
+							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-lg bg-red-600 text-white hover:bg-red-700 px-3 py-1.5 text-xs font-semibold shadow-xs transition">Չեղարկել</button>
 						`;
 					} else {
 						actionButtonsHTML = `<span class="text-xs text-slate-400 font-medium">Դիտել</span>`;
@@ -509,7 +509,7 @@
 							<td class="px-4 py-3 text-xs text-slate-500">${dateStr}</td>
 							<td class="px-4 py-3 text-xs font-mono text-blue-600"><a href="tel:${escapeHtml(o.phone)}">${escapeHtml(o.phone)}</a></td>
 							<td class="px-4 py-3">${statusBadge}</td>
-							<td class="px-4 py-3 text-right space-x-1">${actionButtonsHTML}</td>
+							<td class="px-4 py-3 text-right space-x-1.5">${actionButtonsHTML}</td>
 						</tr>
 					`;
 				}).join('');
@@ -546,17 +546,18 @@
 				const actionsContainer = document.getElementById('detail-modal-actions');
 				if (o.status === 'new') {
 					actionsContainer.innerHTML = `
-						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-lg bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 text-xs font-medium hover:bg-red-100">Չեղարկել</button>
-						<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeModal('modal-order-details');" class="rounded-lg bg-blue-600 text-white px-4 py-1.5 text-xs font-medium hover:bg-blue-700 shadow-sm">Ընթացքի մեջ</button>
+						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-lg bg-red-600 text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-red-700 shadow-xs transition">Չեղարկել</button>
+						<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeModal('modal-order-details');" class="rounded-lg bg-blue-600 text-white px-4 py-1.5 text-xs font-semibold hover:bg-blue-700 shadow-xs transition">Սկսել</button>
 					`;
 				} else if (o.status === 'in_progress') {
 					actionsContainer.innerHTML = `
-						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-lg bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 text-xs font-medium hover:bg-red-100">Չեղարկել</button>
-						<button onclick="closeModal('modal-order-details'); openEarningsModal('${o.id}');" class="rounded-lg bg-emerald-600 text-white px-4 py-1.5 text-xs font-medium hover:bg-emerald-700 shadow-sm">Ավարտել Պատվերը</button>
+						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-lg bg-red-600 text-white px-3.5 py-1.5 text-xs font-semibold hover:bg-red-700 shadow-xs transition">Չեղարկել</button>
+						<button onclick="closeModal('modal-order-details'); openEarningsModal('${o.id}');" class="rounded-lg bg-emerald-600 text-white px-4 py-1.5 text-xs font-semibold hover:bg-emerald-700 shadow-xs transition">Ավարտել Պատվերը</button>
 					`;
 				} else {
 					actionsContainer.innerHTML = `<button onclick="closeModal('modal-order-details')" class="rounded-lg bg-slate-100 text-slate-700 px-4 py-1.5 text-xs font-medium hover:bg-slate-200">Փակել</button>`;
 				}
+
 
 				document.getElementById('modal-order-details').classList.remove('hidden');
 			}

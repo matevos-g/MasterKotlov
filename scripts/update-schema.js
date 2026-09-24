@@ -54,33 +54,42 @@ CREATE TABLE IF NOT EXISTS public.service_requests (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Enable Row Level Security (RLS)
+-- 3. Create Finance Ledger Table
+CREATE TABLE IF NOT EXISTS public.finance_ledger (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES public.service_requests(id) ON DELETE SET NULL,
+    amount NUMERIC NOT NULL,
+    client_name TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
 
--- 4. RLS Policies for Products
--- Public read access (anyone can view products)
+-- 5. RLS Policies for Products (Open Read/Write)
 DROP POLICY IF EXISTS "Public read products" ON public.products;
-CREATE POLICY "Public read products" ON public.products
-    FOR SELECT USING (true);
-
--- Authenticated admins can create, update, delete products
 DROP POLICY IF EXISTS "Admin full control products" ON public.products;
-CREATE POLICY "Admin full control products" ON public.products
-    FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow all for products" ON public.products;
+CREATE POLICY "Allow all for products" ON public.products
+    FOR ALL USING (true) WITH CHECK (true);
 
--- 5. RLS Policies for Service Requests
--- Anyone can submit a service request / order
+-- 6. RLS Policies for Service Requests (Open Read/Write)
 DROP POLICY IF EXISTS "Public insert service requests" ON public.service_requests;
-CREATE POLICY "Public insert service requests" ON public.service_requests
-    FOR INSERT WITH CHECK (true);
-
--- Authenticated admins can read, update, delete service requests
 DROP POLICY IF EXISTS "Admin full control service requests" ON public.service_requests;
-CREATE POLICY "Admin full control service requests" ON public.service_requests
-    FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Allow all for service requests" ON public.service_requests;
+CREATE POLICY "Allow all for service requests" ON public.service_requests
+    FOR ALL USING (true) WITH CHECK (true);
 
--- 6. Setup Supabase Storage Bucket for Product Images
+-- 7. RLS Policies for Finance Ledger (Open Read/Write)
+DROP POLICY IF EXISTS "Admin full control finance ledger" ON public.finance_ledger;
+DROP POLICY IF EXISTS "Allow all for finance ledger" ON public.finance_ledger;
+CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- 8. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
@@ -90,15 +99,15 @@ DROP POLICY IF EXISTS "Public Read Product Images" ON storage.objects;
 CREATE POLICY "Public Read Product Images" ON storage.objects
     FOR SELECT USING (bucket_id = 'product-images');
 
-DROP POLICY IF EXISTS "Admin Upload Product Images" ON storage.objects;
-CREATE POLICY "Admin Upload Product Images" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Public Upload Product Images" ON storage.objects;
+CREATE POLICY "Public Upload Product Images" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = 'product-images');
 
-DROP POLICY IF EXISTS "Admin Delete Product Images" ON storage.objects;
-CREATE POLICY "Admin Delete Product Images" ON storage.objects
-    FOR DELETE USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Public Delete Product Images" ON storage.objects;
+CREATE POLICY "Public Delete Product Images" ON storage.objects
+    FOR DELETE USING (bucket_id = 'product-images');
 
--- 7. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
+-- 9. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
 INSERT INTO public.products (id, name, price, desk, top, images) VALUES
 ${valuesSql}
 ON CONFLICT (id) DO UPDATE SET 
