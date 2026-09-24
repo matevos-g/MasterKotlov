@@ -9,7 +9,6 @@
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="/supabase-config.js"></script>
 		<!-- PWA Meta Tags -->
 		<link rel="manifest" href="/manifest.json" />
@@ -24,7 +23,7 @@
 			.nav-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
 		</style>
 	</head>
-	<body class="min-h-full flex flex-col bg-slate-50">
+	<body class="min-h-full flex flex-col bg-slate-50 overflow-x-hidden">
 		<!-- Top Navigation Header -->
 		<header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -34,7 +33,7 @@
 						<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">PWA ADMIN</span>
 					</div>
 
-					<!-- 5 Main Navigation Pages -->
+					<!-- Navigation Pages (No Users tab) -->
 					<nav class="hidden sm:flex items-center gap-1">
 						<button id="nav-page-orders" type="button" class="nav-btn active px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							Պատվերներ
@@ -45,9 +44,6 @@
 						<button id="nav-page-products" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							Ապրանքներ
 						</button>
-						<button id="nav-page-users" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
-							Օգտատերեր
-						</button>
 						<button id="nav-page-cms" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							CMS / Կարգավորումներ
 						</button>
@@ -56,7 +52,7 @@
 
 				<div class="flex items-center gap-3">
 					<span id="admin-user-badge" class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">admin</span>
-					<button id="logout-btn" type="button" class="text-xs font-medium text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">
+					<button id="logout-btn" type="button" class="text-xs font-bold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3.5 py-1.5 rounded-lg transition">
 						Ելք
 					</button>
 				</div>
@@ -67,8 +63,8 @@
 				<button id="mobile-nav-orders" class="nav-btn active flex-1 py-2.5 text-xs text-center font-medium">Պատվերներ</button>
 				<button id="mobile-nav-finance" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Ֆինանսներ</button>
 				<button id="mobile-nav-products" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Ապրանքներ</button>
-				<button id="mobile-nav-users" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Օգտատերեր</button>
 				<button id="mobile-nav-cms" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">CMS</button>
+				<button id="mobile-nav-logout" class="nav-btn flex-1 py-2.5 text-xs text-center font-bold text-red-600">Ելք</button>
 			</div>
 		</header>
 
@@ -104,9 +100,10 @@
 			<!-- ========================================== -->
 			<section id="page-finance" class="hidden space-y-8">
 				<div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center space-y-6">
+					<!-- Top Month/Period Selection -->
 					<div class="flex items-center justify-center gap-2">
-						<label class="text-xs text-slate-500 font-semibold">Ժամանակահատված:</label>
-						<select id="finance-range-select" class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-600">
+						<label class="text-xs text-slate-500 font-semibold">Ընտրեք Ամիսը / Ժամանակահատվածը:</label>
+						<select id="finance-range-select" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-600">
 							<option value="current_month">Այս Ամիս</option>
 							<option value="last_month">Անցյալ Ամիս</option>
 							<option value="current_year">Այս Տարի</option>
@@ -114,22 +111,11 @@
 						</select>
 					</div>
 
-					<!-- Big Number at Center -->
-					<div class="py-4">
-						<span class="text-xs font-bold uppercase tracking-widest text-slate-400">Ընդհանուր Եկամուտ</span>
-						<div class="mt-2 text-4xl sm:text-5xl font-extrabold text-blue-600 tracking-tight" id="total-earnings-display">
+					<!-- Big Number at Center ONLY (No Diagram) -->
+					<div class="py-8 border-y border-slate-100">
+						<span class="text-xs font-bold uppercase tracking-widest text-slate-400 block mb-2">Ընդհանուր Եկամուտ</span>
+						<div class="text-5xl sm:text-6xl font-extrabold text-blue-600 tracking-tight" id="total-earnings-display">
 							0 Դրամ
-						</div>
-					</div>
-
-					<!-- Bar Chart Canvas -->
-					<div class="pt-6 border-t border-slate-100 max-w-3xl mx-auto">
-						<div class="flex items-center justify-between mb-3 text-left">
-							<span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Եկամուտների Գրաֆիկ</span>
-							<span id="chart-subtitle" class="text-xs font-medium text-slate-500"></span>
-						</div>
-						<div class="h-64 w-full relative">
-							<canvas id="finance-chart"></canvas>
 						</div>
 					</div>
 				</div>
@@ -155,22 +141,6 @@
 				</div>
 
 				<div id="products-grid-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-					<div class="col-span-full p-8 text-center text-slate-400 text-xs">Բեռնվում է...</div>
-				</div>
-			</section>
-
-			<!-- ========================================== -->
-			<!-- PAGE 4: USERS (ՕԳՏԱՏԵՐԵՐ)                   -->
-			<!-- ========================================== -->
-			<section id="page-users" class="hidden space-y-4">
-				<div class="flex items-center justify-between border-b border-slate-200 pb-3">
-					<h2 class="text-lg font-bold text-slate-900">Ադմինիստրատորներ</h2>
-					<button id="add-user-btn" type="button" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition">
-						+ Ավելացնել Ադմին
-					</button>
-				</div>
-
-				<div id="users-grid-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div class="col-span-full p-8 text-center text-slate-400 text-xs">Բեռնվում է...</div>
 				</div>
 			</section>
@@ -213,24 +183,6 @@
 								<input type="text" id="cms-bookButtonText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
 							</div>
 						</div>
-						<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու Հղում 1</label>
-								<input type="text" id="cms-navLink1" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու Հղում 2</label>
-								<input type="text" id="cms-navLink2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու Հղում 3</label>
-								<input type="text" id="cms-navLink3" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու Հղում 4</label>
-								<input type="text" id="cms-navLink4" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-blue-600" />
-							</div>
-						</div>
 					</div>
 
 					<!-- Card 2: Contacts & Social Media -->
@@ -256,345 +208,154 @@
 								<input type="text" id="cms-workingHours" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
 							</div>
 						</div>
-						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Telegram URL</label>
-								<input type="text" id="cms-telegramUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp URL</label>
-								<input type="text" id="cms-whatsappUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Instagram URL</label>
-								<input type="text" id="cms-instagramUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Facebook URL</label>
-								<input type="text" id="cms-facebookUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs outline-none focus:border-blue-600" />
-							</div>
-						</div>
-					</div>
-
-					<!-- Card 3: Hero Section -->
-					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-							<span>🚀</span> Գլխավոր (Hero) Հատված
-						</h3>
-						<div>
-							<label class="block text-xs font-semibold text-slate-700 mb-1">Գլխավոր Վերնագիր</label>
-							<input type="text" id="cms-heroTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-						</div>
-						<div>
-							<label class="block text-xs font-semibold text-slate-700 mb-1">Գլխավոր Նկարագրություն</label>
-							<textarea id="cms-heroSubtitle" rows="2" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600 resize-none"></textarea>
-						</div>
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Կոճակ 1 Տեքստ</label>
-								<input type="text" id="cms-heroCtaText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Կոճակ 2 Տեքստ</label>
-								<input type="text" id="cms-heroSecondaryCtaText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Նկարի URL</label>
-								<input type="text" id="cms-heroImageUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-							</div>
-						</div>
-					</div>
-
-					<!-- Card 4: Services Section -->
-					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-							<span>🛠️</span> Ծառայություններ
-						</h3>
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Ծառայությունների Վերնագիր</label>
-								<input type="text" id="cms-servicesTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-							</div>
-							<div>
-								<label class="block text-xs font-semibold text-slate-700 mb-1">Ծառայությունների Ենթավերնագիր</label>
-								<input type="text" id="cms-servicesSubtitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-							</div>
-						</div>
-
-						<!-- Service 1, 2, 3 -->
-						<div class="space-y-4 pt-2">
-							<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-								<span class="text-xs font-bold text-blue-600 uppercase">Ծառայություն 1</span>
-								<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-									<input type="text" id="cms-service1Title" placeholder="Վերնագիր" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service1Desc" placeholder="Նկարագրություն" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service1Image" placeholder="Նկարի URL" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-								</div>
-							</div>
-
-							<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-								<span class="text-xs font-bold text-blue-600 uppercase">Ծառայություն 2</span>
-								<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-									<input type="text" id="cms-service2Title" placeholder="Վերնագիր" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service2Desc" placeholder="Նկարագրություն" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service2Image" placeholder="Նկարի URL" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-								</div>
-							</div>
-
-							<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-								<span class="text-xs font-bold text-blue-600 uppercase">Ծառայություն 3</span>
-								<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-									<input type="text" id="cms-service3Title" placeholder="Վերնագիր" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service3Desc" placeholder="Նկարագրություն" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-									<input type="text" id="cms-service3Image" placeholder="Նկարի URL" class="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white" />
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Card 5: Footer -->
-					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-							<span>🦶</span> Ֆուտեր (Footer)
-						</h3>
-						<div>
-							<label class="block text-xs font-semibold text-slate-700 mb-1">Ֆուտերի Նկարագրություն</label>
-							<input type="text" id="cms-footerDesc" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-						</div>
-						<div>
-							<label class="block text-xs font-semibold text-slate-700 mb-1">Հեղինակային Իրավունքի (Copyright) Տեքստ</label>
-							<input type="text" id="cms-copyrightText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
-						</div>
-					</div>
-
-					<div class="flex justify-end pt-2 pb-8">
-						<button type="button" onclick="saveCmsSettings()" class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
-							Պահպանել Փոփոխությունները
-						</button>
 					</div>
 				</form>
 			</section>
 
 		</main>
 
-		<!-- ========================================== -->
-		<!-- DRAWER 1: ORDER DETAILS SLIDE-OVER DRAWER  -->
-		<!-- ========================================== -->
-		<div id="drawer-order-details" class="fixed inset-0 z-50 hidden">
-			<div onclick="closeDrawer('drawer-order-details')" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"></div>
-			<div class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden">
-				
-				<!-- Scrollable Content -->
-				<div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
-					<div class="flex items-center justify-between border-b border-slate-100 pb-4">
-						<span class="text-xs font-bold uppercase tracking-wider text-slate-400">Պատվերի Մանրամասներ</span>
-						<button onclick="closeDrawer('drawer-order-details')" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">✕</button>
+		<!-- ========================================================= -->
+		<!-- iOS SWIFT STYLE RIGHT-TO-LEFT SLIDING FULL OVERLAY PAGES  -->
+		<!-- ========================================================= -->
+		<!-- SLIDE PAGE 1: ORDER DETAILS -->
+		<div id="slide-page-order-details" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
+			<!-- iOS Navigation Bar -->
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6">
+				<button onclick="closeSlidePage('slide-page-order-details')" class="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+					</svg>
+					<span>Հետ</span>
+				</button>
+				<span class="text-sm font-extrabold text-slate-900 tracking-tight">Պատվերի Մանրամասներ</span>
+				<div class="w-12"></div>
+			</div>
+
+			<!-- Main Page Body -->
+			<div class="flex-1 p-6 sm:p-8 max-w-2xl mx-auto w-full space-y-6">
+				<div>
+					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Հաճախորդ</span>
+					<h1 id="detail-client-name" class="text-3xl font-extrabold text-slate-900 tracking-tight"></h1>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+					<div>
+						<span class="text-xs font-medium text-slate-400 block mb-1">Ամսաթիվ / Ժամ</span>
+						<div id="detail-client-date" class="text-base font-bold text-slate-800"></div>
 					</div>
-
-					<div class="space-y-5">
-						<div>
-							<span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1">Հաճախորդ</span>
-							<h2 id="detail-client-name" class="text-2xl font-extrabold text-slate-900 tracking-tight"></h2>
-						</div>
-
-						<div class="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
-							<div>
-								<span class="text-xs font-medium text-slate-400 block mb-1">Ամսաթիվ / Ժամ</span>
-								<div id="detail-client-date" class="text-sm font-semibold text-slate-800"></div>
-							</div>
-							<div>
-								<span class="text-xs font-medium text-slate-400 block mb-1">Հեռախոսահամար</span>
-								<div id="detail-client-phone" class="text-sm font-semibold font-mono text-blue-600"></div>
-							</div>
-						</div>
-
-						<div id="detail-product-box" class="hidden">
-							<span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1">Ընտրված Ապրանք</span>
-							<div id="detail-product-name" class="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 text-sm font-bold text-blue-900"></div>
-						</div>
-
-						<div>
-							<span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1">Խնդրի Նկարագրություն</span>
-							<div id="detail-problem-text" class="p-4 rounded-xl bg-slate-50 border border-slate-100 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap"></div>
-						</div>
-
-						<div>
-							<span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1">Կարգավիճակ</span>
-							<div id="detail-status-badge"></div>
-						</div>
+					<div>
+						<span class="text-xs font-medium text-slate-400 block mb-1">Հեռախոսահամար</span>
+						<div id="detail-client-phone" class="text-base font-bold font-mono text-blue-600"></div>
 					</div>
 				</div>
 
-				<!-- Fixed Bottom Actions (3 Armenian Buttons) -->
-				<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-6 flex flex-col gap-3">
-					<!-- Injected dynamically: 1. Call Customer, 2. Continue/Complete, 3. Cancel -->
+				<div id="detail-product-box" class="hidden">
+					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Ընտրված Ապրանք</span>
+					<div id="detail-product-name" class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 text-base font-bold text-blue-900"></div>
 				</div>
+
+				<div>
+					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Խնդրի Նկարագրություն</span>
+					<div id="detail-problem-text" class="p-5 rounded-2xl bg-slate-50 border border-slate-100 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap"></div>
+				</div>
+
+				<div>
+					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Կարգավիճակ</span>
+					<div id="detail-status-badge"></div>
+				</div>
+			</div>
+
+			<!-- Bottom 3 Armenian Buttons -->
+			<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-6 max-w-2xl mx-auto w-full flex flex-col gap-3">
+				<!-- Injected dynamically -->
 			</div>
 		</div>
 
-		<!-- ========================================== -->
-		<!-- DRAWER 2: ADD NEW ORDER SLIDE-OVER DRAWER  -->
-		<!-- ========================================== -->
-		<div id="drawer-add-order" class="fixed inset-0 z-50 hidden">
-			<div onclick="closeDrawer('drawer-add-order')" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"></div>
-			<div class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden">
-				
-				<div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
-					<div class="flex items-center justify-between border-b border-slate-100 pb-4">
-						<h2 class="text-xl font-extrabold text-slate-900">Ավելացնել Նոր Պատվեր</h2>
-						<button onclick="closeDrawer('drawer-add-order')" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">✕</button>
-					</div>
-
-					<form id="form-add-order-drawer" class="space-y-5">
-						<!-- Big input 1: Name -->
-						<div>
-							<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Անուն *</label>
-							<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
-						</div>
-
-						<!-- Big input 2: Lastname -->
-						<div>
-							<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Ազգանուն *</label>
-							<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
-						</div>
-
-						<!-- Big input 3: Phone -->
-						<div>
-							<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Հեռախոսահամար *</label>
-							<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-mono text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
-						</div>
-
-						<!-- Big input 4: Product select -->
-						<div>
-							<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Ապրանք (Ընտրովի)</label>
-							<select id="new-order-product" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white transition">
-								<option value="">-- Առանց ապրանքի --</option>
-							</select>
-						</div>
-
-						<!-- Big input 5: Description -->
-						<div>
-							<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Խնդրի Նկարագրություն *</label>
-							<textarea id="new-order-problem" rows="4" required placeholder="Նկարագրեք պատվերը կամ խնդիրը..." class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none transition"></textarea>
-						</div>
-
-						<div class="pt-4 border-t border-slate-100">
-							<button type="submit" class="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
-								Հաստատել և Ավելացնել Պատվերը
-							</button>
-						</div>
-					</form>
-				</div>
+		<!-- SLIDE PAGE 2: ADD NEW ORDER -->
+		<div id="slide-page-add-order" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
+			<!-- iOS Navigation Bar -->
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6">
+				<button onclick="closeSlidePage('slide-page-add-order')" class="flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+					</svg>
+					<span>Հետ</span>
+				</button>
+				<span class="text-sm font-extrabold text-slate-900 tracking-tight">Ավելացնել Նոր Պատվեր</span>
+				<div class="w-12"></div>
 			</div>
+
+			<form id="form-add-order-drawer" class="flex-1 p-6 sm:p-8 max-w-xl mx-auto w-full space-y-6">
+				<div>
+					<label class="block text-xs font-bold uppercase text-slate-600 mb-2">Անուն *</label>
+					<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
+				</div>
+
+				<div>
+					<label class="block text-xs font-bold uppercase text-slate-600 mb-2">Ազգանուն *</label>
+					<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
+				</div>
+
+				<div>
+					<label class="block text-xs font-bold uppercase text-slate-600 mb-2">Հեռախոսահամար *</label>
+					<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base font-mono text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition" />
+				</div>
+
+				<div>
+					<label class="block text-xs font-bold uppercase text-slate-600 mb-2">Ապրանք (Ընտրովի)</label>
+					<select id="new-order-product" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white transition">
+						<option value="">-- Առանց ապրանքի --</option>
+					</select>
+				</div>
+
+				<div>
+					<label class="block text-xs font-bold uppercase text-slate-600 mb-2">Խնդրի Նկարագրություն *</label>
+					<textarea id="new-order-problem" rows="4" required placeholder="Նկարագրեք պատվերը..." class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none transition"></textarea>
+				</div>
+
+				<div class="pt-4">
+					<button type="submit" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-lg hover:bg-blue-700 active:scale-95 transition">
+						Հաստատել և Ավելացնել Պատվերը
+					</button>
+				</div>
+			</form>
 		</div>
 
 		<!-- ========================================== -->
-		<!-- MODAL 2: EARNINGS AMOUNT ENTRY MODAL       -->
+		<!-- MODAL: EARNINGS AMOUNT ENTRY MODAL          -->
 		<!-- ========================================== -->
 		<div id="modal-earnings" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
 			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
 				<h3 class="text-base font-bold text-slate-900">Ավարտել Պատվերը</h3>
-				<p class="text-xs text-slate-500">Մուտքագրեք այս պատվերից ստացված վերջնական գումարը (Դրամ)՝ ֆինանսական մատյանում գրանցելու համար։</p>
+				<p class="text-xs text-slate-500">Մուտքագրեք այս պատվերից ստացված վերջնական գումարը (Դրամ)։</p>
 
 				<form id="form-earnings" class="space-y-4">
 					<input type="hidden" id="earnings-order-id" />
 					<div>
 						<label class="block text-xs font-medium text-slate-700 mb-1">Վաստակած Գումար (Դրամ) *</label>
-						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
 					</div>
 					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
-						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Հաստատել և Ավարտել</button>
+						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Հաստատել</button>
 					</div>
 				</form>
 			</div>
 		</div>
 
 		<!-- ========================================== -->
-		<!-- MODAL 3: ARE YOU SURE? CONFIRMATION PROMPT -->
+		<!-- MODAL: ARE YOU SURE? CONFIRMATION PROMPT    -->
 		<!-- ========================================== -->
 		<div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
 			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4 text-center">
-				<div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 text-lg font-bold">
-					!
-				</div>
+				<div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 text-lg font-bold">!</div>
 				<h3 class="text-base font-bold text-slate-900" id="confirm-modal-title">Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:</h3>
 				<p class="text-xs text-slate-500" id="confirm-modal-desc">Այս գործողությունը չի կարող չեղարկվել։</p>
 
 				<div class="flex justify-center gap-3 pt-2">
-					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-lg bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Ոչ, Չեղարկել</button>
-					<button id="confirm-action-btn" type="button" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-red-700 shadow-sm">Այո, Հաստատել</button>
+					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Ոչ, Չեղարկել</button>
+					<button id="confirm-action-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-red-700 shadow-sm">Այո, Հաստատել</button>
 				</div>
-			</div>
-		</div>
-
-		<!-- ========================================== -->
-		<!-- MODAL 4: ADD ADMIN USER MODAL              -->
-		<!-- ========================================== -->
-		<div id="modal-add-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Ադմին</h3>
-				<form id="form-add-user" class="space-y-3">
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Անուն *</label>
-						<input type="text" id="new-user-fullname" required placeholder="Գոռ" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Օգտանուն *</label>
-						<input type="text" id="new-user-username" required placeholder="admin" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Գաղտնաբառ *</label>
-						<input type="password" id="new-user-pass" required placeholder="••••••••" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-add-user')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
-						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Ավելացնել</button>
-					</div>
-				</form>
-			</div>
-		</div>
-
-		<!-- ========================================== -->
-		<!-- MODAL 4.5: EDIT ADMIN USER MODAL           -->
-		<!-- ========================================== -->
-		<div id="modal-edit-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<h3 class="text-base font-bold text-slate-900">Խմբագրել Ադմինին</h3>
-				<form id="form-edit-user" class="space-y-3">
-					<input type="hidden" id="edit-user-id" />
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Անուն *</label>
-						<input type="text" id="edit-user-fullname" required placeholder="Գոռ" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Օգտանուն *</label>
-						<input type="text" id="edit-user-username" required placeholder="admin" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-edit-user')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
-						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Պահպանել</button>
-					</div>
-				</form>
-			</div>
-		</div>
-
-		<!-- ========================================== -->
-		<!-- MODAL 5: RESET PASSWORD MODAL              -->
-		<!-- ========================================== -->
-		<div id="modal-reset-pass" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<h3 class="text-base font-bold text-slate-900">Փոխել Գաղտնաբառը</h3>
-				<form id="form-reset-pass" class="space-y-3">
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Նոր Գաղտնաբառ *</label>
-						<input type="password" id="reset-new-pass" required placeholder="••••••••" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-reset-pass')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
-						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Պահպանել</button>
-					</div>
-				</form>
 			</div>
 		</div>
 
@@ -603,7 +364,6 @@
 			let allOrders = [];
 			let allProducts = [];
 			let allLedger = [];
-			let allAdminUsers = [];
 			let currentOrderTab = 'new';
 			let confirmCallback = null;
 			let currentSessionUser = null;
@@ -611,12 +371,24 @@
 			// Service Worker PWA registration
 			if ('serviceWorker' in navigator) {
 				window.addEventListener('load', () => {
-					navigator.serviceWorker.register('/sw.js').then(reg => {
-						console.log('PWA ServiceWorker registered successfully:', reg);
-					}).catch(err => {
-						console.log('ServiceWorker registration error:', err);
-					});
+					navigator.serviceWorker.register('/sw.js').catch(() => {});
 				});
+			}
+
+			function openSlidePage(id) {
+				const el = document.getElementById(id);
+				if (el) {
+					el.classList.remove('translate-x-full');
+					el.classList.add('translate-x-0');
+				}
+			}
+
+			function closeSlidePage(id) {
+				const el = document.getElementById(id);
+				if (el) {
+					el.classList.remove('translate-x-0');
+					el.classList.add('translate-x-full');
+				}
 			}
 
 			function escapeHtml(str) {
@@ -629,7 +401,6 @@
 					.replace(/'/g, '&#039;');
 			}
 
-			// Auth check
 			async function initAuth() {
 				if (!window.supabaseClient) {
 					window.location.href = '/admin/web/login/';
@@ -648,19 +419,18 @@
 				loadAllData();
 			}
 
-			// Main Page Switching
-			const pages = ['orders', 'finance', 'products', 'users', 'cms'];
+			const pages = ['orders', 'finance', 'products', 'cms'];
 			function switchPage(activePage) {
 				pages.forEach(p => {
 					const el = document.getElementById(`page-${p}`);
 					const btn = document.getElementById(`nav-page-${p}`);
 					const mobBtn = document.getElementById(`mobile-nav-${p}`);
 					if (p === activePage) {
-						el.classList.remove('hidden');
+						el?.classList.remove('hidden');
 						btn?.classList.add('active');
 						mobBtn?.classList.add('active');
 					} else {
-						el.classList.add('hidden');
+						el?.classList.add('hidden');
 						btn?.classList.remove('active');
 						mobBtn?.classList.remove('active');
 					}
@@ -672,15 +442,21 @@
 				document.getElementById(`mobile-nav-${p}`)?.addEventListener('click', () => switchPage(p));
 			});
 
-			// Order Status Select Change
+			document.getElementById('mobile-nav-logout')?.addEventListener('click', handleLogout);
+			document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+
+			async function handleLogout() {
+				if (window.supabaseClient) await window.supabaseClient.auth.signOut();
+				window.location.href = '/admin/web/login/';
+			}
+
 			document.getElementById('order-status-select')?.addEventListener('change', (e) => {
 				currentOrderTab = e.target.value;
 				renderOrdersGridList();
 			});
 
-			// Fetch Data
 			async function loadAllData() {
-				await Promise.all([fetchOrders(), fetchProducts(), fetchLedger(), fetchUsers(), loadCmsConfig()]);
+				await Promise.all([fetchOrders(), fetchProducts(), fetchLedger(), loadCmsConfig()]);
 			}
 
 			async function fetchOrders() {
@@ -744,7 +520,6 @@
 				return badges[status] || status;
 			}
 
-			// 1. Orders Grid List (1 item per row container)
 			function renderOrdersGridList() {
 				const container = document.getElementById('orders-grid-list');
 				if (!container) return;
@@ -770,19 +545,15 @@
 					const fullName = `${escapeHtml(o.first_name || '')} ${escapeHtml(o.last_name || '')}`.trim() || 'Հաճախորդ';
 
 					return `
-						<div onclick="openOrderDetailsDrawer('${o.id}')" class="group relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md hover:border-blue-300 transition cursor-pointer">
+						<div onclick="openOrderDetailsSlide('${o.id}')" class="group relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md hover:border-blue-300 transition cursor-pointer">
 							<div class="space-y-1.5">
 								<div class="flex items-center gap-3">
 									<span class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition">${fullName}</span>
 									${statusBadge}
 								</div>
 								<div class="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500">
-									<span class="flex items-center gap-1">
-										<span>📅</span> ${dateStr}
-									</span>
-									<span class="flex items-center gap-1 font-mono text-blue-600 font-semibold">
-										<span>📞</span> ${escapeHtml(o.phone || '')}
-									</span>
+									<span class="flex items-center gap-1">📅 ${dateStr}</span>
+									<span class="flex items-center gap-1 font-mono text-blue-600 font-semibold">📞 ${escapeHtml(o.phone || '')}</span>
 								</div>
 							</div>
 							<div class="flex items-center gap-2 self-end sm:self-center">
@@ -796,8 +567,7 @@
 				}).join('');
 			}
 
-			// Open Order Details Drawer from the Side
-			function openOrderDetailsDrawer(orderId) {
+			function openOrderDetailsSlide(orderId) {
 				const o = allOrders.find(item => item.id === orderId);
 				if (!o) return;
 
@@ -826,38 +596,33 @@
 
 				const actionsContainer = document.getElementById('detail-drawer-actions');
 				
-				// 3 Armenian Buttons: Call Customer, Continue/Start/Complete, Cancel
 				let continueBtnHTML = '';
 				if (o.status === 'new') {
-					continueBtnHTML = `<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeDrawer('drawer-order-details');" class="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>▶</span> <span>Սկսել / Շարունակել</span></button>`;
+					continueBtnHTML = `<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeSlidePage('slide-page-order-details');" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>▶</span> <span>Սկսել / Շարունակել</span></button>`;
 				} else if (o.status === 'in_progress') {
-					continueBtnHTML = `<button onclick="closeDrawer('drawer-order-details'); openEarningsModal('${o.id}');" class="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
+					continueBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details'); openEarningsModal('${o.id}');" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
 				} else if (o.status === 'completed') {
-					continueBtnHTML = `<button disabled class="w-full rounded-xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերն Ավարտված է</button>`;
+					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերն Ավարտված է</button>`;
 				} else {
-					continueBtnHTML = `<button disabled class="w-full rounded-xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերը Չեղարկված է</button>`;
+					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերը Չեղարկված է</button>`;
 				}
 
 				let cancelBtnHTML = '';
 				if (o.status !== 'cancelled' && o.status !== 'completed') {
-					cancelBtnHTML = `<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeDrawer('drawer-order-details'); })" class="w-full rounded-xl bg-red-50 border border-red-200 py-3.5 text-sm font-bold text-red-600 hover:bg-red-100 active:scale-95 transition flex items-center justify-center gap-2"><span>✕</span> <span>Չեղարկել Պատվերը</span></button>`;
+					cancelBtnHTML = `<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeSlidePage('slide-page-order-details'); })" class="w-full rounded-2xl bg-red-50 border border-red-200 py-3.5 text-sm font-bold text-red-600 hover:bg-red-100 active:scale-95 transition flex items-center justify-center gap-2"><span>✕</span> <span>Չեղարկել Պատվերը</span></button>`;
 				} else {
-					cancelBtnHTML = `<button onclick="closeDrawer('drawer-order-details')" class="w-full rounded-xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition">Փակել</button>`;
+					cancelBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details')" class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition">Փակել</button>`;
 				}
 
 				actionsContainer.innerHTML = `
-					<a href="tel:${cleanPhone}" class="w-full text-center rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-2">
+					<a href="tel:${cleanPhone}" class="w-full text-center rounded-2xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-2">
 						<span>📞</span> <span>Զանգահարել Հաճախորդին</span>
 					</a>
 					${continueBtnHTML}
 					${cancelBtnHTML}
 				`;
 
-				document.getElementById('drawer-order-details').classList.remove('hidden');
-			}
-
-			function closeDrawer(id) {
-				document.getElementById(id)?.classList.add('hidden');
+				openSlidePage('slide-page-order-details');
 			}
 
 			function closeModal(id) {
@@ -871,9 +636,7 @@
 						.update({ status: newStatus })
 						.eq('id', orderId);
 
-					if (!error) {
-						fetchOrders();
-					}
+					if (!error) fetchOrders();
 				} catch (err) {
 					console.error('Update status error:', err);
 				}
@@ -892,19 +655,13 @@
 				const order = allOrders.find(o => o.id === orderId);
 
 				try {
-					await window.supabaseClient
-						.from('service_requests')
-						.update({ status: 'completed' })
-						.eq('id', orderId);
-
-					await window.supabaseClient
-						.from('finance_ledger')
-						.insert([{
-							order_id: orderId,
-							amount: amount,
-							client_name: order ? `${order.first_name || ''} ${order.last_name || ''}`.trim() : 'Հաճախորդ',
-							notes: order ? (order.product_name || order.problem_description || '') : ''
-						}]);
+					await window.supabaseClient.from('service_requests').update({ status: 'completed' }).eq('id', orderId);
+					await window.supabaseClient.from('finance_ledger').insert([{
+						order_id: orderId,
+						amount: amount,
+						client_name: order ? `${order.first_name || ''} ${order.last_name || ''}`.trim() : 'Հաճախորդ',
+						notes: order ? (order.product_name || order.problem_description || '') : ''
+					}]);
 
 					closeModal('modal-earnings');
 					fetchOrders();
@@ -925,75 +682,7 @@
 				closeModal('modal-confirm');
 			});
 
-			// Finance Page Logic & Bar Chart Diagram
-			let financeChartInstance = null;
-
-			function renderFinanceChart(labels, dataValues, subtitleText) {
-				const subtitleEl = document.getElementById('chart-subtitle');
-				if (subtitleEl) subtitleEl.textContent = subtitleText;
-
-				const canvas = document.getElementById('finance-chart');
-				if (!canvas || !window.Chart) return;
-				const ctx = canvas.getContext('2d');
-
-				if (financeChartInstance) {
-					financeChartInstance.destroy();
-				}
-
-				financeChartInstance = new Chart(ctx, {
-					type: 'bar',
-					data: {
-						labels: labels,
-						datasets: [{
-							label: 'Եկամուտ (Դրամ)',
-							data: dataValues,
-							backgroundColor: 'rgba(37, 99, 235, 0.85)',
-							hoverBackgroundColor: 'rgba(29, 78, 216, 1)',
-							borderRadius: 6,
-							borderSkipped: false,
-							maxBarThickness: 32
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						plugins: {
-							legend: { display: false },
-							tooltip: {
-								backgroundColor: '#0f172a',
-								titleFont: { size: 12, family: 'Inter, Noto Sans Armenian' },
-								bodyFont: { size: 12, family: 'Inter, Noto Sans Armenian' },
-								padding: 10,
-								displayColors: false,
-								callbacks: {
-									label: function(context) {
-										const val = context.raw || 0;
-										return ` Եկամուտ: ${val.toLocaleString('hy-AM')} Դրամ`;
-									}
-								}
-							}
-						},
-						scales: {
-							x: {
-								grid: { display: false },
-								ticks: { font: { size: 11, family: 'Inter, Noto Sans Armenian' }, color: '#64748b' }
-							},
-							y: {
-								grid: { color: '#f1f5f9' },
-								ticks: {
-									font: { size: 11, family: 'Inter, Noto Sans Armenian' },
-									color: '#64748b',
-									callback: function(val) {
-										if (val >= 1000) return (val / 1000) + ' հզ';
-										return val;
-									}
-								}
-							}
-						}
-					}
-				});
-			}
-
+			// Finance Page Logic (NO Diagram, JUST Big Number + Month Filter + Last Transactions)
 			function renderFinancePage() {
 				const range = document.getElementById('finance-range-select').value;
 				const now = new Date();
@@ -1049,83 +738,6 @@
 						`;
 					}).join('');
 				}
-
-				// Build Chart Data & Aggregation
-				const armMonths = ['Հնվ', 'Փտր', 'Մրտ', 'Ապր', 'Մյս', 'Հնս', 'Հլս', 'Օգս', 'Սեպ', 'Հոկ', 'Նոյ', 'Դեկ'];
-				let labels = [];
-				let dataValues = [];
-				let subtitleText = '';
-
-				if (range === 'current_month') {
-					const year = now.getFullYear();
-					const month = now.getMonth();
-					const daysInMonth = new Date(year, month + 1, 0).getDate();
-					subtitleText = `Օրական եկամուտ (${armMonths[month]} ${year})`;
-
-					for (let day = 1; day <= daysInMonth; day++) {
-						labels.push(`${armMonths[month]} ${day}`);
-						const daySum = allLedger.reduce((sum, l) => {
-							const d = new Date(l.created_at);
-							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
-								return sum + (Number(l.amount) || 0);
-							}
-							return sum;
-						}, 0);
-						dataValues.push(daySum);
-					}
-				} else if (range === 'last_month') {
-					const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-					const year = lastMonthDate.getFullYear();
-					const month = lastMonthDate.getMonth();
-					const daysInMonth = new Date(year, month + 1, 0).getDate();
-					subtitleText = `Օրական եկամուտ (${armMonths[month]} ${year})`;
-
-					for (let day = 1; day <= daysInMonth; day++) {
-						labels.push(`${armMonths[month]} ${day}`);
-						const daySum = allLedger.reduce((sum, l) => {
-							const d = new Date(l.created_at);
-							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
-								return sum + (Number(l.amount) || 0);
-							}
-							return sum;
-						}, 0);
-						dataValues.push(daySum);
-					}
-				} else if (range === 'current_year') {
-					const year = now.getFullYear();
-					subtitleText = `Ամսական եկամուտ (${year})`;
-
-					for (let month = 0; month < 12; month++) {
-						labels.push(armMonths[month]);
-						const monthSum = allLedger.reduce((sum, l) => {
-							const d = new Date(l.created_at);
-							if (d.getFullYear() === year && d.getMonth() === month) {
-								return sum + (Number(l.amount) || 0);
-							}
-							return sum;
-						}, 0);
-						dataValues.push(monthSum);
-					}
-				} else if (range === 'all') {
-					subtitleText = 'Տարեկան եկամուտ (Ընդհանուր)';
-					const yearsSet = new Set(allLedger.map(l => new Date(l.created_at).getFullYear()));
-					yearsSet.add(now.getFullYear());
-					const sortedYears = Array.from(yearsSet).sort((a, b) => a - b);
-
-					sortedYears.forEach(year => {
-						labels.push(String(year));
-						const yearSum = allLedger.reduce((sum, l) => {
-							const d = new Date(l.created_at);
-							if (d.getFullYear() === year) {
-								return sum + (Number(l.amount) || 0);
-							}
-							return sum;
-						}, 0);
-						dataValues.push(yearSum);
-					});
-				}
-
-				renderFinanceChart(labels, dataValues, subtitleText);
 			}
 
 			document.getElementById('finance-range-select').addEventListener('change', renderFinancePage);
@@ -1181,179 +793,6 @@
 				}
 			}
 
-			// Admin Users Cards List
-			async function fetchUsers() {
-				try {
-					const { data, error } = await window.supabaseClient
-						.from('admin_users')
-						.select('*')
-						.order('created_at', { ascending: false });
-
-					if (!error && data && data.length) {
-						allAdminUsers = data;
-					} else {
-						const email = currentSessionUser ? (currentSessionUser.email || '') : '';
-						const uname = email.endsWith('@masterkotlov.am') ? email.replace('@masterkotlov.am', '') : (email || 'admin');
-						allAdminUsers = [{
-							id: 'default-1',
-							name: 'Գոռ',
-							username: uname,
-							email: email || 'admin@masterkotlov.am',
-							status: 'active'
-						}];
-					}
-					renderUsersGridList();
-				} catch (err) {
-					console.error('Fetch users error:', err);
-					renderUsersGridList();
-				}
-			}
-
-			function renderUsersGridList() {
-				const container = document.getElementById('users-grid-list');
-				if (!container) return;
-
-				if (!allAdminUsers.length) {
-					container.innerHTML = `<div class="col-span-full p-12 text-center text-slate-400 text-sm">Օգտատերեր չկան</div>`;
-					return;
-				}
-
-				container.innerHTML = allAdminUsers.map(u => {
-					const displayName = escapeHtml(u.name || u.username || 'Ադմին');
-					const username = escapeHtml(u.username || '');
-
-					return `
-						<div class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition space-y-4">
-							<div class="flex items-center gap-3">
-								<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold text-base border border-blue-100">
-									${displayName.charAt(0).toUpperCase()}
-								</div>
-								<div>
-									<h3 class="text-sm font-bold text-slate-900">${displayName}</h3>
-									<p class="text-xs text-slate-500 font-mono">@${username}</p>
-								</div>
-							</div>
-
-							<div class="flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 gap-2">
-								<span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">Ակտիվ Ադմին</span>
-								<div class="flex items-center gap-1.5">
-									<button onclick="openEditUserModal('${u.id}', '${displayName}', '${username}')" class="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition">Խմբագրել</button>
-									<button onclick="openResetPasswordModal('${u.id}', '${username}')" class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition">Գաղտնաբառ</button>
-									<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք ջնջել այս օգտատիրոջը:', () => deleteUser('${u.id}'))" class="rounded-xl bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition">Ջնջել</button>
-								</div>
-							</div>
-						</div>
-					`;
-				}).join('');
-			}
-
-			// Add Admin User Action
-			document.getElementById('add-user-btn')?.addEventListener('click', () => {
-				document.getElementById('new-user-fullname').value = '';
-				document.getElementById('new-user-username').value = '';
-				document.getElementById('new-user-pass').value = '';
-				document.getElementById('modal-add-user').classList.remove('hidden');
-			});
-
-			document.getElementById('form-add-user')?.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const fullname = document.getElementById('new-user-fullname').value.trim();
-				let uname = document.getElementById('new-user-username').value.trim();
-				const pass = document.getElementById('new-user-pass').value.trim();
-
-				let email = uname;
-				if (!email.includes('@')) {
-					email = `${email.toLowerCase()}@masterkotlov.am`;
-				}
-
-				try {
-					await window.supabaseClient.from('admin_users').insert([{
-						name: fullname,
-						username: uname,
-						email: email,
-						status: 'active'
-					}]);
-
-					await window.supabaseClient.auth.signUp({ email, password: pass }).catch(() => {});
-
-					alert(`Ադմին օգտատերը (${fullname} - ${uname}) հաջողությամբ ավելացվեց։`);
-					closeModal('modal-add-user');
-					fetchUsers();
-				} catch (err) {
-					alert('Օգտատիրոջ ավելացման սխալ: ' + (err.message || err));
-				}
-			});
-
-			// Edit Admin User Action
-			function openEditUserModal(id, name, username) {
-				document.getElementById('edit-user-id').value = id;
-				document.getElementById('edit-user-fullname').value = name;
-				document.getElementById('edit-user-username').value = username;
-				document.getElementById('modal-edit-user').classList.remove('hidden');
-			}
-
-			document.getElementById('form-edit-user')?.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const id = document.getElementById('edit-user-id').value;
-				const fullname = document.getElementById('edit-user-fullname').value.trim();
-				const username = document.getElementById('edit-user-username').value.trim();
-
-				let email = username;
-				if (!email.includes('@')) {
-					email = `${email.toLowerCase()}@masterkotlov.am`;
-				}
-
-				try {
-					await window.supabaseClient.from('admin_users').update({
-						name: fullname,
-						username: username,
-						email: email
-					}).eq('id', id);
-
-					alert('Օգտատիրոջ տվյալները հաջողությամբ թարմացվեցին։');
-					closeModal('modal-edit-user');
-					fetchUsers();
-				} catch (err) {
-					alert('Տվյալների թարմացման սխալ: ' + (err.message || err));
-				}
-			});
-
-			// Delete Admin User Action
-			async function deleteUser(id) {
-				try {
-					const { error } = await window.supabaseClient.from('admin_users').delete().eq('id', id);
-					if (!error) {
-						fetchUsers();
-					} else {
-						allAdminUsers = allAdminUsers.filter(u => u.id !== id);
-						renderUsersGridList();
-					}
-				} catch (err) {
-					alert('Ջնջումը ձախողվեց');
-				}
-			}
-
-			// Reset Password Action
-			function openResetPasswordModal(id, username) {
-				document.getElementById('reset-new-pass').value = '';
-				document.getElementById('modal-reset-pass').classList.remove('hidden');
-			}
-
-			document.getElementById('form-reset-pass')?.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const newPassword = document.getElementById('reset-new-pass').value.trim();
-
-				try {
-					const { data, error } = await window.supabaseClient.auth.updateUser({ password: newPassword });
-					if (error) throw error;
-
-					alert('Գաղտնաբառը հաջողությամբ թարմացվեց։');
-					closeModal('modal-reset-pass');
-				} catch (err) {
-					alert('Գաղտնաբառի փոփոխման սխալ: ' + (err.message || err));
-				}
-			});
-
 			// Add Manual Order Drawer Action
 			document.getElementById('add-order-btn')?.addEventListener('click', () => {
 				const prodSelect = document.getElementById('new-order-product');
@@ -1366,7 +805,7 @@
 				document.getElementById('new-order-lastname').value = '';
 				document.getElementById('new-order-phone').value = '';
 				document.getElementById('new-order-problem').value = '';
-				document.getElementById('drawer-add-order').classList.remove('hidden');
+				openSlidePage('slide-page-add-order');
 			});
 
 			document.getElementById('form-add-order-drawer')?.addEventListener('submit', async (e) => {
@@ -1397,16 +836,11 @@
 					if (error) throw error;
 
 					alert('Պատվերը հաջողությամբ ավելացվեց։');
-					closeDrawer('drawer-add-order');
+					closeSlidePage('slide-page-add-order');
 					fetchOrders();
 				} catch (err) {
 					alert('Պատվերի ավելացման սխալ: ' + (err.message || err));
 				}
-			});
-
-			document.getElementById('logout-btn')?.addEventListener('click', async () => {
-				await window.supabaseClient.auth.signOut();
-				window.location.href = '/admin/web/login/';
 			});
 
 			const cmsFields = [
