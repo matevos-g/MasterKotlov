@@ -27,7 +27,7 @@
 	<body class="min-h-full flex flex-col bg-slate-50 selection:bg-blue-100 overflow-x-hidden">
 
 		<!-- ========================================== -->
-		<!-- MAIN CONTENT AREA (No top header navbar)   -->
+		<!-- MAIN CONTENT AREA                          -->
 		<!-- ========================================== -->
 		<main class="w-full flex-1 px-4 pb-28" style="padding-top: max(16px, env(safe-area-inset-top));">
 
@@ -35,37 +35,37 @@
 			<section id="page-orders" class="space-y-4">
 				<!-- Top Bar: ONLY Status Picker Dropdown + Notification Bell + '+' Add Order Button -->
 				<div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-200">
-					<select id="order-status-select" class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-blue-600 shadow-xs transition cursor-pointer">
+					<select id="order-status-select" class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-slate-900 outline-none focus:border-blue-600 shadow-xs transition cursor-pointer">
 						<option value="new">Սպասող</option>
 						<option value="in_progress">Ընթացքի մեջ</option>
 						<option value="completed">Ավարտված</option>
 						<option value="cancelled">Չեղարկված</option>
 					</select>
 
-					<button id="notif-perm-btn" type="button" onclick="requestNotificationPermission()" title="Ծանուցումներ" class="relative text-slate-500 hover:text-blue-600 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-blue-50 transition shadow-xs">
-						<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<button id="notif-perm-btn" type="button" onclick="requestNotificationPermission()" title="Ծանուցումներ" class="relative text-slate-600 hover:text-blue-600 p-3 rounded-2xl border border-slate-200 bg-white hover:bg-blue-50 transition shadow-xs">
+						<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
 						</svg>
-						<span id="notif-badge-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+						<span id="notif-badge-dot" class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
 					</button>
 
-					<button id="add-order-btn" type="button" class="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-2xl shadow-sm hover:bg-blue-700 active:scale-95 transition" title="Ավելացնել Պատվեր">
+					<button id="add-order-btn" type="button" class="h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl bg-blue-600 text-white font-extrabold text-3xl shadow-md hover:bg-blue-700 active:scale-95 transition" title="Ավելացնել Պատվեր">
 						+
 					</button>
 				</div>
 
 				<!-- Orders Cards Grid List for Mobile (1 item per row) -->
 				<div id="orders-list-mobile" class="space-y-3">
-					<div class="p-6 text-center text-slate-400 text-xs">Բեռնվում է...</div>
+					<div class="p-8 text-center text-slate-400 text-sm">Բեռնվում է...</div>
 				</div>
 			</section>
 
 			<!-- PAGE 2: FINANCE (ՖԻՆԱՆՍՆԵՐ) -->
-			<section id="page-finance" class="hidden space-y-5">
-				<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4 text-center">
-					<div class="flex items-center justify-center gap-2 border-b border-slate-100 pb-3">
-						<label class="text-xs text-slate-500 font-semibold">Ժամանակահատված:</label>
-						<select id="finance-range-select" class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-600">
+			<section id="page-finance" class="hidden space-y-6">
+				<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5 text-center">
+					<!-- NO "Ժամանակահատված:" WORD - ONLY THE MONTH SELECT DROPDOWN -->
+					<div class="flex items-center justify-center border-b border-slate-100 pb-4">
+						<select id="finance-range-select" class="w-full max-w-xs rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-blue-600">
 							<option value="current_month">Այս Ամիս</option>
 							<option value="last_month">Անցյալ Ամիս</option>
 							<option value="current_year">Այս Տարի</option>
@@ -75,17 +75,17 @@
 
 					<!-- Big Number at Center ONLY (No Diagram) -->
 					<div class="py-6">
-						<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Ընդհանուր Եկամուտ</span>
-						<div class="text-4xl font-extrabold text-blue-600 tracking-tight" id="total-earnings-display">
+						<span class="text-xs font-extrabold uppercase tracking-widest text-slate-400 block mb-2">Ընդհանուր Եկամուտ</span>
+						<div class="text-4xl sm:text-5xl font-extrabold text-blue-600 tracking-tight" id="total-earnings-display">
 							0 Դրամ
 						</div>
 					</div>
 				</div>
 
-				<div class="space-y-2.5">
-					<h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Վերջին 10 Գործարքները</h3>
-					<div id="ledger-list-mobile" class="space-y-2">
-						<div class="p-6 text-center text-slate-400 text-xs">Գործարքներ չկան</div>
+				<div class="space-y-3">
+					<h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-600">Վերջին 10 Գործարքները</h3>
+					<div id="ledger-list-mobile" class="space-y-2.5">
+						<div class="p-8 text-center text-slate-400 text-sm">Գործարքներ չկան</div>
 					</div>
 				</div>
 			</section>
@@ -93,54 +93,54 @@
 			<!-- PAGE 3: PRODUCTS (ԱՊՐԱՆՔՆԵՐ) -->
 			<section id="page-products" class="hidden space-y-4">
 				<div class="flex items-center justify-between border-b border-slate-200 pb-3">
-					<h2 class="text-base font-bold text-slate-900">Ապրանքներ</h2>
-					<button onclick="openNewProductSlide()" type="button" class="rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
+					<h2 class="text-lg font-bold text-slate-900">Ապրանքներ</h2>
+					<button onclick="openNewProductSlide()" type="button" class="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
 						+ Ավելացնել Ապրանք
 					</button>
 				</div>
 
 				<div id="products-list-mobile" class="grid grid-cols-1 gap-3">
-					<div class="p-6 text-center text-slate-400 text-xs">Բեռնվում է...</div>
+					<div class="p-8 text-center text-slate-400 text-sm">Բեռնվում է...</div>
 				</div>
 			</section>
 
 		</main>
 
 		<!-- ========================================== -->
-		<!-- BOTTOM APP NAVBAR (Replaced Users with Logout) -->
+		<!-- BOTTOM APP NAVBAR                          -->
 		<!-- ========================================== -->
 		<nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
 			<div class="grid grid-cols-4 items-center h-16 max-w-md mx-auto px-2">
 				<!-- Tab 1: Orders -->
 				<button id="mobile-nav-orders" type="button" class="mobile-nav-item active flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
-					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
 					</svg>
-					<span class="text-[10px] font-medium tracking-tight">Պատվերներ</span>
+					<span class="text-xs font-bold tracking-tight">Պատվերներ</span>
 				</button>
 
 				<!-- Tab 2: Finance -->
 				<button id="mobile-nav-finance" type="button" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
-					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 					</svg>
-					<span class="text-[10px] font-medium tracking-tight">Ֆինանսներ</span>
+					<span class="text-xs font-bold tracking-tight">Ֆինանսներ</span>
 				</button>
 
 				<!-- Tab 3: Products -->
 				<button id="mobile-nav-products" type="button" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
-					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
 					</svg>
-					<span class="text-[10px] font-medium tracking-tight">Ապրանքներ</span>
+					<span class="text-xs font-bold tracking-tight">Ապրանքներ</span>
 				</button>
 
-				<!-- Tab 4: Logout (Replaced Users) -->
+				<!-- Tab 4: Logout -->
 				<button id="mobile-nav-logout" type="button" onclick="handleLogout()" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-red-500 transition">
-					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
 					</svg>
-					<span class="text-[10px] font-bold tracking-tight">Ելք</span>
+					<span class="text-xs font-extrabold tracking-tight">Ելք</span>
 				</button>
 			</div>
 		</nav>
@@ -149,55 +149,61 @@
 		<!-- iOS SWIFT STYLE RIGHT-TO-LEFT SLIDING FULL OVERLAY PAGES  -->
 		<!-- ========================================================= -->
 
-		<!-- SLIDE PAGE 1: ORDER DETAILS -->
+		<!-- SLIDE PAGE 1: ORDER DETAILS (ONE INFO PER ROW - BIGGER TEXT) -->
 		<div id="slide-page-order-details" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
 			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
-				<button onclick="closeSlidePage('slide-page-order-details')" class="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<button onclick="closeSlidePage('slide-page-order-details')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
 					</svg>
 					<span>Հետ</span>
 				</button>
-				<span class="text-sm font-extrabold text-slate-900 tracking-tight">Պատվերի Մանրամասներ</span>
+				<span class="text-base font-extrabold text-slate-900 tracking-tight">Պատվերի Մանրամասներ</span>
 				<div class="w-10"></div>
 			</div>
 
-			<div class="flex-1 p-5 space-y-5">
-				<div>
-					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Հաճախորդ</span>
+			<!-- ONE INFO PER ROW - BIG TEXT -->
+			<div class="flex-1 p-5 sm:p-6 space-y-4">
+				<!-- Row 1: Customer Name -->
+				<div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Հաճախորդ</span>
 					<h2 id="detail-client-name" class="text-2xl font-extrabold text-slate-900 tracking-tight"></h2>
 				</div>
 
-				<div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-					<div>
-						<span class="text-[11px] font-medium text-slate-400 block mb-0.5">Ամսաթիվ / Ժամ</span>
-						<div id="detail-client-date" class="text-xs font-bold text-slate-800"></div>
-					</div>
-					<div>
-						<span class="text-[11px] font-medium text-slate-400 block mb-0.5">Հեռախոսահամար</span>
-						<div id="detail-client-phone" class="text-xs font-bold font-mono text-blue-600"></div>
-					</div>
+				<!-- Row 2: Date & Time -->
+				<div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Ամսաթիվ / Ժամ</span>
+					<div id="detail-client-date" class="text-lg font-extrabold text-slate-800"></div>
 				</div>
 
-				<div id="detail-product-box" class="hidden">
-					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Ընտրված Ապրանք</span>
-					<div id="detail-product-name" class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 text-xs font-bold text-blue-900"></div>
+				<!-- Row 3: Phone Number -->
+				<div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Հեռախոսահամար</span>
+					<div id="detail-client-phone" class="text-lg font-extrabold font-mono text-blue-600"></div>
 				</div>
 
-				<div>
-					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Խնդրի Նկարագրություն</span>
-					<div id="detail-problem-text" class="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs leading-relaxed text-slate-800 whitespace-pre-wrap"></div>
+				<!-- Row 4: Selected Product (If Any) -->
+				<div id="detail-product-box" class="hidden p-4 rounded-2xl bg-blue-50/80 border border-blue-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-blue-500 block">Ընտրված Ապրանք</span>
+					<div id="detail-product-name" class="text-base font-extrabold text-blue-900"></div>
 				</div>
 
-				<div>
-					<span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Կարգավիճակ</span>
+				<!-- Row 5: Problem Description -->
+				<div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Խնդրի Նկարագրություն</span>
+					<div id="detail-problem-text" class="text-base leading-relaxed font-semibold text-slate-800 whitespace-pre-wrap"></div>
+				</div>
+
+				<!-- Row 6: Status -->
+				<div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Կարգավիճակ</span>
 					<div id="detail-status-badge"></div>
 				</div>
 			</div>
 
 			<!-- Bottom 3 Armenian Buttons -->
-			<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-4 flex flex-col gap-2.5">
+			<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-4 flex flex-col gap-3">
 				<!-- Injected dynamically -->
 			</div>
 		</div>
@@ -206,46 +212,46 @@
 		<div id="slide-page-add-order" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
 			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
-				<button onclick="closeSlidePage('slide-page-add-order')" class="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<button onclick="closeSlidePage('slide-page-add-order')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
 					</svg>
 					<span>Հետ</span>
 				</button>
-				<span class="text-sm font-extrabold text-slate-900 tracking-tight">Ավելացնել Նոր Պատվեր</span>
+				<span class="text-base font-extrabold text-slate-900 tracking-tight">Ավելացնել Նոր Պատվեր</span>
 				<div class="w-10"></div>
 			</div>
 
-			<form id="form-add-order-drawer" class="flex-1 p-5 space-y-4">
+			<form id="form-add-order-drawer" class="flex-1 p-5 space-y-5">
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Անուն *</label>
-					<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Անուն *</label>
+					<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Ազգանուն *</label>
-					<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Ազգանուն *</label>
+					<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Հեռախոսահամար *</label>
-					<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-mono text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Հեռախոսահամար *</label>
+					<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base font-mono text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Ապրանք (Ընտրովի)</label>
-					<select id="new-order-product" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 bg-white transition">
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Ապրանք (Ընտրովի)</label>
+					<select id="new-order-product" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 bg-white transition">
 						<option value="">-- Առանց ապրանքի --</option>
 					</select>
 				</div>
 
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Խնդրի Նկարագրություն *</label>
-					<textarea id="new-order-problem" rows="4" required placeholder="Նկարագրեք պատվերը..." class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Խնդրի Նկարագրություն *</label>
+					<textarea id="new-order-problem" rows="4" required placeholder="Նկարագրեք պատվերը..." class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
 				</div>
 
-				<div class="pt-2">
-					<button type="submit" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
+				<div class="pt-3">
+					<button type="submit" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
 						Հաստատել և Ավելացնել Պատվերը
 					</button>
 				</div>
@@ -256,48 +262,48 @@
 		<div id="slide-page-product-edit" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
 			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
-				<button onclick="closeSlidePage('slide-page-product-edit')" class="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
-					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<button onclick="closeSlidePage('slide-page-product-edit')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
 					</svg>
 					<span>Հետ</span>
 				</button>
-				<span class="text-sm font-extrabold text-slate-900 tracking-tight" id="prod-edit-title">Խմբագրել Ապրանքը</span>
+				<span class="text-base font-extrabold text-slate-900 tracking-tight" id="prod-edit-title">Խմբագրել Ապրանքը</span>
 				<div class="w-10"></div>
 			</div>
 
 			<form id="form-product-edit" class="flex-1 p-5 space-y-4">
 				<input type="hidden" id="edit-prod-id" />
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Անվանում *</label>
-					<input type="text" id="edit-prod-name" required placeholder="Հոսքի սենսոր" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Անվանում *</label>
+					<input type="text" id="edit-prod-name" required placeholder="Հոսքի սենսոր" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Գին *</label>
-					<input type="text" id="edit-prod-price" required placeholder="18000-25000" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Գին *</label>
+					<input type="text" id="edit-prod-price" required placeholder="18000-25000" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Համառոտ Նկարագրություն *</label>
-					<textarea id="edit-prod-desk" rows="2" required placeholder="Վերահսկում է ջրի հոսքը..." class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Համառոտ Նկարագրություն *</label>
+					<textarea id="edit-prod-desk" rows="2" required placeholder="Վերահսկում է ջրի հոսքը..." class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
 				</div>
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Մանրամասն Նկարագրություն</label>
-					<textarea id="edit-prod-description" rows="3" placeholder="Լրացուցիչ տեղեկություններ..." class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Մանրամասն Նկարագրություն</label>
+					<textarea id="edit-prod-description" rows="3" placeholder="Լրացուցիչ տեղեկություններ..." class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 resize-none transition"></textarea>
 				</div>
 				<div>
-					<label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Նկարի URL</label>
-					<input type="text" id="edit-prod-image" placeholder="/images/products/..." class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-600 transition" />
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Նկարի URL</label>
+					<input type="text" id="edit-prod-image" placeholder="/images/products/..." class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
 				</div>
 				<div class="flex items-center gap-2 pt-1">
-					<input type="checkbox" id="edit-prod-top" class="h-4 w-4 rounded border-slate-300 text-blue-600" />
-					<label for="edit-prod-top" class="text-xs font-bold text-slate-700">Top Product (Գլխավոր Էջում)</label>
+					<input type="checkbox" id="edit-prod-top" class="h-5 w-5 rounded border-slate-300 text-blue-600" />
+					<label for="edit-prod-top" class="text-sm font-bold text-slate-700">Top Product (Գլխավոր Էջում)</label>
 				</div>
 
-				<div class="pt-3 flex flex-col gap-2.5">
-					<button type="submit" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
+				<div class="pt-3 flex flex-col gap-3">
+					<button type="submit" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition">
 						Պահպանել Փոփոխությունները
 					</button>
-					<button id="delete-prod-btn" type="button" onclick="deleteCurrentProduct()" class="w-full rounded-2xl bg-red-50 border border-red-200 py-3 text-sm font-bold text-red-600 hover:bg-red-100 transition">
+					<button id="delete-prod-btn" type="button" onclick="deleteCurrentProduct()" class="w-full rounded-2xl bg-red-50 border border-red-200 py-3.5 text-sm font-bold text-red-600 hover:bg-red-100 transition">
 						Ջնջել Ապրանքը
 					</button>
 				</div>
@@ -309,18 +315,18 @@
 		<!-- ========================================== -->
 		<div id="modal-earnings" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
 			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<h3 class="text-base font-bold text-slate-900">Ավարտել Պատվերը</h3>
+				<h3 class="text-lg font-bold text-slate-900">Ավարտել Պատվերը</h3>
 				<p class="text-xs text-slate-500">Մուտքագրեք այս պատվերից ստացված վերջնական գումարը (Դրամ)։</p>
 
 				<form id="form-earnings" class="space-y-4">
 					<input type="hidden" id="earnings-order-id" />
 					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Վաստակած Գումար (Դրամ) *</label>
-						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						<label class="block text-xs font-bold text-slate-700 mb-1">Վաստակած Գումար (Դրամ) *</label>
+						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base font-bold text-slate-900 outline-none focus:border-blue-600" />
 					</div>
 					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700">Չեղարկել</button>
-						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-medium text-white shadow-sm">Հաստատել</button>
+						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm">Հաստատել</button>
 					</div>
 				</form>
 			</div>
@@ -331,12 +337,12 @@
 		<!-- ========================================== -->
 		<div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
 			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4 text-center">
-				<div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 text-lg font-bold">!</div>
-				<h3 class="text-base font-bold text-slate-900" id="confirm-modal-title">Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:</h3>
+				<div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 text-xl font-bold">!</div>
+				<h3 class="text-lg font-bold text-slate-900" id="confirm-modal-title">Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:</h3>
 				<p class="text-xs text-slate-500" id="confirm-modal-desc">Այս գործողությունը չի կարող չեղարկվել։</p>
 				<div class="flex justify-center gap-3 pt-2">
-					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700">Ոչ, Չեղարկել</button>
-					<button id="confirm-action-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-white shadow-sm">Այո, Հաստատել</button>
+					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-700">Ոչ, Չեղարկել</button>
+					<button id="confirm-action-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm">Այո, Հաստատել</button>
 				</div>
 			</div>
 		</div>
@@ -614,10 +620,10 @@
 
 			function getStatusBadgeHTML(status) {
 				const badges = {
-					new: '<span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">Սպասող</span>',
-					in_progress: '<span class="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">Ընթացքի մեջ</span>',
-					completed: '<span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">Ավարտված</span>',
-					cancelled: '<span class="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700 border border-red-200">Չեղարկված</span>'
+					new: '<span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700 border border-amber-200">Սպասող</span>',
+					in_progress: '<span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700 border border-blue-200">Ընթացքի մեջ</span>',
+					completed: '<span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-700 border border-emerald-200">Ավարտված</span>',
+					cancelled: '<span class="rounded-full bg-red-50 px-3 py-1 text-xs font-extrabold text-red-700 border border-red-200">Չեղարկված</span>'
 				};
 				return badges[status] || status;
 			}
@@ -628,7 +634,7 @@
 
 				if (!filtered.length) {
 					container.innerHTML = `
-						<div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400 text-xs bg-white">
+						<div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400 text-sm bg-white font-semibold">
 							Այս բաժնում պատվերներ չկան
 						</div>
 					`;
@@ -645,14 +651,14 @@
 					const fullName = `${escapeHtml(o.first_name || '')} ${escapeHtml(o.last_name || '')}`.trim() || 'Հաճախորդ';
 
 					return `
-						<div onclick="openOrderDetailsSlide('${o.id}')" class="group relative flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-blue-300 transition cursor-pointer">
+						<div onclick="openOrderDetailsSlide('${o.id}')" class="group relative flex flex-col justify-between gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-blue-300 transition cursor-pointer">
 							<div class="flex items-center justify-between">
-								<span class="text-sm font-bold text-slate-900">${fullName}</span>
+								<span class="text-base font-extrabold text-slate-900">${fullName}</span>
 								${statusBadge}
 							</div>
-							<div class="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-500 pt-1 border-t border-slate-100">
-								<span class="flex items-center gap-1">📅 ${dateStr}</span>
-								<span class="flex items-center gap-1 font-mono text-blue-600 font-semibold">📞 ${escapeHtml(o.phone || '')}</span>
+							<div class="flex flex-col gap-1 text-xs font-semibold text-slate-500 pt-2 border-t border-slate-100">
+								<span class="text-slate-600">📅 ${dateStr}</span>
+								<span class="font-mono text-blue-600 text-sm font-bold">📞 ${escapeHtml(o.phone || '')}</span>
 							</div>
 						</div>
 					`;
@@ -690,24 +696,24 @@
 				
 				let continueBtnHTML = '';
 				if (o.status === 'new') {
-					continueBtnHTML = `<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeSlidePage('slide-page-order-details');" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>▶</span> <span>Սկսել / Շարունակել</span></button>`;
+					continueBtnHTML = `<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeSlidePage('slide-page-order-details');" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>▶</span> <span>Սկսել / Շարունակել</span></button>`;
 				} else if (o.status === 'in_progress') {
-					continueBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details'); openEarningsModal('${o.id}');" class="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
+					continueBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details'); openEarningsModal('${o.id}');" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
 				} else if (o.status === 'completed') {
-					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերն Ավարտված է</button>`;
+					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-4 text-sm font-bold text-slate-400 cursor-not-allowed">Պատվերն Ավարտված է</button>`;
 				} else {
-					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-400 cursor-not-allowed">Պատվերը Չեղարկված է</button>`;
+					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-4 text-sm font-bold text-slate-400 cursor-not-allowed">Պատվերը Չեղարկված է</button>`;
 				}
 
 				let cancelBtnHTML = '';
 				if (o.status !== 'cancelled' && o.status !== 'completed') {
-					cancelBtnHTML = `<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeSlidePage('slide-page-order-details'); })" class="w-full rounded-2xl bg-red-50 border border-red-200 py-3.5 text-sm font-bold text-red-600 hover:bg-red-100 active:scale-95 transition flex items-center justify-center gap-2"><span>✕</span> <span>Չեղարկել Պատվերը</span></button>`;
+					cancelBtnHTML = `<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք չեղարկել պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeSlidePage('slide-page-order-details'); })" class="w-full rounded-2xl bg-red-50 border border-red-200 py-4 text-base font-bold text-red-600 hover:bg-red-100 active:scale-95 transition flex items-center justify-center gap-2"><span>✕</span> <span>Չեղարկել Պատվերը</span></button>`;
 				} else {
-					cancelBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details')" class="w-full rounded-2xl bg-slate-100 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition">Փակել</button>`;
+					cancelBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details')" class="w-full rounded-2xl bg-slate-100 py-4 text-base font-bold text-slate-700 hover:bg-slate-200 transition">Փակել</button>`;
 				}
 
 				actionsContainer.innerHTML = `
-					<a href="tel:${cleanPhone}" class="w-full text-center rounded-2xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-2">
+					<a href="tel:${cleanPhone}" class="w-full text-center rounded-2xl bg-emerald-600 py-4 text-base font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-2">
 						<span>📞</span> <span>Զանգահարել Հաճախորդին</span>
 					</a>
 					${continueBtnHTML}
@@ -805,7 +811,7 @@
 				const last10 = filteredLedger.slice(0, 10);
 
 				if (!last10.length) {
-					ledgerContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-slate-400 text-xs bg-white">Գործարքներ չկան</div>`;
+					ledgerContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400 text-sm font-semibold bg-white">Գործարքներ չկան</div>`;
 				} else {
 					ledgerContainer.innerHTML = last10.map(l => {
 						const d = new Date(l.created_at);
@@ -813,17 +819,17 @@
 							year: 'numeric', month: '2-digit', day: '2-digit', 
 							hour: '2-digit', minute: '2-digit', hour12: false 
 						});
-						const notesStr = l.notes ? `<p class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(l.notes)}</p>` : '';
+						const notesStr = l.notes ? `<p class="text-xs text-slate-500 mt-1 font-medium">${escapeHtml(l.notes)}</p>` : '';
 
 						return `
-							<div class="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
+							<div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
 								<div>
-									<h4 class="text-xs font-bold text-slate-900">${escapeHtml(l.client_name || 'Հաճախորդ')}</h4>
-									<p class="text-[10px] font-medium text-slate-400 mt-0.5">📅 ${dateStr}</p>
+									<h4 class="text-base font-bold text-slate-900">${escapeHtml(l.client_name || 'Հաճախորդ')}</h4>
+									<p class="text-xs font-semibold text-slate-400 mt-0.5">📅 ${dateStr}</p>
 									${notesStr}
 								</div>
 								<div class="text-right">
-									<span class="text-xs font-extrabold text-emerald-600">+${Number(l.amount).toLocaleString('hy-AM')} Դրամ</span>
+									<span class="text-base font-extrabold text-emerald-600">+${Number(l.amount).toLocaleString('hy-AM')} Դրամ</span>
 								</div>
 							</div>
 						`;
@@ -839,7 +845,7 @@
 				if (!container) return;
 
 				if (!allProducts.length) {
-					container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Ապրանքներ չկան</div>`;
+					container.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm font-semibold">Ապրանքներ չկան</div>`;
 					return;
 				}
 
@@ -848,17 +854,17 @@
 					const priceDisplay = p.price ? (p.price.includes('դրամ') ? p.price : (p.price + ' դրամ')) : '';
 
 					return `
-						<div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 shadow-xs">
-							<div class="flex items-center gap-3">
-								<img src="${imgSrc}" class="h-12 w-12 rounded-xl object-cover border border-slate-100" />
+						<div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+							<div class="flex items-center gap-3.5">
+								<img src="${imgSrc}" class="h-14 w-14 rounded-2xl object-cover border border-slate-100" />
 								<div>
-									<h4 class="text-xs font-bold text-slate-900">${escapeHtml(p.name || '')}</h4>
-									<p class="text-[11px] font-extrabold text-blue-600 mt-0.5">${escapeHtml(priceDisplay)}</p>
+									<h4 class="text-base font-bold text-slate-900">${escapeHtml(p.name || '')}</h4>
+									<p class="text-sm font-extrabold text-blue-600 mt-0.5">${escapeHtml(priceDisplay)}</p>
 								</div>
 							</div>
 
 							<div class="flex items-center gap-1.5">
-								<button onclick="openEditProductSlide(${p.id})" type="button" class="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">Խմբագրել</button>
+								<button onclick="openEditProductSlide(${p.id})" type="button" class="rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-slate-700">Խմբագրել</button>
 							</div>
 						</div>
 					`;
