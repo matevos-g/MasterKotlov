@@ -52,6 +52,22 @@
 				</div>
 			</div>
 
+			<!-- NOTIFICATION ACTIVE STATUS & TEST PUSH BAR -->
+			<div id="notif-active-bar" class="hidden mb-4 rounded-2xl bg-slate-900 p-4 text-white shadow-md transition-all">
+				<div class="flex items-center justify-between gap-3">
+					<div class="flex items-center gap-2.5">
+						<span class="text-xl">✅</span>
+						<div>
+							<h4 class="text-xs font-extrabold text-slate-100">Ծանուցումները Ակտիվ Են</h4>
+							<p class="text-[11px] text-slate-400 font-medium">Հավելվածը պատրաստ է ստանալու պատվերներ փակ վիճակում։</p>
+						</div>
+					</div>
+					<button onclick="sendTestBackgroundPush()" class="shrink-0 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 active:scale-95 transition">
+						Փորձարկել (Test Push)
+					</button>
+				</div>
+			</div>
+
 			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ) -->
 			<section id="page-orders" class="space-y-4">
 				<!-- Top Bar: Status Picker Dropdown + Refresh Button + '+' SVG Add Order Button -->
@@ -628,6 +644,27 @@
 				return outputArray;
 			}
 
+			async function saveSubscriptionToSupabase(subObj) {
+				if (!window.supabaseClient) return;
+
+				// 1. Try primary push_subscriptions table
+				try {
+					await window.supabaseClient.from('push_subscriptions').upsert([subObj], { onConflict: 'endpoint' });
+				} catch (e) {}
+
+				// 2. Fallback: Save to site_settings config
+				try {
+					const { data } = await window.supabaseClient.from('site_settings').select('*').eq('id', 'default').single();
+					let cfg = (data && data.config) ? data.config : {};
+					let subs = cfg.pushSubscriptions || [];
+					if (!subs.some(s => s.endpoint === subObj.endpoint)) {
+						subs.push(subObj);
+						cfg.pushSubscriptions = subs;
+						await window.supabaseClient.from('site_settings').upsert([{ id: 'default', config: cfg, updated_at: new Date().toISOString() }]);
+					}
+				} catch (e) {}
+			}
+
 			async function subscribeToWebPush() {
 				if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 				try {
@@ -640,13 +677,14 @@
 							applicationServerKey: applicationServerKey
 						});
 					}
-					if (sub && window.supabaseClient) {
+					if (sub) {
 						const subJson = sub.toJSON();
-						await window.supabaseClient.from('push_subscriptions').upsert([{
+						const subObj = {
 							endpoint: sub.endpoint,
 							p256dh: subJson.keys ? subJson.keys.p256dh : '',
 							auth: subJson.keys ? subJson.keys.auth : ''
-						}], { onConflict: 'endpoint' });
+						};
+						await saveSubscriptionToSupabase(subObj);
 					}
 				} catch (e) {
 					console.warn('Web Push subscription error:', e);
@@ -655,14 +693,35 @@
 
 			function checkNotificationBannerState() {
 				const banner = document.getElementById('notif-permission-banner');
-				if (!banner) return;
-				if ('Notification' in window && Notification.permission !== 'granted') {
-					banner.classList.remove('hidden');
+				const activeBar = document.getElementById('notif-active-bar');
+
+				if ('Notification' in window && Notification.permission === 'granted') {
+					banner?.classList.add('hidden');
+					activeBar?.classList.remove('hidden');
+					subscribeToWebPush();
+				} else if ('Notification' in window && Notification.permission !== 'granted') {
+					banner?.classList.remove('hidden');
+					activeBar?.classList.add('hidden');
 				} else {
-					banner.classList.add('hidden');
-					if ('Notification' in window && Notification.permission === 'granted') {
-						subscribeToWebPush();
-					}
+					banner?.classList.add('hidden');
+					activeBar?.classList.add('hidden');
+				}
+			}
+
+			async function sendTestBackgroundPush() {
+				alert('Թեստային push ծանուցումն ուղարկվեց։ Անմիջապես փակեք հավելվածը (Close PWA app / lock screen) և ստուգեք 2-3 վայրկյանից։');
+				try {
+					await fetch('/api/send-push', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							title: 'Նոր Պատվեր (Թեստ)',
+							body: 'Արմեն Սարգսյան',
+							url: '/admin/mobile/'
+						})
+					});
+				} catch (e) {
+					console.warn('Test push trigger error:', e);
 				}
 			}
 
