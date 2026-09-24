@@ -33,7 +33,7 @@
 						<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">PWA ADMIN</span>
 					</div>
 
-					<!-- Navigation Pages (No Users tab) -->
+					<!-- Navigation Pages (Web Admin ONLY has Users tab) -->
 					<nav class="hidden sm:flex items-center gap-1">
 						<button id="nav-page-orders" type="button" class="nav-btn active px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							Պատվերներ
@@ -43,6 +43,9 @@
 						</button>
 						<button id="nav-page-products" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							Ապրանքներ
+						</button>
+						<button id="nav-page-users" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
+							Օգտատերեր
 						</button>
 						<button id="nav-page-cms" type="button" class="nav-btn px-4 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
 							CMS / Կարգավորումներ
@@ -63,6 +66,7 @@
 				<button id="mobile-nav-orders" class="nav-btn active flex-1 py-2.5 text-xs text-center font-medium">Պատվերներ</button>
 				<button id="mobile-nav-finance" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Ֆինանսներ</button>
 				<button id="mobile-nav-products" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Ապրանքներ</button>
+				<button id="mobile-nav-users" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">Օգտատերեր</button>
 				<button id="mobile-nav-cms" class="nav-btn flex-1 py-2.5 text-xs text-center font-medium">CMS</button>
 				<button id="mobile-nav-logout" class="nav-btn flex-1 py-2.5 text-xs text-center font-bold text-red-600">Ելք</button>
 			</div>
@@ -146,13 +150,44 @@
 			</section>
 
 			<!-- ========================================== -->
+			<!-- PAGE 4: USERS (ՕԳՏԱՏԵՐԵՐ)                 -->
+			<!-- ========================================== -->
+			<section id="page-users" class="hidden space-y-4">
+				<div class="flex items-center justify-between border-b border-slate-200 pb-3">
+					<div>
+						<h2 class="text-lg font-bold text-slate-900">Օգտատերերի Կառավարում</h2>
+						<p class="text-xs text-slate-500">Ադմինիստրատորների և աշխատակիցների հաշիվների ցանկ։</p>
+					</div>
+					<button type="button" onclick="openAddUserModal()" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition">
+						+ Ավելացնել Օգտատեր
+					</button>
+				</div>
+
+				<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
+					<table class="w-full text-left text-sm text-slate-700">
+						<thead class="bg-slate-50 text-xs font-bold uppercase text-slate-500 border-b border-slate-200">
+							<tr>
+								<th class="px-5 py-3.5">Օգտանուն / Էլ. Փոստ</th>
+								<th class="px-5 py-3.5">Դերը</th>
+								<th class="px-5 py-3.5">Կարգավիճակ</th>
+								<th class="px-5 py-3.5 text-right">Գործողություն</th>
+							</tr>
+						</thead>
+						<tbody id="users-table-body" class="divide-y divide-slate-100">
+							<tr><td colspan="4" class="p-8 text-center text-slate-400 text-xs">Բեռնվում է...</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<!-- ========================================== -->
 			<!-- PAGE 5: CMS (ԿԱՅՔԻ ԿԱՐԳԱՎՈՐՈՒՄՆԵՐ)         -->
 			<!-- ========================================== -->
 			<section id="page-cms" class="hidden space-y-6">
 				<div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
 					<div>
 						<h2 class="text-xl font-bold text-slate-900">Կայքի Կարգավորումներ (CMS)</h2>
-						<p class="text-xs text-slate-500">Փոխեք բրենդի անունը, կոնտակտները, հերոսական հատվածը, ծառայությունները և բոլոր հղումները։</p>
+						<p class="text-xs text-slate-500">Փոխեք բրենդի անունը, տեքստերը, հերոսական հատվածը, ծառայությունները, ֆուտերը և բոլոր պատուհանները։</p>
 					</div>
 					<button id="cms-save-btn" type="button" onclick="saveCmsSettings()" class="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
 						Պահպանել Փոփոխությունները
@@ -167,7 +202,7 @@
 					<!-- Card 1: Brand & Navigation -->
 					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
 						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-							<span>🏷️</span> Բրենդ և Մենյուի Կարգավորումներ
+							<span>🏷️</span> 1. Բրենդ և Մենյուի Կարգավորումներ
 						</h3>
 						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 							<div>
@@ -183,12 +218,160 @@
 								<input type="text" id="cms-bookButtonText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
 							</div>
 						</div>
+						<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու 1 (Գլխավոր)</label>
+								<input type="text" id="cms-navLink1" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու 2 (Ծառայություններ)</label>
+								<input type="text" id="cms-navLink2" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու 3 (Ապրանքներ)</label>
+								<input type="text" id="cms-navLink3" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Մենյու 4 (Պահեստամասեր)</label>
+								<input type="text" id="cms-navLink4" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+						</div>
 					</div>
 
-					<!-- Card 2: Contacts & Social Media -->
+					<!-- Card 2: Hero Section -->
 					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
 						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-							<span>📞</span> Կոնտակտային Տվյալներ և Սոց. Ցանցեր
+							<span>🚀</span> 2. Գլխավոր Վահանակ (Hero Banner)
+						</h3>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Գլխավոր Վերնագիր</label>
+								<textarea id="cms-heroTitle" rows="2" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600 resize-none"></textarea>
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Գլխավոր Նկարագրություն</label>
+								<textarea id="cms-heroSubtitle" rows="3" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600 resize-none"></textarea>
+							</div>
+							<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+								<div>
+									<label class="block text-xs font-semibold text-slate-700 mb-1">Առաջնային Կոճակ («Թողնել Հայտ»)</label>
+									<input type="text" id="cms-heroCtaText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-700 mb-1">Երկրորդական Կոճակ («Տեսնել ծառայությունները»)</label>
+									<input type="text" id="cms-heroSecondaryCtaText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-700 mb-1">Hero Նկարի URL</label>
+									<input type="text" id="cms-heroImageUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Card 3: Products & Parts Headings -->
+					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+							<span>📦</span> 3. Ապրանքներ և Պահեստամասեր (Բաժինների Վերնագրեր)
+						</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Ապրանքների Բաժնի Վերնագիր</label>
+								<input type="text" id="cms-productsTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Ապրանքների Բաժնի Նկարագրություն</label>
+								<input type="text" id="cms-productsSubtitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Պահեստամասերի Բաժնի Վերնագիր</label>
+								<input type="text" id="cms-partsTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Պահեստամասերի Բաժնի Նկարագրություն</label>
+								<input type="text" id="cms-partsSubtitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Card 4: Services Section & Cards -->
+					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+							<span>🛠️</span> 4. Ծառայությունների Բաժին և Քարտեր
+						</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Բաժնի Վերնագիր</label>
+								<input type="text" id="cms-servicesTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Բաժնի Նկարագրություն</label>
+								<input type="text" id="cms-servicesSubtitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+						</div>
+
+						<!-- Service 1 -->
+						<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+							<h4 class="text-xs font-extrabold uppercase text-blue-700">Ծառայություն 1</h4>
+							<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Վերնագիր</label>
+									<input type="text" id="cms-service1Title" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարագրություն</label>
+									<input type="text" id="cms-service1Desc" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարի URL</label>
+									<input type="text" id="cms-service1Image" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+							</div>
+						</div>
+
+						<!-- Service 2 -->
+						<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+							<h4 class="text-xs font-extrabold uppercase text-blue-700">Ծառայություն 2</h4>
+							<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Վերնագիր</label>
+									<input type="text" id="cms-service2Title" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարագրություն</label>
+									<input type="text" id="cms-service2Desc" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարի URL</label>
+									<input type="text" id="cms-service2Image" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+							</div>
+						</div>
+
+						<!-- Service 3 -->
+						<div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+							<h4 class="text-xs font-extrabold uppercase text-blue-700">Ծառայություն 3</h4>
+							<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Վերնագիր</label>
+									<input type="text" id="cms-service3Title" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարագրություն</label>
+									<input type="text" id="cms-service3Desc" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+								<div>
+									<label class="block text-xs font-semibold text-slate-600 mb-1">Նկարի URL</label>
+									<input type="text" id="cms-service3Image" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Card 5: Contacts & Social Media -->
+					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+							<span>📞</span> 5. Կոնտակտային Տվյալներ և Սոց․ Ցանցերի Հղումներ
 						</h3>
 						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 							<div>
@@ -206,6 +389,68 @@
 							<div>
 								<label class="block text-xs font-semibold text-slate-700 mb-1">Աշխատանքային Ժամեր</label>
 								<input type="text" id="cms-workingHours" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Telegram URL</label>
+								<input type="text" id="cms-telegramUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp URL</label>
+								<input type="text" id="cms-whatsappUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Instagram URL</label>
+								<input type="text" id="cms-instagramUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Facebook URL</label>
+								<input type="text" id="cms-facebookUrl" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Card 6: Footer Settings -->
+					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+							<span>🔻</span> 6. Ֆուտեր (Footer & Copyright)
+						</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Ֆուտերի Նկարագրական Տեքստ</label>
+								<textarea id="cms-footerDesc" rows="2" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600 resize-none"></textarea>
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Հեղինակային Իրավունքի Տեքստ (Copyright)</label>
+								<input type="text" id="cms-copyrightText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Կոնտակտների Սյան Վերնագիր</label>
+								<input type="text" id="cms-footerContactsTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Ծառայությունների Սյան Վերնագիր</label>
+								<input type="text" id="cms-footerServicesTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Card 7: Modal Settings -->
+					<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+						<h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+							<span>📝</span> 7. Պատվերի Պատուհան (Modal Settings)
+						</h3>
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Պատուհանի Վերնագիր</label>
+								<input type="text" id="cms-modalTitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Պատուհանի Նկարագրություն</label>
+								<input type="text" id="cms-modalSubtitle" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold text-slate-700 mb-1">Ուղարկելու Կոճակի Տեքստ</label>
+								<input type="text" id="cms-modalSubmitBtnText" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-blue-600" />
 							</div>
 						</div>
 					</div>
@@ -355,7 +600,34 @@
 				<div class="flex justify-center gap-3 pt-2">
 					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Ոչ, Չեղարկել</button>
 					<button id="confirm-action-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-red-700 shadow-sm">Այո, Հաստատել</button>
-				</div>
+		<!-- ========================================== -->
+		<!-- MODAL: ADD NEW USER (WEB ONLY)              -->
+		<!-- ========================================== -->
+		<div id="modal-add-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Օգտատեր</h3>
+				<form id="form-add-user" class="space-y-4">
+					<div>
+						<label class="block text-xs font-bold text-slate-700 mb-1">Օգտանուն / Էլ. Փոստ *</label>
+						<input type="text" id="new-user-name" required placeholder="manager" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-bold text-slate-700 mb-1">Գաղտնաբառ *</label>
+						<input type="password" id="new-user-pass" required placeholder="••••••••" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-bold text-slate-700 mb-1">Դերը *</label>
+						<select id="new-user-role" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 bg-white">
+							<option value="Administrator">Ադմինիստրատոր (Admin)</option>
+							<option value="Manager">Մենեջեր (Manager)</option>
+							<option value="Staff">Աշխատակից (Staff)</option>
+						</select>
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-add-user')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Ավելացնել</button>
+					</div>
+				</form>
 			</div>
 		</div>
 
@@ -419,7 +691,7 @@
 				loadAllData();
 			}
 
-			const pages = ['orders', 'finance', 'products', 'cms'];
+			const pages = ['orders', 'finance', 'products', 'users', 'cms'];
 			function switchPage(activePage) {
 				pages.forEach(p => {
 					const el = document.getElementById(`page-${p}`);
@@ -429,6 +701,7 @@
 						el?.classList.remove('hidden');
 						btn?.classList.add('active');
 						mobBtn?.classList.add('active');
+						if (p === 'users') renderUsersTable();
 					} else {
 						el?.classList.add('hidden');
 						btn?.classList.remove('active');
@@ -447,7 +720,7 @@
 
 			async function handleLogout() {
 				if (window.supabaseClient) await window.supabaseClient.auth.signOut();
-				window.location.href = '/admin/web/login/';
+				window.location.replace('/admin/web/login/');
 			}
 
 			document.getElementById('order-status-select')?.addEventListener('change', (e) => {
@@ -843,15 +1116,75 @@
 				}
 			});
 
+			// Users Management (Web Admin ONLY)
+			let defaultUsers = [
+				{ id: '1', username: 'admin', email: 'admin@masterkotlov.am', role: 'Administrator', status: 'Ակտիվ', created_at: new Date().toISOString() },
+				{ id: '2', username: 'master', email: 'master@masterkotlov.am', role: 'Staff', status: 'Ակտիվ', created_at: new Date().toISOString() }
+			];
+
+			function renderUsersTable() {
+				const body = document.getElementById('users-table-body');
+				if (!body) return;
+
+				body.innerHTML = defaultUsers.map(u => `
+					<tr class="hover:bg-slate-50 transition">
+						<td class="px-5 py-4 font-bold text-slate-900">${escapeHtml(u.username)} <span class="text-xs text-slate-400 font-normal">(${escapeHtml(u.email)})</span></td>
+						<td class="px-5 py-4"><span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 border border-blue-100">${escapeHtml(u.role)}</span></td>
+						<td class="px-5 py-4"><span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">${escapeHtml(u.status)}</span></td>
+						<td class="px-5 py-4 text-right">
+							<button onclick="deleteUser('${u.id}')" class="text-xs font-bold text-red-600 hover:text-red-800 transition">Ջնջել</button>
+						</td>
+					</tr>
+				`).join('');
+			}
+
+			function openAddUserModal() {
+				document.getElementById('modal-add-user')?.classList.remove('hidden');
+			}
+
+			function deleteUser(id) {
+				if (confirm('Վստա՞հ եք, որ ցանկանում եք ջնջել այս օգտատիրոջը:')) {
+					defaultUsers = defaultUsers.filter(u => u.id !== id);
+					renderUsersTable();
+				}
+			}
+
+			document.getElementById('form-add-user')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const username = document.getElementById('new-user-name').value.trim();
+				const pass = document.getElementById('new-user-pass').value.trim();
+				const role = document.getElementById('new-user-role').value;
+
+				if (!username || !pass) return;
+
+				const email = username.includes('@') ? username : `${username.toLowerCase()}@masterkotlov.am`;
+				const newUser = {
+					id: 'usr-' + Date.now(),
+					username,
+					email,
+					role,
+					status: 'Ակտիվ',
+					created_at: new Date().toISOString()
+				};
+
+				defaultUsers.push(newUser);
+				renderUsersTable();
+				closeModal('modal-add-user');
+				alert('Օգտատերը հաջողությամբ ավելացվեց։');
+			});
+
 			const cmsFields = [
 				'brandName', 'brandSubtext', 'bookButtonText', 'navLink1', 'navLink2', 'navLink3', 'navLink4',
 				'phone', 'email', 'address', 'workingHours', 'telegramUrl', 'whatsappUrl', 'instagramUrl', 'facebookUrl',
 				'heroTitle', 'heroSubtitle', 'heroCtaText', 'heroSecondaryCtaText', 'heroImageUrl',
+				'productsTitle', 'productsSubtitle',
 				'servicesTitle', 'servicesSubtitle',
 				'service1Title', 'service1Desc', 'service1Image',
 				'service2Title', 'service2Desc', 'service2Image',
 				'service3Title', 'service3Desc', 'service3Image',
-				'footerDesc', 'copyrightText'
+				'partsTitle', 'partsSubtitle',
+				'footerDesc', 'footerContactsTitle', 'footerServicesTitle', 'footerServicesDesc', 'copyrightText',
+				'modalTitle', 'modalSubtitle', 'modalSubmitBtnText'
 			];
 
 			async function loadCmsConfig() {

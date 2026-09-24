@@ -16,8 +16,8 @@
 					</svg>
 					Արագ հայտ / Պատվեր
 				</span>
-				<h3 class="mt-2 text-2xl font-bold text-slate-900" id="modal-title">Սպասարկման Հայտ / Պատվեր</h3>
-				<p class="mt-1 text-sm text-slate-600">Լրացրեք տվյալները և մեր մասնագետը կապ կհաստատի Ձեզ հետ կարճ ժամանակում։</p>
+				<h3 class="mt-2 text-2xl font-bold text-slate-900" id="modal-title"><%= (typeof config !== 'undefined' && config.modalTitle) ? config.modalTitle : 'Սպասարկման Հայտ / Պատվեր' %></h3>
+				<p class="mt-1 text-sm text-slate-600"><%= (typeof config !== 'undefined' && config.modalSubtitle) ? config.modalSubtitle : 'Լրացրեք տվյալները և մեր մասնագետը կապ կհաստատի Ձեզ հետ կարճ ժամանակում։' %></p>
 			</div>
 
 			<form id="service-request-form" class="space-y-4">
@@ -57,7 +57,7 @@
 				</div>
 
 				<button type="submit" id="submit-request-btn" class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 active:scale-[0.99] transition">
-					<span>Ուղարկել Հայտը</span>
+					<span><%= (typeof config !== 'undefined' && config.modalSubmitBtnText) ? config.modalSubmitBtnText : 'Ուղարկել Հայտը' %></span>
 					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
 					</svg>
