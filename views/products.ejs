@@ -18,10 +18,17 @@
 
 		<main class="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
 			<section class="mt-8" id="products">
-				<h1 class="reveal text-2xl font-bold text-slate-900 sm:text-3xl">Ապրանքներ</h1>
-				<p class="reveal delay-1 mt-3 max-w-3xl text-slate-700">
-					Ամբողջ տեսականին՝ պահեստամասեր, սարքավորումներ և անհրաժեշտ նյութեր սպասարկման համար։
-				</p>
+				<div class="flex flex-wrap items-center justify-between gap-4">
+					<div>
+						<h1 class="reveal text-2xl font-bold text-slate-900 sm:text-3xl">Ապրանքներ</h1>
+						<p class="reveal delay-1 mt-3 max-w-3xl text-slate-700">
+							Ամբողջ տեսականին՝ պահեստամասեր, սարքավորումներ և անհրաժեշտ նյութեր սպասարկման համար։
+						</p>
+					</div>
+					<button type="button" onclick="openServiceRequestModal()" class="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 transition">
+						+ Թողնել Սպասարկման Հայտ
+					</button>
+				</div>
 				<% if (products && products.length) { %>
 					<div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 						<% products.forEach((product, index) => { %>
@@ -54,6 +61,7 @@
 		</footer>
 
 		<%- include('partials/call-modal', { config }) %>
+		<%- include('partials/service-request-modal') %>
 		<script src="/product-carousel.js"></script>
 		<script src="/site.js"></script>
 	</body>

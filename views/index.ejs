@@ -26,14 +26,14 @@
 						Ախտորոշում, վերանորոգում և սեզոնային սպասարկում գազային ու պինդ վառելիքի կաթսաների համար։ Մասնագետը գալիս է նույն օրը, բացատրում է խնդրի պատճառը և կատարում աշխատանքը երաշխիքով։
 					</p>
 					<div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-						<a class="btn-primary hero-btn" href="#services">Տեսնել ծառայությունները</a>
-						<a class="btn-secondary hero-btn" href="#footer">Պատվիրել խորհրդատվություն</a>
+						<button class="btn-primary hero-btn" type="button" onclick="openServiceRequestModal()">Թողնել Սպասարկման Հայտ</button>
+						<a class="btn-secondary hero-btn" href="#services">Տեսնել ծառայությունները</a>
 					</div>
 				</div>
 				<div class="reveal delay-1 hidden overflow-hidden rounded-[1.75rem] border border-blue-100 bg-white p-2 shadow-xl sm:block">
-						<img
-							class="h-[280px] w-full rounded-[1.25rem] object-cover sm:h-[360px] lg:h-[420px]"
-						src="/parts/1/5445041353713718277.jpg"
+					<img
+						class="h-[280px] w-full rounded-[1.25rem] object-cover sm:h-[360px] lg:h-[420px]"
+						src="/parts/1/photo_2026-09-24_22-10-10.jpg"
 						alt="Կաթսայի սպասարկում տեղում"
 					/>
 				</div>
@@ -60,21 +60,21 @@
 				</p>
 				<div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 					<article class="service-card reveal delay-1 p-5">
-						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/5445041353713718278.jpg" alt="Ախտորոշում" />
+						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/photo_2026-09-24_22-10-11.jpg" alt="Ախտորոշում" />
 						<h3 class="mt-4 text-lg font-semibold text-blue-900">Ախտորոշում և գործարկում</h3>
 						<p class="mt-2 text-sm leading-relaxed text-slate-700">
 							Ստուգվում է ավտոմատիկան, այրման ռեժիմը և ջերմային արդյունավետությունը, որպեսզի սարքը աշխատի կայուն։
 						</p>
 					</article>
 					<article class="service-card reveal delay-2 p-5">
-						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/5445041353713718279.jpg" alt="Գազային կաթսայի վերանորոգում" />
+						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/photo_2026-09-24_22-10-12.jpg" alt="Գազային կաթսայի վերանորոգում" />
 						<h3 class="mt-4 text-lg font-semibold text-blue-900">Գազային կաթսաների վերանորոգում</h3>
 						<p class="mt-2 text-sm leading-relaxed text-slate-700">
 							Սխալների կոդերի վերացում, հանգույցների փոխարինում և անվտանգության պարամետրերի ճշգրտում։
 						</p>
 					</article>
 					<article class="service-card reveal delay-3 p-5">
-						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/5445041353713718280.jpg" alt="Սեզոնային սպասարկում" />
+						<img class="h-44 w-full rounded-2xl object-cover" src="/parts/1/photo_2026-09-24_22-10-13.jpg" alt="Սեզոնային սպասարկում" />
 						<h3 class="mt-4 text-lg font-semibold text-blue-900">Սեզոնային սպասարկում</h3>
 						<p class="mt-2 text-sm leading-relaxed text-slate-700">
 							Ջերմափոխանակիչի մաքրում, քաշի ստուգում և կանխարգելիչ աշխատանքներ մինչև սեզոնի մեկնարկ։
@@ -118,6 +118,7 @@
 		</footer>
 
 		<%- include('partials/call-modal', { config }) %>
+		<%- include('partials/service-request-modal') %>
 		<script src="/product-carousel.js"></script>
 		<script src="/site.js"></script>
 	</body>

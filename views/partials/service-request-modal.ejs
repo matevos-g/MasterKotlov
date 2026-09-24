@@ -1,0 +1,173 @@
+<!-- Service Request / Order Modal (Cloudflare Pages Static Compatible) -->
+<div id="service-request-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300" aria-modal="true" role="dialog">
+	<div class="flex min-h-screen items-center justify-center p-4">
+		<div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl transition-all sm:p-8">
+			<!-- Close Button -->
+			<button id="close-modal-btn" type="button" class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition">
+				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+
+			<div class="mb-6">
+				<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
+					<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+					</svg>
+					Արագ հայտ / Պատվեր
+				</span>
+				<h3 class="mt-2 text-2xl font-bold text-slate-900" id="modal-title">Սպասարկման Հայտ / Պատվեր</h3>
+				<p class="mt-1 text-sm text-slate-600">Լրացրեք տվյալները և մեր մասնագետը կապ կհաստատի Ձեզ հետ կարճ ժամանակում։</p>
+			</div>
+
+			<form id="service-request-form" class="space-y-4">
+				<input type="hidden" id="req-product-id" name="productId" value="" />
+				<input type="hidden" id="req-product-name" name="productName" value="" />
+
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<div>
+						<label for="req-first-name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Անուն *</label>
+						<input type="text" id="req-first-name" name="firstName" required placeholder="Արմեն" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition" />
+					</div>
+
+					<div>
+						<label for="req-last-name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Ազգանուն *</label>
+						<input type="text" id="req-last-name" name="lastName" required placeholder="Սարգսյան" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition" />
+					</div>
+				</div>
+
+				<div>
+					<label for="req-phone" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Հեռախոսահամար *</label>
+					<input type="tel" id="req-phone" name="phone" required placeholder="+374 99 123456" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition" />
+				</div>
+
+				<div id="product-badge-container" class="hidden rounded-xl bg-slate-50 p-3 border border-slate-200">
+					<span class="text-xs text-slate-500 font-medium">Ընտրված ապրանք:</span>
+					<div id="product-badge-name" class="font-semibold text-slate-900 text-sm mt-0.5"></div>
+				</div>
+
+				<div>
+					<label for="req-problem" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Խնդրի նկարագրություն / Պատվերի մանրամասներ *</label>
+					<textarea id="req-problem" name="problemDescription" rows="3" required placeholder="Նկարագրեք կաթսայի անսարքությունը կամ անհրաժեշտ մասը..." class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition resize-none"></textarea>
+				</div>
+
+				<div id="form-error-msg" class="hidden rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium"></div>
+				<div id="form-success-msg" class="hidden rounded-xl bg-emerald-50 p-3 text-xs text-emerald-700 font-semibold text-center">
+					✓ Ձեր հայտը հաջողությամբ ուղարկվեց։ Մենք շուտով կապ կհաստատենք Ձեզ հետ։
+				</div>
+
+				<button type="submit" id="submit-request-btn" class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 active:scale-[0.99] transition">
+					<span>Ուղարկել Հայտը</span>
+					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+					</svg>
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-config.js"></script>
+<script>
+	(function() {
+		const modal = document.getElementById('service-request-modal');
+		const closeBtn = document.getElementById('close-modal-btn');
+		const form = document.getElementById('service-request-form');
+		const badgeContainer = document.getElementById('product-badge-container');
+		const badgeName = document.getElementById('product-badge-name');
+		const reqProductId = document.getElementById('req-product-id');
+		const reqProductName = document.getElementById('req-product-name');
+		const errorMsg = document.getElementById('form-error-msg');
+		const successMsg = document.getElementById('form-success-msg');
+		const submitBtn = document.getElementById('submit-request-btn');
+
+		window.openServiceRequestModal = function(productId, productName) {
+			form.reset();
+			errorMsg.classList.add('hidden');
+			successMsg.classList.add('hidden');
+			submitBtn.disabled = false;
+
+			if (productId && productName) {
+				reqProductId.value = productId;
+				reqProductName.value = productName;
+				badgeName.textContent = productName;
+				badgeContainer.classList.remove('hidden');
+			} else {
+				reqProductId.value = '';
+				reqProductName.value = '';
+				badgeContainer.classList.add('hidden');
+			}
+
+			modal.classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+		};
+
+		function closeModal() {
+			modal.classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+
+		closeBtn?.addEventListener('click', closeModal);
+		modal?.addEventListener('click', function(e) {
+			if (e.target === modal) closeModal();
+		});
+
+		form?.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			errorMsg.classList.add('hidden');
+			successMsg.classList.add('hidden');
+
+			const firstName = document.getElementById('req-first-name').value.trim();
+			const lastName = document.getElementById('req-last-name').value.trim();
+			const phone = document.getElementById('req-phone').value.trim();
+			const problemDescription = document.getElementById('req-problem').value.trim();
+			const productId = reqProductId.value ? Number(reqProductId.value) : null;
+			const productName = reqProductName.value || null;
+
+			submitBtn.disabled = true;
+			submitBtn.innerText = 'Ուղարկվում է...';
+
+			try {
+				if (window.supabaseClient) {
+					// Client-side direct Supabase Insert via RLS
+					const { data, error } = await window.supabaseClient
+						.from('service_requests')
+						.insert([
+							{
+								first_name: firstName,
+								last_name: lastName,
+								phone: phone,
+								problem_description: problemDescription,
+								product_id: productId,
+								product_name: productName,
+								status: 'new'
+							}
+						]);
+
+					if (error) throw error;
+				} else {
+					// Fallback to local server API if running locally
+					const res = await fetch('/api/service-request', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ firstName, lastName, phone, problemDescription, productId, productName })
+					});
+					if (!res.ok) throw new Error('Սերվերի սխալ');
+				}
+
+				successMsg.classList.remove('hidden');
+				form.reset();
+				setTimeout(() => {
+					closeModal();
+				}, 2200);
+			} catch (err) {
+				errorMsg.textContent = err.message || 'Տեղի ունեցավ սխալ: Խնդրում ենք փորձել նորից:';
+				errorMsg.classList.remove('hidden');
+			} finally {
+				submitBtn.disabled = false;
+				submitBtn.innerHTML = `<span>Ուղարկել Հայտը</span> <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>`;
+			}
+		});
+	})();
+</script>

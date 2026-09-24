@@ -29,14 +29,15 @@
 					<% } %>
 					<p class="mt-5 text-base leading-8 text-slate-700 sm:text-lg"><%= product.description %></p>
 					<div class="mt-7 flex flex-col gap-3 sm:flex-row">
-						<button class="btn-primary" type="button" data-call-modal-open>Զանգահարել</button>
-						<a class="btn-secondary" href="/products">Այլ ապրանքներ</a>
+						<button class="btn-primary" type="button" onclick="openServiceRequestModal('<%= product.id %>', '<%= product.name %>')">Պատվիրել Առցանց</button>
+						<button class="btn-secondary" type="button" data-call-modal-open>Զանգահարել</button>
 					</div>
 				</div>
 			</section>
 		</main>
 
 		<%- include('partials/call-modal', { config }) %>
+		<%- include('partials/service-request-modal') %>
 		<script src="/product-carousel.js"></script>
 		<script src="/site.js"></script>
 	</body>

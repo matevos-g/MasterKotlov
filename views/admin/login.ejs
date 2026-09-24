@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="hy" class="h-full bg-slate-950">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MasterKotlov Admin - Մուտք</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+Armenian:wght@400;500;600;700&display=swap" rel="stylesheet" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+		<script src="/supabase-config.js"></script>
+		<style>
+			body { font-family: 'Outfit', 'Noto Sans Armenian', sans-serif; }
+		</style>
+	</head>
+	<body class="flex h-full items-center justify-center px-4 py-12">
+		<div class="w-full max-w-md space-y-8 rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
+			<div class="text-center">
+				<div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/30">
+					<svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+					</svg>
+				</div>
+				<h2 class="mt-6 text-2xl font-bold tracking-tight text-white">Ադմին Պանել</h2>
+				<p class="mt-2 text-sm text-slate-400">Մուտքագրեք Ձեր ադմինիստրատորի տվյալները</p>
+			</div>
+
+			<form id="admin-login-form" class="mt-8 space-y-6">
+				<div id="login-error" class="hidden rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs font-medium text-red-400"></div>
+
+				<div class="space-y-4">
+					<div>
+						<label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Օգտանուն կամ Էլ․ Փոստ</label>
+						<input id="username" name="username" type="text" autocomplete="username" required placeholder="admin" class="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+					</div>
+					<div>
+						<label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Գաղտնաբառ</label>
+						<input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" class="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
+					</div>
+				</div>
+
+				<button type="submit" id="login-btn" class="flex w-full justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.99] transition">
+					Մուտք Գործել
+				</button>
+			</form>
+		</div>
+
+		<script>
+			// Check if active session exists
+			async function checkSession() {
+				if (window.supabaseClient) {
+					const { data: { session } } = await window.supabaseClient.auth.getSession();
+					if (session) {
+						window.location.href = '/admin/';
+					}
+				}
+			}
+			checkSession();
+
+			const form = document.getElementById('admin-login-form');
+			const loginError = document.getElementById('login-error');
+			const loginBtn = document.getElementById('login-btn');
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				loginError.classList.add('hidden');
+				let userInput = document.getElementById('username').value.trim();
+				const password = document.getElementById('password').value.trim();
+
+				// If user enters a plain username like "admin", automatically map to email format for Supabase Auth
+				let email = userInput;
+				if (!email.includes('@')) {
+					email = `${email.toLowerCase()}@masterkotlov.am`;
+				}
+
+				loginBtn.disabled = true;
+				loginBtn.innerText = 'Ստուգվում է...';
+
+				try {
+					if (!window.supabaseClient) {
+						throw new Error('Supabase client-ը կարգավորված չէ supabase-config.js ֆայլում։');
+					}
+
+					const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+					if (error) throw error;
+					
+					window.location.href = '/admin/';
+				} catch (err) {
+					loginError.textContent = err.message || 'Մուտքը ձախողվեց։ Խնդրում ենք ստուգել տվյալները։';
+					loginError.classList.remove('hidden');
+				} finally {
+					loginBtn.disabled = false;
+					loginBtn.innerText = 'Մուտք Գործել';
+				}
+			});
+		</script>
+	</body>
+</html>

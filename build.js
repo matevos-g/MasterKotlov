@@ -87,14 +87,10 @@ const hydrateProduct = (product) => {
 	};
 };
 
-const loadProducts = () => {
-	try {
-		const raw = fs.readFileSync(productsPath, 'utf8');
-		return JSON.parse(raw).map(hydrateProduct);
-	} catch (error) {
-		console.error('Failed to read products.json:', error);
-		return [];
-	}
+const { getProducts } = require('./lib/supabase');
+
+const loadProducts = async () => {
+	return await getProducts();
 };
 
 const loadConfig = () => {
@@ -140,7 +136,7 @@ async function build() {
 	fs.mkdirSync(distDir, { recursive: true });
 
 	const config = loadConfig();
-	const products = loadProducts();
+	const products = await loadProducts();
 	const topProducts = products.filter((product) => product.top);
 
 	// 1. Render index page
@@ -176,11 +172,24 @@ async function build() {
 		fs.writeFileSync(path.join(productDir, 'index.html'), productHtml, 'utf8');
 	}
 
+	// 3.5 Render Admin Pages
+	console.log('Rendering Admin pages...');
+	const adminDashboardHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'dashboard.ejs'), {});
+	const adminLoginHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'login.ejs'), {});
+	
+	fs.mkdirSync(path.join(distDir, 'admin'), { recursive: true });
+	fs.mkdirSync(path.join(distDir, 'admin', 'login'), { recursive: true });
+	fs.mkdirSync(path.join(distDir, 'admin', 'dashboard'), { recursive: true });
+	fs.writeFileSync(path.join(distDir, 'admin', 'index.html'), adminDashboardHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'dashboard', 'index.html'), adminDashboardHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'login', 'index.html'), adminLoginHtml, 'utf8');
+
 	// 4. Copy static assets
 	console.log('Copying static assets...');
 	copyFileSync(path.join(__dirname, 'styles.css'), path.join(distDir, 'styles.css'));
 	copyFileSync(path.join(__dirname, 'site.js'), path.join(distDir, 'site.js'));
 	copyFileSync(path.join(__dirname, 'product-carousel.js'), path.join(distDir, 'product-carousel.js'));
+	copyFileSync(path.join(__dirname, 'supabase-config.js'), path.join(distDir, 'supabase-config.js'));
 
 	// Copy images
 	copyFolderSync(imagesDir, path.join(distDir, 'images'));
