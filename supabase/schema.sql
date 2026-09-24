@@ -47,11 +47,21 @@ CREATE TABLE IF NOT EXISTS public.admin_users (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 4b. Create Push Subscriptions Table
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    endpoint TEXT UNIQUE NOT NULL,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- 6. RLS Policies (Open Read/Write for Client App Integration)
 DROP POLICY IF EXISTS "Allow all for products" ON public.products;
@@ -65,6 +75,9 @@ CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger FOR ALL US
 
 DROP POLICY IF EXISTS "Allow all for admin users" ON public.admin_users;
 CREATE POLICY "Allow all for admin users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow all for push subscriptions" ON public.push_subscriptions;
+CREATE POLICY "Allow all for push subscriptions" ON public.push_subscriptions FOR ALL USING (true) WITH CHECK (true);
 
 -- 7. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 

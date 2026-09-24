@@ -615,6 +615,44 @@
 				}
 			}
 
+			const VAPID_PUBLIC_KEY = 'BG_RlCgVM2RmnBFpnF1oXpl7vZOEB1FJQ4CZJVXKy7vxpb5wl4uXZjw8lle7oecK3ahT6b7odsyID1Pv0EVlGtM';
+
+			function urlBase64ToUint8Array(base64String) {
+				const padding = '='.repeat((4 - base64String.length % 4) % 4);
+				const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+				const rawData = window.atob(base64);
+				const outputArray = new Uint8Array(rawData.length);
+				for (let i = 0; i < rawData.length; ++i) {
+					outputArray[i] = rawData.charCodeAt(i);
+				}
+				return outputArray;
+			}
+
+			async function subscribeToWebPush() {
+				if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+				try {
+					const reg = await navigator.serviceWorker.ready;
+					let sub = await reg.pushManager.getSubscription();
+					if (!sub) {
+						const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+						sub = await reg.pushManager.subscribe({
+							userVisibleOnly: true,
+							applicationServerKey: applicationServerKey
+						});
+					}
+					if (sub && window.supabaseClient) {
+						const subJson = sub.toJSON();
+						await window.supabaseClient.from('push_subscriptions').upsert([{
+							endpoint: sub.endpoint,
+							p256dh: subJson.keys ? subJson.keys.p256dh : '',
+							auth: subJson.keys ? subJson.keys.auth : ''
+						}], { onConflict: 'endpoint' });
+					}
+				} catch (e) {
+					console.warn('Web Push subscription error:', e);
+				}
+			}
+
 			function checkNotificationBannerState() {
 				const banner = document.getElementById('notif-permission-banner');
 				if (!banner) return;
@@ -622,6 +660,9 @@
 					banner.classList.remove('hidden');
 				} else {
 					banner.classList.add('hidden');
+					if ('Notification' in window && Notification.permission === 'granted') {
+						subscribeToWebPush();
+					}
 				}
 			}
 
@@ -631,6 +672,7 @@
 						const permission = await Notification.requestPermission();
 						checkNotificationBannerState();
 						if (permission === 'granted') {
+							await subscribeToWebPush();
 							playOrderNotificationSound();
 							triggerArmenianPushNotification({
 								id: 'test-' + Date.now(),
@@ -653,8 +695,9 @@
 				checkNotificationBannerState();
 				if ('Notification' in window && Notification.permission === 'default') {
 					try {
-						await Notification.requestPermission();
+						const res = await Notification.requestPermission();
 						checkNotificationBannerState();
+						if (res === 'granted') subscribeToWebPush();
 					} catch (e) {
 						console.warn('Notification permission error:', e);
 					}

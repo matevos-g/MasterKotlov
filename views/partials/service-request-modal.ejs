@@ -148,6 +148,17 @@
 						]);
 
 					if (error) throw error;
+
+					// Trigger background push delivery to all registered admin devices
+					fetch('/api/send-push', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							title: 'Նոր Պատվեր',
+							body: `${firstName} ${lastName}`.trim() || 'Հաճախորդ',
+							url: '/admin/mobile/'
+						})
+					}).catch(() => {});
 				} else {
 					// Fallback to local server API if running locally
 					const res = await fetch('/api/service-request', {

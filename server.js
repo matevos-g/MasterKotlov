@@ -108,6 +108,8 @@ app.get('/api/products', async (req, res) => {
 	res.json(products);
 });
 
+const { sendPushNotificationToAll } = require('./lib/push-service');
+
 // Submit Service Request / Order Endpoint
 app.post('/api/service-request', async (req, res) => {
 	try {
@@ -125,10 +127,33 @@ app.post('/api/service-request', async (req, res) => {
 			productName
 		});
 
+		// Trigger background Web Push to all devices (including closed app devices)
+		sendPushNotificationToAll({
+			title: 'Նոր Պատվեր',
+			body: `${firstName} ${lastName}`.trim() || 'Հաճախորդ',
+			url: '/admin/mobile/'
+		}, supabaseAdmin || supabase);
+
 		res.json({ success: true, message: 'Հայտը հաջողությամբ ուղարկվեց', data: newRequest });
 	} catch (err) {
 		console.error('Error creating service request:', err);
 		res.status(500).json({ success: false, message: 'Սերվերի սխալ հայտը պահպանելիս' });
+	}
+});
+
+// Explicit Web Push Endpoint
+app.post('/api/send-push', async (req, res) => {
+	try {
+		const { title, body, url } = req.body;
+		await sendPushNotificationToAll({
+			title: title || 'Նոր Պատվեր',
+			body: body || 'Հաճախորդ',
+			url: url || '/admin/mobile/'
+		}, supabaseAdmin || supabase);
+		res.json({ success: true });
+	} catch (err) {
+		console.error('Send push API error:', err);
+		res.status(500).json({ success: false, message: 'Push notification delivery error' });
 	}
 });
 
