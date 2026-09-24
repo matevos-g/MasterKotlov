@@ -7,6 +7,6 @@
 			</svg>
 		</button>
 		<p class="text-sm font-semibold uppercase tracking-wide text-blue-700" id="call-modal-title">Զանգահարեք</p>
-		<p class="mt-3 text-2xl font-bold text-slate-900"><%= config.phone %></p>
+		<a href="tel:<%= (config.phone || '+374 99 331516').replace(/\s+/g, '') %>" class="mt-3 block text-2xl font-extrabold text-blue-600 hover:text-blue-700 transition"><%= config.phone || '+374 99 331516' %></a>
 	</section>
 </div>

@@ -13,26 +13,24 @@
 				<a class="nav-link <%= activePath === '/products' ? 'is-active' : '' %>" href="/products"><%= config.navLink3 || 'Ապրանքներ' %></a>
 				<a class="nav-link" href="/#parts"><%= config.navLink4 || 'Պահեստամասեր' %></a>
 			</div>
-			<div class="nav-contact hidden w-full flex-col items-center gap-3 sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-				<div class="social-row flex items-center justify-center gap-2">
-					<a class="social-link social-link--large" href="<%= config.facebookUrl || '#' %>" target="_blank" rel="noopener" aria-label="Facebook">
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M13.5 8H16V5h-2.5C10.9 5 9 6.9 9 9.5V12H7v3h2v4h3v-4h2.4l.6-3H12V9.5c0-.8.7-1.5 1.5-1.5Z" />
-						</svg>
-					</a>
-					<a class="social-link social-link--large" href="<%= config.instagramUrl || '#' %>" target="_blank" rel="noopener" aria-label="Instagram">
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M7.5 3h9A4.5 4.5 0 0 1 21 7.5v9a4.5 4.5 0 0 1-4.5 4.5h-9A4.5 4.5 0 0 1 3 16.5v-9A4.5 4.5 0 0 1 7.5 3Zm0 1.8A2.7 2.7 0 0 0 4.8 7.5v9a2.7 2.7 0 0 0 2.7 2.7h9a2.7 2.7 0 0 0 2.7-2.7v-9a2.7 2.7 0 0 0-2.7-2.7h-9Zm9.7 1.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 1.8a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4Z" />
-						</svg>
-					</a>
-					<a class="social-link social-link--large" href="<%= config.telegramUrl || '#' %>" target="_blank" rel="noopener" aria-label="Telegram">
-						<svg viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M21.2 4.8c.4-.2.8.2.7.6l-3.1 14.7c-.1.4-.6.6-.9.4l-4.6-3.4-2.5 2.4c-.3.3-.8.1-.8-.3v-3.4l8.2-7.4-10 6.1-4.1-1.3c-.5-.2-.6-.8-.1-1L21.2 4.8Z" />
-						</svg>
-					</a>
-				</div>
-				<button class="w-full sm:w-auto rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2" type="button" onclick="if(typeof openServiceRequestModal === 'function'){ openServiceRequestModal(); } else { document.querySelector('[data-call-modal-open]')?.click(); }">
-					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<div class="nav-contact hidden w-full flex-col items-center gap-2 sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-2.5">
+				<!-- WhatsApp Link -->
+				<a href="<%= config.whatsappUrl || 'https://wa.me/37499331516' %>" target="_blank" rel="noopener" class="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 border border-emerald-200/80 px-3.5 py-2 text-xs sm:text-sm font-bold text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition" aria-label="WhatsApp">
+					<svg class="w-4 h-4 fill-emerald-600 shrink-0" viewBox="0 0 24 24">
+						<path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.764.459 3.487 1.333 5.004L2 22l5.133-1.343c1.464.798 3.116 1.218 4.874 1.218h.005c5.505 0 9.987-4.479 9.988-9.985 0-2.667-1.037-5.176-2.922-7.062A9.924 9.924 0 0 0 12.012 2zm5.7 13.56c-.244.686-1.42 1.31-1.96 1.391-.497.074-1.144.108-1.841-.115-.425-.136-1.026-.334-1.785-.662-3.14-1.359-5.19-4.542-5.348-4.752-.158-.21-1.282-1.705-1.282-3.253 0-1.547.813-2.31 1.102-2.624.288-.314.629-.393.839-.393.21 0 .42.003.603.012.197.01.459-.074.721.555.263.629.892 2.176.97 2.333.079.158.131.342.026.552-.105.21-.158.341-.315.525-.157.184-.33.407-.472.546-.157.157-.321.328-.138.643.184.315.816 1.346 1.75 2.178 1.202 1.07 2.213 1.403 2.528 1.56.315.158.5.132.682-.078.184-.21.787-.918.997-1.233.21-.315.42-.262.708-.157.288.105 1.837.866 2.152 1.023.315.158.525.236.603.368.079.132.079.763-.165 1.449z"/>
+					</svg>
+					<span>WhatsApp</span>
+				</a>
+				<!-- Phone Link -->
+				<a href="tel:<%= (config.phone || '+374 99 331516').replace(/\s+/g, '') %>" class="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 border border-slate-200 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-800 hover:bg-slate-200 transition" aria-label="Phone">
+					<svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+					</svg>
+					<span><%= config.phone || '+374 99 331516' %></span>
+				</a>
+				<!-- Book Button -->
+				<button class="w-full sm:w-auto rounded-xl bg-blue-600 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2" type="button" onclick="if(typeof openServiceRequestModal === 'function'){ openServiceRequestModal(); } else { document.querySelector('[data-call-modal-open]')?.click(); }">
+					<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 					</svg>
 					<span><%= config.bookButtonText || 'Ամրագրել' %></span>
