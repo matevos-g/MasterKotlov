@@ -63,9 +63,9 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  const title = data.title || '🔔 Նոր Պատվեր!';
+  const title = data.title || 'Նոր Պատվեր';
   const options = {
-    body: data.body || 'Ստացվել է նոր պատվեր MasterKotlov-ում։',
+    body: data.body || 'Հաճախորդ',
     icon: data.icon || '/images/icon.svg',
     badge: '/images/icon.svg',
     vibrate: [200, 100, 200],
