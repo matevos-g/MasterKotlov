@@ -5,7 +5,10 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js",
-		"dev": "node server.js"
+		"dev": "node server.js",
+		"build": "node build.js",
+		"preview": "npx -y wrangler pages dev dist",
+		"deploy": "node build.js && npx -y wrangler pages deploy dist"
 	},
 	"dependencies": {
 		"ejs": "^3.1.9",
