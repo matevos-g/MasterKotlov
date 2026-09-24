@@ -9,6 +9,7 @@
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Armenian:wght@400;500;600;700&display=swap" rel="stylesheet" />
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="/supabase-config.js"></script>
 		<style>
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
@@ -138,6 +139,17 @@
 						<span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Ընդհանուր Եկամուտ</span>
 						<div class="mt-1 text-3xl font-extrabold text-slate-900 tracking-tight" id="total-earnings-display">
 							0 Դրամ
+						</div>
+					</div>
+
+					<!-- Finance Bar Chart Diagram -->
+					<div class="mt-6 pt-6 border-t border-slate-100">
+						<div class="flex items-center justify-between mb-3">
+							<span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Եկամուտների Գրաֆիկ</span>
+							<span id="chart-subtitle" class="text-xs font-medium text-slate-500"></span>
+						</div>
+						<div class="h-64 sm:h-72 w-full relative">
+							<canvas id="finance-chart"></canvas>
 						</div>
 					</div>
 				</div>
@@ -711,7 +723,75 @@
 				closeModal('modal-confirm');
 			});
 
-			// Finance Page Logic
+			// Finance Page Logic & Bar Chart Diagram
+			let financeChartInstance = null;
+
+			function renderFinanceChart(labels, dataValues, subtitleText) {
+				const subtitleEl = document.getElementById('chart-subtitle');
+				if (subtitleEl) subtitleEl.textContent = subtitleText;
+
+				const canvas = document.getElementById('finance-chart');
+				if (!canvas || !window.Chart) return;
+				const ctx = canvas.getContext('2d');
+
+				if (financeChartInstance) {
+					financeChartInstance.destroy();
+				}
+
+				financeChartInstance = new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Եկամուտ (Դրամ)',
+							data: dataValues,
+							backgroundColor: 'rgba(37, 99, 235, 0.85)',
+							hoverBackgroundColor: 'rgba(29, 78, 216, 1)',
+							borderRadius: 6,
+							borderSkipped: false,
+							maxBarThickness: 32
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false },
+							tooltip: {
+								backgroundColor: '#0f172a',
+								titleFont: { size: 12, family: 'Inter, Noto Sans Armenian' },
+								bodyFont: { size: 12, family: 'Inter, Noto Sans Armenian' },
+								padding: 10,
+								displayColors: false,
+								callbacks: {
+									label: function(context) {
+										const val = context.raw || 0;
+										return ` Եկամուտ: ${val.toLocaleString('hy-AM')} Դրամ`;
+									}
+								}
+							}
+						},
+						scales: {
+							x: {
+								grid: { display: false },
+								ticks: { font: { size: 11, family: 'Inter, Noto Sans Armenian' }, color: '#64748b' }
+							},
+							y: {
+								grid: { color: '#f1f5f9' },
+								ticks: {
+									font: { size: 11, family: 'Inter, Noto Sans Armenian' },
+									color: '#64748b',
+									callback: function(val) {
+										if (val >= 1000) return (val / 1000) + ' հզ';
+										return val;
+									}
+								}
+							}
+						}
+					}
+				});
+			}
+
 			function renderFinancePage() {
 				const range = document.getElementById('finance-range-select').value;
 				const now = new Date();
@@ -723,10 +803,10 @@
 						return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
 					});
 				} else if (range === 'last_month') {
+					const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 					filteredLedger = allLedger.filter(l => {
 						const d = new Date(l.created_at);
-						const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-						return d.getMonth() === lastMonth.getMonth() && d.getFullYear() === lastMonth.getFullYear();
+						return d.getMonth() === lastMonthDate.getMonth() && d.getFullYear() === lastMonthDate.getFullYear();
 					});
 				} else if (range === 'current_year') {
 					filteredLedger = allLedger.filter(l => {
@@ -741,20 +821,96 @@
 				const tbody = document.getElementById('ledger-tbody');
 				if (!filteredLedger.length) {
 					tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Գործարքներ չկան</td></tr>`;
-					return;
+				} else {
+					tbody.innerHTML = filteredLedger.map(l => {
+						const dateStr = new Date(l.created_at).toLocaleDateString('hy-AM', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+						return `
+							<tr class="hover:bg-slate-50 transition">
+								<td class="px-4 py-3 text-xs text-slate-500">${dateStr}</td>
+								<td class="px-4 py-3 font-semibold text-slate-900">${escapeHtml(l.client_name || '')}</td>
+								<td class="px-4 py-3 text-xs text-slate-600 line-clamp-1">${escapeHtml(l.notes || '')}</td>
+								<td class="px-4 py-3 text-right font-bold text-emerald-600">+${Number(l.amount).toLocaleString('hy-AM')} Դրամ</td>
+							</tr>
+						`;
+					}).join('');
 				}
 
-				tbody.innerHTML = filteredLedger.map(l => {
-					const dateStr = new Date(l.created_at).toLocaleDateString('hy-AM', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-					return `
-						<tr class="hover:bg-slate-50 transition">
-							<td class="px-4 py-3 text-xs text-slate-500">${dateStr}</td>
-							<td class="px-4 py-3 font-semibold text-slate-900">${escapeHtml(l.client_name || '')}</td>
-							<td class="px-4 py-3 text-xs text-slate-600 line-clamp-1">${escapeHtml(l.notes || '')}</td>
-							<td class="px-4 py-3 text-right font-bold text-emerald-600">+${Number(l.amount).toLocaleString('hy-AM')} Դրամ</td>
-						</tr>
-					`;
-				}).join('');
+				// Build Chart Data & Aggregation
+				const armMonths = ['Հնվ', 'Փտր', 'Մրտ', 'Ապր', 'Մյս', 'Հնս', 'Հլս', 'Օգս', 'Սեպ', 'Հոկ', 'Նոյ', 'Դեկ'];
+				let labels = [];
+				let dataValues = [];
+				let subtitleText = '';
+
+				if (range === 'current_month') {
+					const year = now.getFullYear();
+					const month = now.getMonth();
+					const daysInMonth = new Date(year, month + 1, 0).getDate();
+					subtitleText = `Օրական եկամուտ (${armMonths[month]} ${year})`;
+
+					for (let day = 1; day <= daysInMonth; day++) {
+						labels.push(`${armMonths[month]} ${day}`);
+						const daySum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(daySum);
+					}
+				} else if (range === 'last_month') {
+					const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+					const year = lastMonthDate.getFullYear();
+					const month = lastMonthDate.getMonth();
+					const daysInMonth = new Date(year, month + 1, 0).getDate();
+					subtitleText = `Օրական եկամուտ (${armMonths[month]} ${year})`;
+
+					for (let day = 1; day <= daysInMonth; day++) {
+						labels.push(`${armMonths[month]} ${day}`);
+						const daySum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(daySum);
+					}
+				} else if (range === 'current_year') {
+					const year = now.getFullYear();
+					subtitleText = `Ամսական եկամուտ (${year})`;
+
+					for (let month = 0; month < 12; month++) {
+						labels.push(armMonths[month]);
+						const monthSum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(monthSum);
+					}
+				} else if (range === 'all') {
+					subtitleText = 'Տարեկան եկամուտ (Ընդհանուր)';
+					const yearsSet = new Set(allLedger.map(l => new Date(l.created_at).getFullYear()));
+					yearsSet.add(now.getFullYear());
+					const sortedYears = Array.from(yearsSet).sort((a, b) => a - b);
+
+					sortedYears.forEach(year => {
+						labels.push(String(year));
+						const yearSum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(yearSum);
+					});
+				}
+
+				renderFinanceChart(labels, dataValues, subtitleText);
 			}
 
 			document.getElementById('finance-range-select').addEventListener('change', renderFinancePage);
