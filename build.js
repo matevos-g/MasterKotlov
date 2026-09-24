@@ -93,13 +93,56 @@ const loadProducts = async () => {
 	return await getProducts();
 };
 
+const defaultConfig = {
+	brandName: "MasterKotlov",
+	brandSubtext: "Կաթսաների վերանորոգում",
+	phone: "+374 99 000000",
+	email: "info@masterkotlov.am",
+	address: "Երևան, Հայաստան",
+	workingHours: "Երկ - Շբթ: 09:00 - 20:00",
+	telegramUrl: "https://t.me/masterkotlov",
+	whatsappUrl: "https://wa.me/37499000000",
+	instagramUrl: "https://instagram.com/masterkotlov",
+	facebookUrl: "https://facebook.com/masterkotlov",
+	bookButtonText: "Ամրագրել",
+
+	heroTitle: "Կաթսաների արագ և անվտանգ վերանորոգում",
+	heroSubtitle: "Ախտորոշում, վերանորոգում և սեզոնային սպասարկում գազային ու պինդ վառելիքի կաթսաների համար։ Մասնագետը գալիս է նույն օրը, բացատրում է խնդրի պատճառը և կատարում աշխատանքը երաշխիքով։",
+	heroCtaText: "Թողնել Սպասարկման Հայտ",
+	heroSecondaryCtaText: "Տեսնել ծառայությունները",
+	heroImageUrl: "/parts/1/photo_2026-09-24_22-10-10.jpg",
+
+	navLink1: "Գլխավոր",
+	navLink2: "Ծառայություններ",
+	navLink3: "Ապրանքներ",
+	navLink4: "Պահեստամասեր",
+
+	servicesTitle: "Ամենապահանջված ծառայությունները",
+	servicesSubtitle: "Աշխատանքը կատարվում է մաքուր և հստակ փուլերով. նախ ախտորոշում, հետո համաձայնեցված վերանորոգում և վերջում փորձարկում։",
+
+	service1Title: "Ախտորոշում և գործարկում",
+	service1Desc: "Ստուգվում է ավտոմատիկան, այրման ռեժիմը և ջերմային արդյունավետությունը, որպեսզի սարքը աշխատի կայուն։",
+	service1Image: "/parts/1/photo_2026-09-24_22-10-11.jpg",
+
+	service2Title: "Գազային կաթսաների վերանորոգում",
+	service2Desc: "Սխալների կոդերի վերացում, հանգույցների փոխարինում և անվտանգության պարամետրերի ճշգրտում։",
+	service2Image: "/parts/1/photo_2026-09-24_22-10-12.jpg",
+
+	service3Title: "Սեզոնային սպասարկում",
+	service3Desc: "Ջերմափոխանակիչի մաքրում, քաշի ստուգում և կանխարգելիչ աշխատանքներ մինչև սեզոնի մեկնարկ։",
+	service3Image: "/parts/1/photo_2026-09-24_22-10-13.jpg",
+
+	footerDesc: "Գազային և էլեկտրական կաթսաների պրոֆեսիոնալ վերանորոգում և սպասարկում Երևանում և հարակից շրջաններում։",
+	copyrightText: "© MasterKotlov: Բոլոր իրավունքները պաշտպանված են:"
+};
+
 const loadConfig = () => {
 	try {
 		const raw = fs.readFileSync(configPath, 'utf8');
-		return JSON.parse(raw);
+		return { ...defaultConfig, ...JSON.parse(raw) };
 	} catch (error) {
 		console.error('Failed to read config.json:', error);
-		return { phone: '' };
+		return defaultConfig;
 	}
 };
 
@@ -172,28 +215,44 @@ async function build() {
 		fs.writeFileSync(path.join(productDir, 'index.html'), productHtml, 'utf8');
 	}
 
-	// 3.5 Render Admin Web & Router Pages
-	console.log('Rendering Admin Web pages...');
+	// 3.5 Render Admin Web, Mobile & Router Pages
+	console.log('Rendering Admin Web & Mobile pages...');
 	const adminRouterHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'router.ejs'), {});
 	const adminWebIndexHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'web', 'index.ejs'), {});
 	const adminWebLoginHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'web', 'login.ejs'), {});
 	const adminProductEditHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'web', 'product-edit.ejs'), {});
+
+	const adminMobileIndexHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'mobile', 'index.ejs'), {});
+	const adminMobileLoginHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'mobile', 'login.ejs'), {});
+	const adminMobileProductEditHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'mobile', 'product-edit.ejs'), {});
 	
 	fs.mkdirSync(path.join(distDir, 'admin'), { recursive: true });
 	fs.mkdirSync(path.join(distDir, 'admin', 'web'), { recursive: true });
 	fs.mkdirSync(path.join(distDir, 'admin', 'web', 'login'), { recursive: true });
 	fs.mkdirSync(path.join(distDir, 'admin', 'web', 'products', 'new'), { recursive: true });
 	
+	fs.mkdirSync(path.join(distDir, 'admin', 'mobile'), { recursive: true });
+	fs.mkdirSync(path.join(distDir, 'admin', 'mobile', 'login'), { recursive: true });
+	fs.mkdirSync(path.join(distDir, 'admin', 'mobile', 'products', 'new'), { recursive: true });
+
 	fs.writeFileSync(path.join(distDir, 'admin', 'index.html'), adminRouterHtml, 'utf8');
 	fs.writeFileSync(path.join(distDir, 'admin', 'web', 'index.html'), adminWebIndexHtml, 'utf8');
 	fs.writeFileSync(path.join(distDir, 'admin', 'web', 'login', 'index.html'), adminWebLoginHtml, 'utf8');
 	fs.writeFileSync(path.join(distDir, 'admin', 'web', 'products', 'new', 'index.html'), adminProductEditHtml, 'utf8');
 
-	// Render product edit page for each product ID
+	fs.writeFileSync(path.join(distDir, 'admin', 'mobile', 'index.html'), adminMobileIndexHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'mobile', 'login', 'index.html'), adminMobileLoginHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'mobile', 'products', 'new', 'index.html'), adminMobileProductEditHtml, 'utf8');
+
+	// Render product edit page for each product ID (Web & Mobile)
 	for (const product of products) {
 		const prodEditDir = path.join(distDir, 'admin', 'web', 'products', String(product.id));
 		fs.mkdirSync(prodEditDir, { recursive: true });
 		fs.writeFileSync(path.join(prodEditDir, 'index.html'), adminProductEditHtml, 'utf8');
+
+		const mobileProdEditDir = path.join(distDir, 'admin', 'mobile', 'products', String(product.id));
+		fs.mkdirSync(mobileProdEditDir, { recursive: true });
+		fs.writeFileSync(path.join(mobileProdEditDir, 'index.html'), adminMobileProductEditHtml, 'utf8');
 	}
 
 
@@ -204,6 +263,8 @@ async function build() {
 	copyFileSync(path.join(__dirname, 'site.js'), path.join(distDir, 'site.js'));
 	copyFileSync(path.join(__dirname, 'product-carousel.js'), path.join(distDir, 'product-carousel.js'));
 	copyFileSync(path.join(__dirname, 'supabase-config.js'), path.join(distDir, 'supabase-config.js'));
+	copyFileSync(path.join(__dirname, 'manifest.json'), path.join(distDir, 'manifest.json'));
+	copyFileSync(path.join(__dirname, 'sw.js'), path.join(distDir, 'sw.js'));
 
 	// Copy images
 	copyFolderSync(imagesDir, path.join(distDir, 'images'));
@@ -216,6 +277,7 @@ async function build() {
 	// 5. Output API endpoints for client fetching
 	fs.mkdirSync(path.join(distDir, 'api'), { recursive: true });
 	fs.writeFileSync(path.join(distDir, 'api', 'products.json'), JSON.stringify(products, null, 2), 'utf8');
+	fs.writeFileSync(path.join(distDir, 'api', 'config.json'), JSON.stringify(config, null, 2), 'utf8');
 	fs.mkdirSync(path.join(distDir, 'api', 'products'), { recursive: true });
 	fs.writeFileSync(path.join(distDir, 'api', 'products', 'index.json'), JSON.stringify(products, null, 2), 'utf8');
 

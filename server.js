@@ -23,13 +23,56 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+const defaultConfig = {
+	brandName: "MasterKotlov",
+	brandSubtext: "Կաթսաների վերանորոգում",
+	phone: "+374 99 000000",
+	email: "info@masterkotlov.am",
+	address: "Երևան, Հայաստան",
+	workingHours: "Երկ - Շբթ: 09:00 - 20:00",
+	telegramUrl: "https://t.me/masterkotlov",
+	whatsappUrl: "https://wa.me/37499000000",
+	instagramUrl: "https://instagram.com/masterkotlov",
+	facebookUrl: "https://facebook.com/masterkotlov",
+	bookButtonText: "Ամրագրել",
+
+	heroTitle: "Կաթսաների արագ և անվտանգ վերանորոգում",
+	heroSubtitle: "Ախտորոշում, վերանորոգում և սեզոնային սպասարկում գազային ու պինդ վառելիքի կաթսաների համար։ Մասնագետը գալիս է նույն օրը, բացատրում է խնդրի պատճառը և կատարում աշխատանքը երաշխիքով։",
+	heroCtaText: "Թողնել Սպասարկման Հայտ",
+	heroSecondaryCtaText: "Տեսնել ծառայությունները",
+	heroImageUrl: "/parts/1/photo_2026-09-24_22-10-10.jpg",
+
+	navLink1: "Գլխավոր",
+	navLink2: "Ծառայություններ",
+	navLink3: "Ապրանքներ",
+	navLink4: "Պահեստամասեր",
+
+	servicesTitle: "Ամենապահանջված ծառայությունները",
+	servicesSubtitle: "Աշխատանքը կատարվում է մաքուր և հստակ փուլերով. նախ ախտորոշում, հետո համաձայնեցված վերանորոգում և վերջում փորձարկում։",
+
+	service1Title: "Ախտորոշում և գործարկում",
+	service1Desc: "Ստուգվում է ավտոմատիկան, այրման ռեժիմը և ջերմային արդյունավետությունը, որպեսզի սարքը աշխատի կայուն։",
+	service1Image: "/parts/1/photo_2026-09-24_22-10-11.jpg",
+
+	service2Title: "Գազային կաթսաների վերանորոգում",
+	service2Desc: "Սխալների կոդերի վերացում, հանգույցների փոխարինում և անվտանգության պարամետրերի ճշգրտում։",
+	service2Image: "/parts/1/photo_2026-09-24_22-10-12.jpg",
+
+	service3Title: "Սեզոնային սպասարկում",
+	service3Desc: "Ջերմափոխանակիչի մաքրում, քաշի ստուգում և կանխարգելիչ աշխատանքներ մինչև սեզոնի մեկնարկ։",
+	service3Image: "/parts/1/photo_2026-09-24_22-10-13.jpg",
+
+	footerDesc: "Գազային և էլեկտրական կաթսաների պրոֆեսիոնալ վերանորոգում և սպասարկում Երևանում և հարակից շրջաններում։",
+	copyrightText: "© MasterKotlov: Բոլոր իրավունքները պաշտպանված են:"
+};
+
 const loadConfig = () => {
 	try {
 		const raw = fs.readFileSync(configPath, 'utf8');
-		return JSON.parse(raw);
+		return { ...defaultConfig, ...JSON.parse(raw) };
 	} catch (error) {
 		console.error('Failed to read config.json:', error);
-		return { phone: '+374 99 000000' };
+		return defaultConfig;
 	}
 };
 
@@ -105,6 +148,18 @@ app.get('/admin/web', (req, res) => {
 	res.render('admin/web/index');
 });
 
+app.get('/admin/mobile/login', (req, res) => {
+	res.render('admin/mobile/login');
+});
+
+app.get('/admin/mobile/products/:id', (req, res) => {
+	res.render('admin/mobile/product-edit');
+});
+
+app.get('/admin/mobile', (req, res) => {
+	res.render('admin/mobile/index');
+});
+
 app.get('/admin', (req, res) => {
 	res.render('admin/router');
 });
@@ -166,6 +221,33 @@ app.delete('/admin/api/products/:id', async (req, res) => {
 		return res.json({ success: true });
 	}
 	res.json({ success: true, message: 'Deleted product (mock)' });
+});
+
+// Admin CMS Settings API
+app.get('/admin/api/config', (req, res) => {
+	res.json(loadConfig());
+});
+
+app.post('/admin/api/config', async (req, res) => {
+	try {
+		const newConfig = { ...loadConfig(), ...req.body };
+		fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2), 'utf8');
+
+		if (supabaseAdmin) {
+			try {
+				await supabaseAdmin
+					.from('site_settings')
+					.upsert([{ id: 'default', config: newConfig, updated_at: new Date().toISOString() }]);
+			} catch (err) {
+				console.warn('Could not sync settings to Supabase site_settings table:', err.message);
+			}
+		}
+
+		res.json({ success: true, data: newConfig });
+	} catch (err) {
+		console.error('Error saving config:', err);
+		res.status(500).json({ success: false, message: 'Սխալ կայքի կարգավորումները պահպանելիս' });
+	}
 });
 
 // Static assets

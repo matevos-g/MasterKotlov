@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="hy" class="h-full bg-slate-50 text-slate-900">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+		<title>MasterKotlov - Mobile Admin</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Armenian:wght@400;500;600;700&display=swap" rel="stylesheet" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="/supabase-config.js"></script>
+		<link rel="manifest" href="/manifest.json" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="MasterKotlov" />
+		<link rel="apple-touch-icon" href="/images/icon.svg" />
+		<meta name="theme-color" content="#2563eb" />
+		<style>
+			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
+			.mobile-nav-item.active { color: #2563eb; }
+			.mobile-nav-item.active svg { stroke: #2563eb; fill: rgba(37, 99, 235, 0.1); }
+			.order-tab.active { background-color: #ffffff; color: #0f172a; font-weight: 600; shadow: 0 1px 2px rgba(0,0,0,0.05); }
+		</style>
+	</head>
+	<body class="min-h-full flex flex-col bg-slate-50 selection:bg-blue-100">
+		
+		<!-- ========================================== -->
+		<!-- TOP SAFE AREA HEADER                       -->
+		<!-- ========================================== -->
+		<header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md px-4 pb-3" style="padding-top: max(12px, env(safe-area-inset-top));">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 id="mobile-header-title" class="text-base font-extrabold text-slate-900 tracking-tight">Պատվերներ</h1>
+					<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">MasterKotlov Mobile</span>
+				</div>
+
+				<div class="flex items-center gap-2">
+					<button id="notif-perm-btn" type="button" onclick="requestNotificationPermission()" title="Ծանուցումներ" class="relative text-slate-500 hover:text-blue-600 p-1.5 rounded-lg border border-slate-200 hover:bg-blue-50 transition">
+						<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+						</svg>
+						<span id="notif-badge-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+					</button>
+					<span id="mobile-user-badge" class="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">admin</span>
+					<button id="logout-btn" type="button" title="Ելք" class="text-slate-500 hover:text-red-600 p-1.5 rounded-lg border border-slate-200 hover:bg-red-50 transition">
+						<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+						</svg>
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<!-- ========================================== -->
+		<!-- MAIN CONTENT AREA (Padded for Top/Bottom)  -->
+		<!-- ========================================== -->
+		<main class="w-full flex-1 px-4 pt-4 pb-28">
+
+			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ) -->
+			<section id="page-orders" class="space-y-4">
+				<div class="flex flex-col gap-3">
+					<!-- Armenian Sub-tabs -->
+					<div class="flex rounded-xl bg-slate-200/60 p-1 text-[11px] overflow-x-auto">
+						<button id="tab-order-pending" type="button" class="order-tab active flex-1 py-1.5 px-2 text-center text-slate-600 transition whitespace-nowrap">
+							Սպասող (<span id="count-pending">0</span>)
+						</button>
+						<button id="tab-order-inprogress" type="button" class="order-tab flex-1 py-1.5 px-2 text-center text-slate-600 transition whitespace-nowrap">
+							Ընթացքի մեջ (<span id="count-inprogress">0</span>)
+						</button>
+						<button id="tab-order-completed" type="button" class="order-tab flex-1 py-1.5 px-2 text-center text-slate-600 transition whitespace-nowrap">
+							Ավարտված (<span id="count-completed">0</span>)
+						</button>
+						<button id="tab-order-cancelled" type="button" class="order-tab flex-1 py-1.5 px-2 text-center text-slate-600 transition whitespace-nowrap">
+							Չեղարկված (<span id="count-cancelled">0</span>)
+						</button>
+					</div>
+
+					<div class="flex items-center justify-between gap-2">
+						<button id="add-order-btn" type="button" class="flex-1 rounded-xl bg-blue-600 py-2.5 px-3 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition text-center">
+							+ Ավելացնել Պատվեր
+						</button>
+						<button id="refresh-orders-btn" type="button" class="rounded-xl bg-white border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shadow-xs">
+							Թարմացնել
+						</button>
+					</div>
+				</div>
+
+				<!-- Orders Cards List for Mobile -->
+				<div id="orders-list-mobile" class="space-y-3">
+					<div class="p-6 text-center text-slate-400 text-xs">Բեռնվում է...</div>
+				</div>
+			</section>
+
+			<!-- PAGE 2: FINANCE (ՖԻՆԱՆՍՆԵՐ) -->
+			<section id="page-finance" class="hidden space-y-5">
+				<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+					<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+						<div>
+							<h2 class="text-base font-bold text-slate-900">Ֆինանսական Ամփոփում</h2>
+							<p class="text-[11px] text-slate-500">Եկամուտների մատյան</p>
+						</div>
+
+						<select id="finance-range-select" class="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-600">
+							<option value="current_month">Այս Ամիս</option>
+							<option value="last_month">Անցյալ Ամիս</option>
+							<option value="current_year">Այս Տարի</option>
+							<option value="all">Ամբողջ Ժամանակահատվածը</option>
+						</select>
+					</div>
+
+					<div>
+						<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ընդհանուր Եկամուտ</span>
+						<div class="mt-0.5 text-2xl font-extrabold text-slate-900 tracking-tight" id="total-earnings-display">
+							0 Դրամ
+						</div>
+					</div>
+
+					<!-- Bar Chart Canvas -->
+					<div class="pt-4 border-t border-slate-100">
+						<div class="flex items-center justify-between mb-2">
+							<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Գրաֆիկ</span>
+							<span id="chart-subtitle" class="text-[11px] font-medium text-slate-500"></span>
+						</div>
+						<div class="h-56 w-full relative">
+							<canvas id="finance-chart"></canvas>
+						</div>
+					</div>
+				</div>
+
+				<div class="space-y-2.5">
+					<h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Վերջին Գործարքները</h3>
+					<div id="ledger-list-mobile" class="space-y-2">
+						<div class="p-6 text-center text-slate-400 text-xs">Գործարքներ չկան</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- PAGE 3: PRODUCTS (ԱՊՐԱՆՔՆԵՐ) -->
+			<section id="page-products" class="hidden space-y-4">
+				<div class="flex items-center justify-between">
+					<h2 class="text-base font-bold text-slate-900">Ապրանքներ</h2>
+					<a href="/admin/mobile/products/new/" class="rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition">
+						+ Ավելացնել
+					</a>
+				</div>
+
+				<div id="products-list-mobile" class="grid grid-cols-1 gap-3">
+					<div class="p-6 text-center text-slate-400 text-xs">Բեռնվում է...</div>
+				</div>
+			</section>
+
+			<!-- PAGE 4: USERS (ՕԳՏԱՏԵՐԵՐ) -->
+			<section id="page-users" class="hidden space-y-4">
+				<div class="flex items-center justify-between">
+					<h2 class="text-base font-bold text-slate-900">Ադմինիստրատորներ</h2>
+					<button id="add-user-btn" type="button" class="rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition">
+						+ Ավելացնել Ադմին
+					</button>
+				</div>
+
+				<div id="users-list-mobile" class="space-y-2.5">
+					<div class="p-6 text-center text-slate-400 text-xs">Բեռնվում է...</div>
+				</div>
+			</section>
+
+		</main>
+
+		<!-- ========================================== -->
+		<!-- BOTTOM APP NAVBAR WITH 4 ICONS             -->
+		<!-- ========================================== -->
+		<nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
+			<div class="grid grid-cols-4 items-center h-16 max-w-md mx-auto px-2">
+				<!-- Tab 1: Orders -->
+				<button id="mobile-nav-orders" type="button" class="mobile-nav-item active flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
+					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+					</svg>
+					<span class="text-[10px] font-medium tracking-tight">Պատվերներ</span>
+				</button>
+
+				<!-- Tab 2: Finance -->
+				<button id="mobile-nav-finance" type="button" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
+					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+					</svg>
+					<span class="text-[10px] font-medium tracking-tight">Ֆինանսներ</span>
+				</button>
+
+				<!-- Tab 3: Products -->
+				<button id="mobile-nav-products" type="button" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
+					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+					</svg>
+					<span class="text-[10px] font-medium tracking-tight">Ապրանքներ</span>
+				</button>
+
+				<!-- Tab 4: Users -->
+				<button id="mobile-nav-users" type="button" class="mobile-nav-item flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
+					<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+					</svg>
+					<span class="text-[10px] font-medium tracking-tight">Օգտատերեր</span>
+				</button>
+			</div>
+		</nav>
+
+		<!-- ========================================== -->
+		<!-- MODALS                                     -->
+		<!-- ========================================== -->
+		<!-- Order Details Modal -->
+		<div id="modal-order-details" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+					<h3 class="text-base font-bold text-slate-900">Պատվերի Մանրամասներ</h3>
+					<button onclick="closeModal('modal-order-details')" class="text-slate-400 hover:text-slate-700 text-sm p-1">✕</button>
+				</div>
+				<div class="space-y-3 text-sm">
+					<div>
+						<span class="text-xs font-semibold text-slate-400 uppercase">Հաճախորդ</span>
+						<div id="detail-client-name" class="font-bold text-slate-900"></div>
+					</div>
+					<div>
+						<span class="text-xs font-semibold text-slate-400 uppercase">Հեռախոս</span>
+						<div id="detail-client-phone" class="font-mono text-blue-600 font-semibold"></div>
+					</div>
+					<div id="detail-product-box" class="hidden">
+						<span class="text-xs font-semibold text-slate-400 uppercase">Ապրանք</span>
+						<div id="detail-product-name" class="font-medium text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100 mt-1"></div>
+					</div>
+					<div>
+						<span class="text-xs font-semibold text-slate-400 uppercase">Նկարագրություն</span>
+						<div id="detail-problem-text" class="mt-1 rounded-xl bg-slate-50 p-3 text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-wrap"></div>
+					</div>
+					<div>
+						<span class="text-xs font-semibold text-slate-400 uppercase">Կարգավիճակ</span>
+						<div id="detail-status-badge" class="mt-1"></div>
+					</div>
+				</div>
+				<div id="detail-modal-actions" class="flex justify-end gap-2 pt-3 border-t border-slate-100"></div>
+			</div>
+		</div>
+
+		<!-- Earnings Amount Modal -->
+		<div id="modal-earnings" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Ավարտել Պատվերը</h3>
+				<p class="text-xs text-slate-500">Մուտքագրեք այս պատվերից ստացված վերջնական գումարը (Դրամ)։</p>
+				<form id="form-earnings" class="space-y-4">
+					<input type="hidden" id="earnings-order-id" />
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Վաստակած Գումար (Դրամ) *</label>
+						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-base text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-medium text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">Հաստատել</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Confirm Modal -->
+		<div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4 text-center">
+				<h3 class="text-base font-bold text-slate-900" id="confirm-modal-title">Վստա՞հ եք:</h3>
+				<p class="text-xs text-slate-500" id="confirm-modal-desc">Այս գործողությունը չի կարող չեղարկվել։</p>
+				<div class="flex justify-center gap-3 pt-2">
+					<button type="button" onclick="closeModal('modal-confirm')" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700">Ոչ, Չեղարկել</button>
+					<button id="confirm-action-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-white shadow-sm">Այո, Հաստատել</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Add Order Modal -->
+		<div id="modal-add-order" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+					<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Պատվեր</h3>
+					<button onclick="closeModal('modal-add-order')" class="text-slate-400 hover:text-slate-700 text-sm">✕</button>
+				</div>
+				<form id="form-add-order" class="space-y-3">
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs font-semibold text-slate-700 mb-1">Անուն *</label>
+							<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+						<div>
+							<label class="block text-xs font-semibold text-slate-700 mb-1">Ազգանուն *</label>
+							<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Հեռախոսահամար *</label>
+						<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Ապրանք (Ընտրովի)</label>
+						<select id="new-order-product" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600 bg-white">
+							<option value="">-- Առանց ապրանքի --</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Խնդրի Նկարագրություն *</label>
+						<textarea id="new-order-problem" rows="3" required placeholder="Կաթսան չի տաքացնում ջուրը..." class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none"></textarea>
+					</div>
+					<div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+						<button type="button" onclick="closeModal('modal-add-order')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-medium text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">Ավելացնել Պատվերը</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Add Admin User Modal -->
+		<div id="modal-add-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Ադմին</h3>
+				<form id="form-add-user" class="space-y-3">
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Անուն *</label>
+						<input type="text" id="new-user-fullname" required placeholder="Գոռ" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Օգտանուն *</label>
+						<input type="text" id="new-user-username" required placeholder="admin" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Գաղտնաբառ *</label>
+						<input type="password" id="new-user-pass" required placeholder="••••••••" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-add-user')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-medium text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">Ավելացնել</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Edit Admin User Modal -->
+		<div id="modal-edit-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Խմբագրել Ադմինին</h3>
+				<form id="form-edit-user" class="space-y-3">
+					<input type="hidden" id="edit-user-id" />
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Անուն *</label>
+						<input type="text" id="edit-user-fullname" required placeholder="Գոռ" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Օգտանուն *</label>
+						<input type="text" id="edit-user-username" required placeholder="admin" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-edit-user')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-medium text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">Պահպանել</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Reset Password Modal -->
+		<div id="modal-reset-pass" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+			<div class="w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Փոխել Գաղտնաբառը</h3>
+				<form id="form-reset-pass" class="space-y-3">
+					<div>
+						<label class="block text-xs font-semibold text-slate-700 mb-1">Նոր Գաղտնաբառ *</label>
+						<input type="password" id="reset-new-pass" required placeholder="••••••••" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-reset-pass')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-medium text-slate-700">Չեղարկել</button>
+						<button type="submit" class="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">Պահպանել</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- SCRIPT LOGIC -->
+		<script>
+			let allOrders = [];
+			let allProducts = [];
+			let allLedger = [];
+			let allAdminUsers = [];
+			let currentOrderTab = 'new';
+			let confirmCallback = null;
+			let currentSessionUser = null;
+			let financeChartInstance = null;
+
+			// Notification & PWA State
+			let isInitialOrdersLoad = true;
+			const knownOrderIds = new Set();
+
+			// Register PWA Service Worker
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js').then(reg => {
+						console.log('PWA ServiceWorker ready:', reg);
+					}).catch(err => console.warn('SW reg failed:', err));
+				});
+			}
+
+			// Mobile Page titles
+			const pageTitles = {
+				orders: 'Պատվերներ',
+				finance: 'Ֆինանսներ',
+				products: 'Ապրանքներ',
+				users: 'Օգտատերեր'
+			};
+
+			async function initAuth() {
+				if (!window.supabaseClient) {
+					window.location.href = '/admin/mobile/login/';
+					return;
+				}
+				const { data: { session } } = await window.supabaseClient.auth.getSession();
+				if (!session) {
+					window.location.href = '/admin/mobile/login/';
+					return;
+				}
+				currentSessionUser = session.user;
+				const userEmail = currentSessionUser.email || '';
+				const usernameDisplay = userEmail.endsWith('@masterkotlov.am') ? userEmail.replace('@masterkotlov.am', '') : userEmail;
+				document.getElementById('mobile-user-badge').textContent = usernameDisplay;
+				
+				updateNotifBellState();
+				loadAllData();
+				setupSupabaseRealtime();
+			}
+
+			const pages = ['orders', 'finance', 'products', 'users'];
+			function switchPage(activePage) {
+				pages.forEach(p => {
+					const el = document.getElementById(`page-${p}`);
+					const mobBtn = document.getElementById(`mobile-nav-${p}`);
+					if (p === activePage) {
+						el.classList.remove('hidden');
+						mobBtn?.classList.add('active');
+					} else {
+						el.classList.add('hidden');
+						mobBtn?.classList.remove('active');
+					}
+				});
+				document.getElementById('mobile-header-title').textContent = pageTitles[activePage] || 'MasterKotlov';
+			}
+
+			pages.forEach(p => {
+				document.getElementById(`mobile-nav-${p}`)?.addEventListener('click', () => switchPage(p));
+			});
+
+			const orderTabsMap = {
+				'pending': 'new',
+				'inprogress': 'in_progress',
+				'completed': 'completed',
+				'cancelled': 'cancelled'
+			};
+
+			Object.keys(orderTabsMap).forEach(key => {
+				document.getElementById(`tab-order-${key}`)?.addEventListener('click', () => {
+					Object.keys(orderTabsMap).forEach(k => {
+						document.getElementById(`tab-order-${k}`).classList.remove('active');
+					});
+					document.getElementById(`tab-order-${key}`).classList.add('active');
+					currentOrderTab = orderTabsMap[key];
+					renderOrdersList();
+				});
+			});
+
+			async function loadAllData() {
+				await Promise.all([fetchOrders(), fetchProducts(), fetchLedger(), fetchUsers()]);
+			}
+
+			async function fetchOrders() {
+				try {
+					const { data, error } = await window.supabaseClient
+						.from('service_requests')
+						.select('*')
+						.order('created_at', { ascending: false });
+
+					if (!error && data) {
+						processIncomingOrders(data);
+						allOrders = data;
+						updateOrderCounts();
+						renderOrdersList();
+					}
+				} catch (err) {
+					console.error('Fetch orders error:', err);
+				}
+			}
+
+			function processIncomingOrders(orders) {
+				if (isInitialOrdersLoad) {
+					orders.forEach(o => knownOrderIds.add(o.id));
+					isInitialOrdersLoad = false;
+					return;
+				}
+
+				orders.forEach(o => {
+					if (!knownOrderIds.has(o.id)) {
+						knownOrderIds.add(o.id);
+						if (o.status === 'new') {
+							triggerArmenianPushNotification(o);
+						}
+					}
+				});
+			}
+
+			function triggerArmenianPushNotification(order) {
+				const clientName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Հաճախորդ';
+				const phone = order.phone || '';
+				const title = '🔔 Նոր Պատվեր!';
+				const body = `Ստացվել է նոր պատվեր MasterKotlov-ում:\n${clientName} - ${phone}`;
+
+				if (navigator.vibrate) {
+					navigator.vibrate([200, 100, 200]);
+				}
+
+				if ('Notification' in window && Notification.permission === 'granted') {
+					if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+						navigator.serviceWorker.ready.then(reg => {
+							reg.showNotification(title, {
+								body: body,
+								icon: '/images/icon.svg',
+								badge: '/images/icon.svg',
+								vibrate: [200, 100, 200],
+								data: { url: '/admin/mobile/' },
+								tag: 'order-' + order.id,
+								renotify: true
+							});
+						});
+					} else {
+						new Notification(title, {
+							body: body,
+							icon: '/images/icon.svg',
+							data: { url: '/admin/mobile/' }
+						});
+					}
+				}
+			}
+
+			async function requestNotificationPermission() {
+				if (!('Notification' in window)) {
+					alert('Ձեր սարքը կամ բրաուզերը չի աջակցում ծանուցումներ։');
+					return;
+				}
+				const perm = await Notification.requestPermission();
+				updateNotifBellState(perm);
+				if (perm === 'granted') {
+					if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+					triggerArmenianPushNotification({
+						id: 'test-' + Date.now(),
+						first_name: 'Ծանուցումները',
+						last_name: 'Միացված են',
+						phone: 'MasterKotlov',
+						status: 'new'
+					});
+				} else if (perm === 'denied') {
+					alert('Ծանուցումները արգելափակված են։ Խնդրում ենք թույլատրել դրանք բրաուզերի կարգավորումներում։');
+				}
+			}
+
+			function updateNotifBellState(perm) {
+				const dot = document.getElementById('notif-badge-dot');
+				if (dot) {
+					const currentPerm = perm || (('Notification' in window) ? Notification.permission : 'default');
+					if (currentPerm === 'granted') {
+						dot.className = 'absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500';
+					} else if (currentPerm === 'denied') {
+						dot.className = 'absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500';
+					} else {
+						dot.className = 'absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+					}
+				}
+			}
+
+			function setupSupabaseRealtime() {
+				if (window.supabaseClient) {
+					try {
+						window.supabaseClient
+							.channel('public:service_requests_mobile')
+							.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'service_requests' }, payload => {
+								const newOrder = payload.new;
+								if (newOrder) {
+									if (!knownOrderIds.has(newOrder.id)) {
+										knownOrderIds.add(newOrder.id);
+										triggerArmenianPushNotification(newOrder);
+										fetchOrders();
+									}
+								}
+							})
+							.subscribe();
+					} catch (e) {
+						console.warn('Realtime subscription error:', e);
+					}
+				}
+			}
+
+			async function fetchProducts() {
+				try {
+					const { data, error } = await window.supabaseClient
+						.from('products')
+						.select('*')
+						.order('id', { ascending: true });
+
+					if (!error && data && data.length) {
+						allProducts = data;
+					} else {
+						const res = await fetch('/api/products.json');
+						if (res.ok) allProducts = await res.json();
+					}
+					renderProductsList();
+				} catch (err) {
+					console.error('Fetch products error:', err);
+				}
+			}
+
+			async function fetchLedger() {
+				try {
+					const { data, error } = await window.supabaseClient
+						.from('finance_ledger')
+						.select('*')
+						.order('created_at', { ascending: false });
+
+					if (!error) {
+						allLedger = data || [];
+						renderFinancePage();
+					}
+				} catch (err) {
+					console.error('Fetch ledger error:', err);
+				}
+			}
+
+			async function fetchUsers() {
+				try {
+					const { data, error } = await window.supabaseClient
+						.from('admin_users')
+						.select('*')
+						.order('created_at', { ascending: false });
+
+					if (!error && data && data.length) {
+						allAdminUsers = data;
+					} else {
+						const email = currentSessionUser ? (currentSessionUser.email || '') : '';
+						const uname = email.endsWith('@masterkotlov.am') ? email.replace('@masterkotlov.am', '') : (email || 'admin');
+						allAdminUsers = [{
+							id: 'default-1',
+							name: 'Գոռ',
+							username: uname,
+							email: email || 'admin@masterkotlov.am',
+							status: 'active'
+						}];
+					}
+					renderUsersList();
+				} catch (err) {
+					console.error('Fetch users error:', err);
+					renderUsersList();
+				}
+			}
+
+			function updateOrderCounts() {
+				document.getElementById('count-pending').textContent = allOrders.filter(o => o.status === 'new').length;
+				document.getElementById('count-inprogress').textContent = allOrders.filter(o => o.status === 'in_progress').length;
+				document.getElementById('count-completed').textContent = allOrders.filter(o => o.status === 'completed').length;
+				document.getElementById('count-cancelled').textContent = allOrders.filter(o => o.status === 'cancelled').length;
+			}
+
+			function renderOrdersList() {
+				const container = document.getElementById('orders-list-mobile');
+				const filtered = allOrders.filter(o => o.status === currentOrderTab);
+
+				if (!filtered.length) {
+					container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Այս բաժնում պատվերներ չկան</div>`;
+					return;
+				}
+
+				container.innerHTML = filtered.map(o => {
+					const dateStr = new Date(o.created_at).toLocaleDateString('hy-AM', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+					const statusBadge = getStatusBadgeHTML(o.status);
+
+					let actionButtonsHTML = '';
+					if (o.status === 'new') {
+						actionButtonsHTML = `
+							<button onclick="event.stopPropagation(); changeOrderStatus('${o.id}', 'in_progress')" class="rounded-xl bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 text-xs font-semibold shadow-xs">Սկսել</button>
+							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-xl bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 text-xs font-semibold shadow-xs">Չեղարկել</button>
+						`;
+					} else if (o.status === 'in_progress') {
+						actionButtonsHTML = `
+							<button onclick="event.stopPropagation(); openEarningsModal('${o.id}')" class="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 text-xs font-semibold shadow-xs">Ավարտել</button>
+							<button onclick="event.stopPropagation(); promptConfirm('Չեղարկե՞լ պատվերը:', () => changeOrderStatus('${o.id}', 'cancelled'))" class="rounded-xl bg-red-600 text-white hover:bg-red-700 px-3.5 py-2 text-xs font-semibold shadow-xs">Չեղարկել</button>
+						`;
+					} else {
+						actionButtonsHTML = `<span class="text-xs text-slate-400 font-medium">Մանրամասն</span>`;
+					}
+
+					return `
+						<div onclick="openOrderDetailsModal('${o.id}')" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3 cursor-pointer">
+							<div class="flex items-start justify-between">
+								<div>
+									<h4 class="font-bold text-slate-900 text-sm">${escapeHtml(o.first_name || '')} ${escapeHtml(o.last_name || '')}</h4>
+									<p class="text-xs font-mono text-blue-600 font-semibold mt-0.5"><a href="tel:${escapeHtml(o.phone)}">${escapeHtml(o.phone)}</a></p>
+								</div>
+								<div>${statusBadge}</div>
+							</div>
+							<p class="text-xs text-slate-600 line-clamp-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${escapeHtml(o.problem_description || '')}</p>
+							<div class="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+								<span class="text-[11px] text-slate-400">${dateStr}</span>
+								<div class="flex gap-2">${actionButtonsHTML}</div>
+							</div>
+						</div>
+					`;
+				}).join('');
+			}
+
+			function getStatusBadgeHTML(status) {
+				const badges = {
+					new: '<span class="rounded-lg bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700 border border-amber-200">Սպասող</span>',
+					in_progress: '<span class="rounded-lg bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700 border border-blue-200">Ընթացքի մեջ</span>',
+					completed: '<span class="rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">Ավարտված</span>',
+					cancelled: '<span class="rounded-lg bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 border border-red-200">Չեղարկված</span>'
+				};
+				return badges[status] || status;
+			}
+
+			function openOrderDetailsModal(orderId) {
+				const o = allOrders.find(item => item.id === orderId);
+				if (!o) return;
+
+				document.getElementById('detail-client-name').textContent = `${o.first_name || ''} ${o.last_name || ''}`;
+				document.getElementById('detail-client-phone').textContent = o.phone;
+				document.getElementById('detail-problem-text').textContent = o.problem_description || 'Նկարագրություն առկա չէ';
+				document.getElementById('detail-status-badge').innerHTML = getStatusBadgeHTML(o.status);
+
+				const prodBox = document.getElementById('detail-product-box');
+				if (o.product_name) {
+					document.getElementById('detail-product-name').textContent = o.product_name;
+					prodBox.classList.remove('hidden');
+				} else {
+					prodBox.classList.add('hidden');
+				}
+
+				const actionsContainer = document.getElementById('detail-modal-actions');
+				if (o.status === 'new') {
+					actionsContainer.innerHTML = `
+						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-xl bg-red-600 text-white px-4 py-2 text-xs font-semibold">Չեղարկել</button>
+						<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeModal('modal-order-details');" class="rounded-xl bg-blue-600 text-white px-5 py-2 text-xs font-semibold">Սկսել</button>
+					`;
+				} else if (o.status === 'in_progress') {
+					actionsContainer.innerHTML = `
+						<button onclick="promptConfirm('Չեղարկե՞լ պատվերը:', () => { changeOrderStatus('${o.id}', 'cancelled'); closeModal('modal-order-details'); })" class="rounded-xl bg-red-600 text-white px-4 py-2 text-xs font-semibold">Չեղարկել</button>
+						<button onclick="closeModal('modal-order-details'); openEarningsModal('${o.id}');" class="rounded-xl bg-emerald-600 text-white px-5 py-2 text-xs font-semibold">Ավարտել Պատվերը</button>
+					`;
+				} else {
+					actionsContainer.innerHTML = `<button onclick="closeModal('modal-order-details')" class="rounded-xl bg-slate-100 text-slate-700 px-5 py-2 text-xs font-medium">Փակել</button>`;
+				}
+
+				document.getElementById('modal-order-details').classList.remove('hidden');
+			}
+
+			async function changeOrderStatus(orderId, newStatus) {
+				try {
+					const { error } = await window.supabaseClient
+						.from('service_requests')
+						.update({ status: newStatus })
+						.eq('id', orderId);
+
+					if (!error) fetchOrders();
+				} catch (err) {
+					console.error('Update status error:', err);
+				}
+			}
+
+			function openEarningsModal(orderId) {
+				document.getElementById('earnings-order-id').value = orderId;
+				document.getElementById('earnings-amount').value = '';
+				document.getElementById('modal-earnings').classList.remove('hidden');
+			}
+
+			document.getElementById('form-earnings').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const orderId = document.getElementById('earnings-order-id').value;
+				const amount = Number(document.getElementById('earnings-amount').value);
+				const order = allOrders.find(o => o.id === orderId);
+
+				try {
+					await window.supabaseClient.from('service_requests').update({ status: 'completed' }).eq('id', orderId);
+					await window.supabaseClient.from('finance_ledger').insert([{
+						order_id: orderId,
+						amount: amount,
+						client_name: order ? `${order.first_name || ''} ${order.last_name || ''}`.trim() : 'Հաճախորդ',
+						notes: order ? (order.product_name || order.problem_description || '') : ''
+					}]);
+
+					closeModal('modal-earnings');
+					fetchOrders();
+					fetchLedger();
+				} catch (err) {
+					alert('Սխալ պատվերը ավարտելիս');
+				}
+			});
+
+			function promptConfirm(title, onConfirm) {
+				document.getElementById('confirm-modal-title').textContent = title || 'Վստա՞հ եք:';
+				confirmCallback = onConfirm;
+				document.getElementById('modal-confirm').classList.remove('hidden');
+			}
+
+			document.getElementById('confirm-action-btn').addEventListener('click', () => {
+				if (confirmCallback) confirmCallback();
+				closeModal('modal-confirm');
+			});
+
+			// Finance Logic & Bar Chart
+			function renderFinanceChart(labels, dataValues, subtitleText) {
+				const subtitleEl = document.getElementById('chart-subtitle');
+				if (subtitleEl) subtitleEl.textContent = subtitleText;
+
+				const canvas = document.getElementById('finance-chart');
+				if (!canvas || !window.Chart) return;
+				const ctx = canvas.getContext('2d');
+
+				if (financeChartInstance) {
+					financeChartInstance.destroy();
+				}
+
+				financeChartInstance = new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Եկամուտ (Դրամ)',
+							data: dataValues,
+							backgroundColor: 'rgba(37, 99, 235, 0.85)',
+							borderRadius: 6,
+							maxBarThickness: 24
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false },
+							tooltip: {
+								callbacks: {
+									label: (c) => ` Եկամուտ: ${(c.raw || 0).toLocaleString('hy-AM')} Դրամ`
+								}
+							}
+						},
+						scales: {
+							x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Inter, Noto Sans Armenian' }, color: '#64748b' } },
+							y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10, family: 'Inter, Noto Sans Armenian' }, color: '#64748b', callback: (v) => v >= 1000 ? (v/1000)+'հզ' : v } }
+						}
+					}
+				});
+			}
+
+			function renderFinancePage() {
+				const range = document.getElementById('finance-range-select').value;
+				const now = new Date();
+				let filteredLedger = allLedger;
+
+				if (range === 'current_month') {
+					filteredLedger = allLedger.filter(l => {
+						const d = new Date(l.created_at);
+						return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+					});
+				} else if (range === 'last_month') {
+					const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+					filteredLedger = allLedger.filter(l => {
+						const d = new Date(l.created_at);
+						return d.getMonth() === lastMonthDate.getMonth() && d.getFullYear() === lastMonthDate.getFullYear();
+					});
+				} else if (range === 'current_year') {
+					filteredLedger = allLedger.filter(l => {
+						const d = new Date(l.created_at);
+						return d.getFullYear() === now.getFullYear();
+					});
+				}
+
+				const total = filteredLedger.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+				document.getElementById('total-earnings-display').textContent = `${total.toLocaleString('hy-AM')} Դրամ`;
+
+				const container = document.getElementById('ledger-list-mobile');
+				if (!filteredLedger.length) {
+					container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">Գործարքներ չկան</div>`;
+				} else {
+					container.innerHTML = filteredLedger.map(l => {
+						const dateStr = new Date(l.created_at).toLocaleDateString('hy-AM', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+						return `
+							<div class="rounded-xl border border-slate-200 bg-white p-3.5 flex items-center justify-between text-xs">
+								<div>
+									<div class="font-bold text-slate-900">${escapeHtml(l.client_name || 'Հաճախորդ')}</div>
+									<div class="text-[11px] text-slate-400 mt-0.5">${dateStr}</div>
+								</div>
+								<div class="font-bold text-emerald-600 text-sm">+${Number(l.amount).toLocaleString('hy-AM')} Դրամ</div>
+							</div>
+						`;
+					}).join('');
+				}
+
+				const armMonths = ['Հնվ', 'Փտր', 'Մրտ', 'Ապր', 'Մյս', 'Հնս', 'Հլս', 'Օգս', 'Սեպ', 'Հոկ', 'Նոյ', 'Դեկ'];
+				let labels = [];
+				let dataValues = [];
+				let subtitleText = '';
+
+				if (range === 'current_month') {
+					const year = now.getFullYear();
+					const month = now.getMonth();
+					const daysInMonth = new Date(year, month + 1, 0).getDate();
+					subtitleText = `Օրական (${armMonths[month]} ${year})`;
+
+					for (let day = 1; day <= daysInMonth; day++) {
+						labels.push(`${armMonths[month]} ${day}`);
+						const daySum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(daySum);
+					}
+				} else if (range === 'last_month') {
+					const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+					const year = lastMonthDate.getFullYear();
+					const month = lastMonthDate.getMonth();
+					const daysInMonth = new Date(year, month + 1, 0).getDate();
+					subtitleText = `Օրական (${armMonths[month]} ${year})`;
+
+					for (let day = 1; day <= daysInMonth; day++) {
+						labels.push(`${armMonths[month]} ${day}`);
+						const daySum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(daySum);
+					}
+				} else if (range === 'current_year') {
+					const year = now.getFullYear();
+					subtitleText = `Ամսական (${year})`;
+
+					for (let month = 0; month < 12; month++) {
+						labels.push(armMonths[month]);
+						const monthSum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year && d.getMonth() === month) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(monthSum);
+					}
+				} else if (range === 'all') {
+					subtitleText = 'Տարեկան (Ընդհանուր)';
+					const yearsSet = new Set(allLedger.map(l => new Date(l.created_at).getFullYear()));
+					yearsSet.add(now.getFullYear());
+					const sortedYears = Array.from(yearsSet).sort((a, b) => a - b);
+
+					sortedYears.forEach(year => {
+						labels.push(String(year));
+						const yearSum = allLedger.reduce((sum, l) => {
+							const d = new Date(l.created_at);
+							if (d.getFullYear() === year) {
+								return sum + (Number(l.amount) || 0);
+							}
+							return sum;
+						}, 0);
+						dataValues.push(yearSum);
+					});
+				}
+
+				renderFinanceChart(labels, dataValues, subtitleText);
+			}
+
+			document.getElementById('finance-range-select').addEventListener('change', renderFinancePage);
+
+			// Products List Mobile
+			function renderProductsList() {
+				const container = document.getElementById('products-list-mobile');
+				if (!allProducts.length) {
+					container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Ապրանքներ չկան</div>`;
+					return;
+				}
+
+				container.innerHTML = allProducts.map(p => {
+					const priceDisplay = p.price ? (p.price.includes('դրամ') ? p.price : (p.price + ' դրամ')) : '';
+					return `
+						<div class="rounded-2xl border border-slate-200 bg-white p-3.5 flex items-center justify-between gap-3 shadow-xs">
+							<img src="${escapeHtml(p.image || (p.images && p.images[0]) || '/images/products/placeholder.jpg')}" class="h-12 w-12 rounded-xl object-cover border border-slate-200" />
+							<div class="flex-1 min-w-0">
+								<h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(p.name)}</h4>
+								<p class="text-xs font-semibold text-blue-600 mt-0.5">${escapeHtml(priceDisplay)}</p>
+							</div>
+							<div class="flex items-center gap-1.5">
+								<a href="/admin/mobile/products/${p.id}/" class="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">Խմբագրել</a>
+								<button onclick="promptConfirm('Ջնջե՞լ այս ապրանքը:', () => deleteProduct(${p.id}))" class="rounded-xl bg-red-50 border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600">Ջնջել</button>
+							</div>
+						</div>
+					`;
+				}).join('');
+			}
+
+			async function deleteProduct(id) {
+				try {
+					const { error } = await window.supabaseClient.from('products').delete().eq('id', id);
+					if (!error) fetchProducts();
+				} catch (err) {
+					alert('Ջնջումը ձախողվեց');
+				}
+			}
+
+			// Admin Users Mobile List
+			function renderUsersList() {
+				const container = document.getElementById('users-list-mobile');
+				if (!allAdminUsers.length) {
+					container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Օգտատերեր չկան</div>`;
+					return;
+				}
+
+				container.innerHTML = allAdminUsers.map(u => `
+					<div class="rounded-2xl border border-slate-200 bg-white p-3.5 space-y-2.5 shadow-xs">
+						<div class="flex items-center justify-between">
+							<div>
+								<h4 class="font-bold text-slate-900 text-sm">${escapeHtml(u.name || u.username || 'Ադմին')}</h4>
+								<p class="text-xs font-mono text-slate-500 mt-0.5">@${escapeHtml(u.username || '')}</p>
+							</div>
+							<span class="rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">Ակտիվ</span>
+						</div>
+						<div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+							<button onclick="openEditUserModal('${u.id}', '${escapeHtml(u.name || '')}', '${escapeHtml(u.username || '')}')" class="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">Խմբագրել</button>
+							<button onclick="openResetPasswordModal('${u.id}', '${escapeHtml(u.username || '')}')" class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700">Փոխել Գաղտնաբառը</button>
+							<button onclick="promptConfirm('Վստա՞հ եք, որ ցանկանում եք ջնջել այս օգտատիրոջը:', () => deleteUser('${u.id}'))" class="rounded-xl bg-red-50 border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600">Ջնջել</button>
+						</div>
+					</div>
+				`).join('');
+			}
+
+			// Add Admin User Action
+			document.getElementById('add-user-btn')?.addEventListener('click', () => {
+				document.getElementById('new-user-fullname').value = '';
+				document.getElementById('new-user-username').value = '';
+				document.getElementById('new-user-pass').value = '';
+				document.getElementById('modal-add-user').classList.remove('hidden');
+			});
+
+			document.getElementById('form-add-user')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const fullname = document.getElementById('new-user-fullname').value.trim();
+				let uname = document.getElementById('new-user-username').value.trim();
+				const pass = document.getElementById('new-user-pass').value.trim();
+
+				let email = uname;
+				if (!email.includes('@')) {
+					email = `${email.toLowerCase()}@masterkotlov.am`;
+				}
+
+				try {
+					await window.supabaseClient.from('admin_users').insert([{
+						name: fullname,
+						username: uname,
+						email: email,
+						status: 'active'
+					}]);
+
+					await window.supabaseClient.auth.signUp({ email, password: pass }).catch(() => {});
+
+					alert(`Ադմին օգտատերը (${fullname} - ${uname}) հաջողությամբ ավելացվեց։`);
+					closeModal('modal-add-user');
+					fetchUsers();
+				} catch (err) {
+					alert('Օգտատիրոջ ավելացման սխալ: ' + (err.message || err));
+				}
+			});
+
+			function openEditUserModal(id, name, username) {
+				document.getElementById('edit-user-id').value = id;
+				document.getElementById('edit-user-fullname').value = name;
+				document.getElementById('edit-user-username').value = username;
+				document.getElementById('modal-edit-user').classList.remove('hidden');
+			}
+
+			document.getElementById('form-edit-user')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const id = document.getElementById('edit-user-id').value;
+				const fullname = document.getElementById('edit-user-fullname').value.trim();
+				const username = document.getElementById('edit-user-username').value.trim();
+
+				let email = username;
+				if (!email.includes('@')) {
+					email = `${email.toLowerCase()}@masterkotlov.am`;
+				}
+
+				try {
+					await window.supabaseClient.from('admin_users').update({
+						name: fullname,
+						username: username,
+						email: email
+					}).eq('id', id);
+
+					alert('Օգտատիրոջ տվյալները հաջողությամբ թարմացվեցին։');
+					closeModal('modal-edit-user');
+					fetchUsers();
+				} catch (err) {
+					alert('Տվյալների թարմացման սխալ: ' + (err.message || err));
+				}
+			});
+
+			async function deleteUser(id) {
+				try {
+					const { error } = await window.supabaseClient.from('admin_users').delete().eq('id', id);
+					if (!error) {
+						fetchUsers();
+					} else {
+						allAdminUsers = allAdminUsers.filter(u => u.id !== id);
+						renderUsersList();
+					}
+				} catch (err) {
+					alert('Ջնջումը ձախողվեց');
+				}
+			}
+
+			function openResetPasswordModal(id, username) {
+				document.getElementById('reset-new-pass').value = '';
+				document.getElementById('modal-reset-pass').classList.remove('hidden');
+			}
+
+			document.getElementById('form-reset-pass')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const newPassword = document.getElementById('reset-new-pass').value.trim();
+
+				try {
+					const { data, error } = await window.supabaseClient.auth.updateUser({ password: newPassword });
+					if (error) throw error;
+
+					alert('Գաղտնաբառը հաջողությամբ թարմացվեց։');
+					closeModal('modal-reset-pass');
+				} catch (err) {
+					alert('Գաղտնաբառի փոփոխման սխալ: ' + (err.message || err));
+				}
+			});
+
+			document.getElementById('add-order-btn')?.addEventListener('click', () => {
+				const prodSelect = document.getElementById('new-order-product');
+				prodSelect.innerHTML = '<option value="">-- Առանց ապրանքի --</option>' +
+					allProducts.map(p => `<option value="${p.id}" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+
+				document.getElementById('new-order-firstname').value = '';
+				document.getElementById('new-order-lastname').value = '';
+				document.getElementById('new-order-phone').value = '';
+				document.getElementById('new-order-problem').value = '';
+				document.getElementById('modal-add-order').classList.remove('hidden');
+			});
+
+			document.getElementById('form-add-order')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const firstname = document.getElementById('new-order-firstname').value.trim();
+				const lastname = document.getElementById('new-order-lastname').value.trim();
+				const phone = document.getElementById('new-order-phone').value.trim();
+				const problem = document.getElementById('new-order-problem').value.trim();
+
+				const prodSelect = document.getElementById('new-order-product');
+				const selectedOpt = prodSelect.selectedOptions[0];
+				const productId = selectedOpt && selectedOpt.value ? Number(selectedOpt.value) : null;
+				const productName = selectedOpt && selectedOpt.value ? selectedOpt.getAttribute('data-name') : null;
+
+				try {
+					const { error } = await window.supabaseClient
+						.from('service_requests')
+						.insert([{
+							first_name: firstname,
+							last_name: lastname,
+							phone: phone,
+							problem_description: problem,
+							product_id: productId,
+							product_name: productName,
+							status: 'new'
+						}]);
+
+					if (error) throw error;
+
+					alert('Պատվերը հաջողությամբ ավելացվեց։');
+					closeModal('modal-add-order');
+					fetchOrders();
+				} catch (err) {
+					alert('Պատվերի ավելացման սխալ: ' + (err.message || err));
+				}
+			});
+
+			function closeModal(id) {
+				document.getElementById(id)?.classList.add('hidden');
+			}
+
+			document.getElementById('refresh-orders-btn')?.addEventListener('click', fetchOrders);
+			document.getElementById('logout-btn')?.addEventListener('click', async () => {
+				await window.supabaseClient.auth.signOut();
+				window.location.href = '/admin/mobile/login/';
+			});
+
+			function escapeHtml(str) {
+				return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] || c));
+			}
+
+			initAuth();
+		</script>
+	</body>
+</html>

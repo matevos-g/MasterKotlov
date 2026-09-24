@@ -62,13 +62,34 @@
 			const loginError = document.getElementById('login-error');
 			const loginBtn = document.getElementById('login-btn');
 
+			function getArmenianAuthErrorMessage(err) {
+				if (!err) return 'Սխալ մուտքային տվյալներ։';
+				const msg = String(err.message || err).toLowerCase();
+
+				if (msg.includes('invalid login credentials') || msg.includes('invalid_credentials')) {
+					return 'Սխալ օգտանուն կամ գաղտնաբառ։';
+				}
+				if (msg.includes('user not found')) {
+					return 'Այս օգտանունով օգտատեր չի գտնվել։';
+				}
+				if (msg.includes('email not confirmed')) {
+					return 'Էլ․ փոստը հաստատված չէ։';
+				}
+				if (msg.includes('too many requests') || msg.includes('rate limit')) {
+					return 'Չափազանց շատ փորձեր։ Խնդրում ենք սպասել 1 րոպե։';
+				}
+				if (msg.includes('network') || msg.includes('fetch')) {
+					return 'Կապի սխալ։ Խնդրում ենք ստուգել ինտերնետ կապը։';
+				}
+				return 'Սխալ մուտքային տվյալներ։ Խնդրում ենք ստուգել տվյալները։';
+			}
+
 			form.addEventListener('submit', async (e) => {
 				e.preventDefault();
 				loginError.classList.add('hidden');
 				let userInput = document.getElementById('username').value.trim();
 				const password = document.getElementById('password').value.trim();
 
-				// If user enters a plain username like "admin", automatically map to email format for Supabase Auth
 				let email = userInput;
 				if (!email.includes('@')) {
 					email = `${email.toLowerCase()}@masterkotlov.am`;
@@ -87,7 +108,7 @@
 					
 					window.location.href = '/admin/';
 				} catch (err) {
-					loginError.textContent = err.message || 'Մուտքը ձախողվեց։ Խնդրում ենք ստուգել տվյալները։';
+					loginError.textContent = getArmenianAuthErrorMessage(err);
 					loginError.classList.remove('hidden');
 				} finally {
 					loginBtn.disabled = false;

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="50%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#fef08a" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <!-- Circle backdrop -->
+  <circle cx="256" cy="256" r="180" fill="#ffffff" fill-opacity="0.1" />
+  <!-- Boiler Flame Icon -->
+  <path d="M256 100 C270 160 330 200 330 260 C330 310 295 350 256 350 C217 350 182 310 182 260 C182 200 242 160 256 100 Z" fill="url(#flameGrad)" />
+  <path d="M256 200 C264 230 290 250 290 280 C290 305 273 325 256 325 C239 325 222 305 222 280 C222 250 248 230 256 200 Z" fill="#ffffff" fill-opacity="0.9" />
+  <!-- Wrench accent -->
+  <path d="M340 340 L370 370 M360 330 L380 350" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="hy" class="h-full bg-slate-50 text-slate-900">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+		<title>MasterKotlov - Mobile Product Edit</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Armenian:wght@400;500;600;700&display=swap" rel="stylesheet" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+		<script src="/supabase-config.js"></script>
+		<style>
+			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
+			.tab-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
+		</style>
+	</head>
+	<body class="min-h-full flex flex-col bg-slate-50">
+		<!-- Header -->
+		<header class="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 pb-3" style="padding-top: max(12px, env(safe-area-inset-top));">
+			<div class="flex items-center justify-between">
+				<a href="/admin/mobile/" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition">
+					<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+					</svg>
+					<span>Վերադառնալ</span>
+				</a>
+				<span id="user-badge" class="text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">admin</span>
+			</div>
+		</header>
+
+		<!-- Main Container -->
+		<main class="w-full flex-1 px-4 py-6 pb-12">
+			<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden space-y-4">
+				
+				<div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+					<div>
+						<h1 id="page-title" class="text-base font-bold text-slate-900">Խմբագրել Ապրանքը</h1>
+						<p class="text-xs text-slate-500" id="page-subtitle">Տվյալներ և նկարներ</p>
+					</div>
+
+					<button id="delete-btn" type="button" class="hidden rounded-xl bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition">
+						Ջնջել
+					</button>
+				</div>
+
+				<div class="flex border-b border-slate-200 bg-slate-50/50 px-4">
+					<button id="tab-btn-details" type="button" class="tab-btn active flex-1 py-2.5 text-xs text-center font-medium text-slate-600 transition">
+						Տվյալներ
+					</button>
+					<button id="tab-btn-images" type="button" class="tab-btn flex-1 py-2.5 text-xs text-center font-medium text-slate-600 transition flex items-center justify-center gap-1">
+						<span>Նկարներ</span>
+						<span id="images-badge-count" class="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">0</span>
+					</button>
+				</div>
+
+				<form id="product-form" class="p-5 space-y-4">
+					<div id="section-details" class="space-y-4">
+						<div>
+							<label for="prod-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Անվանում *</label>
+							<input type="text" id="prod-name" required placeholder="Հոսքի սենսոր" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+
+						<div>
+							<label for="prod-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Գին (18000-25000) *</label>
+							<input type="text" id="prod-price" required placeholder="18000-25000" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+
+						<div>
+							<label for="prod-desk" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Համառոտ Նկարագրություն *</label>
+							<textarea id="prod-desk" rows="2" required placeholder="Վերահսկում է ջրի հոսքը..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none"></textarea>
+						</div>
+
+						<div>
+							<label for="prod-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Մանրամասն Նկարագրություն</label>
+							<textarea id="prod-description" rows="3" placeholder="Լրացուցիչ տեղեկություններ..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none"></textarea>
+						</div>
+
+						<div class="flex items-center gap-2 pt-1">
+							<input type="checkbox" id="prod-top" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+							<label for="prod-top" class="text-xs font-semibold text-slate-700">Ցուցադրել Top Product</label>
+						</div>
+					</div>
+
+					<div id="section-images" class="hidden space-y-4">
+						<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+							<h3 class="text-xs font-semibold text-slate-900">Նկարներ</h3>
+							<input type="file" id="file-upload-input" accept="image/*" multiple class="hidden" />
+							<button type="button" onclick="document.getElementById('file-upload-input').click()" class="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">
+								+ Բեռնել
+							</button>
+						</div>
+
+						<div id="images-grid" class="grid grid-cols-2 gap-3"></div>
+
+						<div class="rounded-xl bg-slate-50 p-3 border border-slate-200 space-y-2">
+							<label class="block text-[11px] font-medium text-slate-600">Ավելացնել URL</label>
+							<div class="flex gap-2">
+								<input type="text" id="new-image-url" placeholder="/parts/1/photo_1.jpg" class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-900 outline-none focus:border-blue-600" />
+								<button type="button" id="add-url-btn" class="rounded-xl bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white">
+									Ավելացնել
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<div id="form-feedback" class="hidden rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-semibold text-emerald-700"></div>
+
+					<div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+						<a href="/admin/mobile/" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700">
+							Չեղարկել
+						</a>
+						<button type="submit" id="save-btn" class="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700">
+							Պահպանել
+						</button>
+					</div>
+				</form>
+			</div>
+		</main>
+
+		<!-- Confirmation Modal -->
+		<div id="confirm-modal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4 text-center">
+				<h3 class="text-base font-bold text-slate-900">Վստա՞հ եք:</h3>
+				<p class="text-xs text-slate-500">Այս ապրանքը վերջնականապես կջնջվի։</p>
+				<div class="flex justify-center gap-3 pt-2">
+					<button type="button" onclick="closeConfirmModal()" class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700">Չեղարկել</button>
+					<button id="confirm-delete-btn" type="button" class="rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-white">Այո, Ջնջել</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			let currentProductId = null;
+			let currentImages = [];
+
+			const tabBtnDetails = document.getElementById('tab-btn-details');
+			const tabBtnImages = document.getElementById('tab-btn-images');
+			const sectionDetails = document.getElementById('section-details');
+			const sectionImages = document.getElementById('section-images');
+
+			tabBtnDetails.addEventListener('click', () => {
+				tabBtnDetails.classList.add('active');
+				tabBtnImages.classList.remove('active');
+				sectionDetails.classList.remove('hidden');
+				sectionImages.classList.add('hidden');
+			});
+
+			tabBtnImages.addEventListener('click', () => {
+				tabBtnImages.classList.add('active');
+				tabBtnDetails.classList.remove('active');
+				sectionImages.classList.remove('hidden');
+				sectionDetails.classList.add('hidden');
+			});
+
+			function getProductIdFromUrl() {
+				const segments = window.location.pathname.split('/').filter(Boolean);
+				const last = segments[segments.length - 1];
+				if (last && last !== 'products' && last !== 'new') {
+					return last;
+				}
+				return null;
+			}
+
+			async function initAuth() {
+				if (!window.supabaseClient) {
+					window.location.href = '/admin/mobile/login/';
+					return;
+				}
+				const { data: { session } } = await window.supabaseClient.auth.getSession();
+				if (!session) {
+					window.location.href = '/admin/mobile/login/';
+					return;
+				}
+				const userEmail = session.user.email || '';
+				document.getElementById('user-badge').textContent = userEmail.endsWith('@masterkotlov.am') ? userEmail.replace('@masterkotlov.am', '') : userEmail;
+				
+				currentProductId = getProductIdFromUrl();
+				if (currentProductId) {
+					document.getElementById('page-title').textContent = `Ապրանք #${currentProductId}`;
+					document.getElementById('delete-btn').classList.remove('hidden');
+					loadProductDetails(currentProductId);
+				} else {
+					document.getElementById('page-title').textContent = 'Նոր Ապրանք';
+					renderImagesGrid();
+				}
+			}
+
+			async function loadProductDetails(id) {
+				try {
+					const { data, error } = await window.supabaseClient.from('products').select('*').eq('id', id).single();
+					if (!error && data) {
+						document.getElementById('prod-name').value = data.name || '';
+						document.getElementById('prod-price').value = data.price || '';
+						document.getElementById('prod-desk').value = data.desk || '';
+						document.getElementById('prod-description').value = data.description || '';
+						document.getElementById('prod-top').checked = Boolean(data.top);
+						currentImages = Array.isArray(data.images) ? data.images : (data.image ? [data.image] : []);
+						renderImagesGrid();
+					}
+				} catch (err) {
+					console.error('Load product details error:', err);
+				}
+			}
+
+			function renderImagesGrid() {
+				const grid = document.getElementById('images-grid');
+				document.getElementById('images-badge-count').textContent = currentImages.length;
+
+				if (!currentImages.length) {
+					grid.innerHTML = `<div class="col-span-full rounded-xl bg-slate-50 p-6 text-center text-xs text-slate-400 border border-slate-200">Նկարներ ավելացված չեն</div>`;
+					return;
+				}
+
+				grid.innerHTML = currentImages.map((img, idx) => `
+					<div class="relative group rounded-xl border border-slate-200 overflow-hidden bg-white aspect-square flex items-center justify-center">
+						<img src="${escapeHtml(img)}" class="h-full w-full object-cover" />
+						<button type="button" onclick="removeImage(${idx})" title="Ջնջել" class="absolute top-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
+							✕
+						</button>
+					</div>
+				`).join('');
+			}
+
+			function removeImage(index) {
+				currentImages.splice(index, 1);
+				renderImagesGrid();
+			}
+
+			document.getElementById('file-upload-input').addEventListener('change', async function(e) {
+				const files = Array.from(e.target.files);
+				if (!files.length) return;
+
+				for (const file of files) {
+					try {
+						if (window.supabaseClient) {
+							const fileExt = file.name.split('.').pop();
+							const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+							const filePath = `products/${fileName}`;
+
+							const { data, error } = await window.supabaseClient.storage.from('product-images').upload(filePath, file);
+
+							if (!error) {
+								const { data: { publicUrl } } = window.supabaseClient.storage.from('product-images').getPublicUrl(filePath);
+								currentImages.push(publicUrl);
+							}
+						}
+					} catch (err) {
+						console.error(err);
+					}
+				}
+
+				e.target.value = '';
+				renderImagesGrid();
+			});
+
+			document.getElementById('add-url-btn').addEventListener('click', () => {
+				const input = document.getElementById('new-image-url');
+				const url = input.value.trim();
+				if (url) {
+					currentImages.push(url);
+					input.value = '';
+					renderImagesGrid();
+				}
+			});
+
+			document.getElementById('product-form').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const saveBtn = document.getElementById('save-btn');
+				const feedback = document.getElementById('form-feedback');
+				feedback.classList.add('hidden');
+
+				let rawPrice = document.getElementById('prod-price').value.replace(/\s*դրամ|\s*Դրամ/gi, '').trim();
+				const priceParts = rawPrice.split('-').map(s => Number(s.trim()));
+				const isValidPrice = priceParts.length > 0 && priceParts.every(n => !isNaN(n) && n >= 18000 && n <= 25000);
+
+				if (!isValidPrice) {
+					alert('Գինը պետք է լինի 18000-25000 միջակայքում (օրինակ՝ 18000 կամ 18000-25000)։');
+					return;
+				}
+
+				const payload = {
+					name: document.getElementById('prod-name').value.trim(),
+					price: rawPrice,
+					desk: document.getElementById('prod-desk').value.trim(),
+					description: document.getElementById('prod-description').value.trim(),
+					top: document.getElementById('prod-top').checked,
+					images: currentImages
+				};
+
+				saveBtn.disabled = true;
+				saveBtn.innerText = 'Պահպանվում է...';
+
+				try {
+					if (currentProductId) {
+						const { error } = await window.supabaseClient.from('products').update(payload).eq('id', currentProductId);
+						if (error) throw error;
+					} else {
+						const { error } = await window.supabaseClient.from('products').insert([payload]);
+						if (error) throw error;
+					}
+
+					feedback.textContent = '✓ Պահպանված է։';
+					feedback.classList.remove('hidden');
+					setTimeout(() => {
+						window.location.href = '/admin/mobile/';
+					}, 1000);
+				} catch (err) {
+					alert('Պահպանման սխալ: ' + (err.message || err));
+				} finally {
+					saveBtn.disabled = false;
+					saveBtn.innerText = 'Պահպանել';
+				}
+			});
+
+			document.getElementById('delete-btn').addEventListener('click', () => {
+				document.getElementById('confirm-modal').classList.remove('hidden');
+			});
+
+			function closeConfirmModal() {
+				document.getElementById('confirm-modal').classList.add('hidden');
+			}
+
+			document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+				if (!currentProductId) return;
+				try {
+					const { error } = await window.supabaseClient.from('products').delete().eq('id', currentProductId);
+					if (!error) window.location.href = '/admin/mobile/';
+				} catch (err) {
+					alert('Ջնջման սխալ');
+				}
+			});
+
+			function escapeHtml(str) {
+				return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] || c));
+			}
+
+			initAuth();
+		</script>
+	</body>
+</html>
