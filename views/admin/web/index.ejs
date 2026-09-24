@@ -82,11 +82,14 @@
 						<button id="tab-order-cancelled" type="button" class="order-tab rounded-lg px-3.5 py-1.5 text-slate-600 transition">
 							Չեղարկված (<span id="count-cancelled">0</span>)
 						</button>
+					<div class="flex items-center gap-2">
+						<button id="add-order-btn" type="button" class="rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700 transition">
+							+ Ավելացնել Պատվեր
+						</button>
+						<button id="refresh-orders-btn" class="text-xs font-medium text-slate-500 hover:text-slate-900 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm transition">
+							Թարմացնել
+						</button>
 					</div>
-
-					<button id="refresh-orders-btn" class="text-xs font-medium text-slate-500 hover:text-slate-900 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm transition">
-						Թարմացնել
-					</button>
 				</div>
 
 				<!-- Orders Table -->
@@ -363,6 +366,58 @@
 					<div class="flex justify-end gap-2 pt-2">
 						<button type="button" onclick="closeModal('modal-reset-pass')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
 						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Պահպանել</button>
+					</div>
+				</form>
+		<!-- ========================================== -->
+		<!-- MODAL 6: ADD NEW ORDER MANUALLY            -->
+		<!-- ========================================== -->
+		<div id="modal-add-order" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+					<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Պատվեր</h3>
+					<button onclick="closeModal('modal-add-order')" class="text-slate-400 hover:text-slate-700 text-sm">✕</button>
+				</div>
+				<form id="form-add-order" class="space-y-3">
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label class="block text-xs font-medium text-slate-700 mb-1">Անուն *</label>
+							<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+						<div>
+							<label class="block text-xs font-medium text-slate-700 mb-1">Ազգանուն *</label>
+							<input type="text" id="new-order-lastname" required placeholder="Սարգսյան" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Հեռախոսահամար *</label>
+						<input type="tel" id="new-order-phone" required placeholder="099123456" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Ապրանք (Ընտրովի)</label>
+						<select id="new-order-product" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 bg-white">
+							<option value="">-- Առանց ապրանքի --</option>
+						</select>
+					</div>
+
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Խնդրի Նկարագրություն *</label>
+						<textarea id="new-order-problem" rows="3" required placeholder="Կաթսան չի տաքացնում ջուրը..." class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 resize-none"></textarea>
+					</div>
+
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Կարգավիճակ</label>
+						<select id="new-order-status" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 bg-white">
+							<option value="new">Սպասող (New)</option>
+							<option value="in_progress">Ընթացքի մեջ (In Progress)</option>
+							<option value="completed">Ավարտված (Completed)</option>
+						</select>
+					</div>
+
+					<div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+						<button type="button" onclick="closeModal('modal-add-order')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
+						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Ավելացնել Պատվերը</button>
 					</div>
 				</form>
 			</div>
@@ -897,6 +952,56 @@
 					closeModal('modal-reset-pass');
 				} catch (err) {
 					alert('Գաղտնաբառի փոփոխման սխալ: ' + (err.message || err));
+				}
+			});
+
+			// Add Manual Order Action
+			document.getElementById('add-order-btn')?.addEventListener('click', () => {
+				const prodSelect = document.getElementById('new-order-product');
+				prodSelect.innerHTML = '<option value="">-- Առանց ապրանքի --</option>' +
+					allProducts.map(p => `<option value="${p.id}" data-name="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+
+				document.getElementById('new-order-firstname').value = '';
+				document.getElementById('new-order-lastname').value = '';
+				document.getElementById('new-order-phone').value = '';
+				document.getElementById('new-order-problem').value = '';
+				document.getElementById('new-order-status').value = 'new';
+				document.getElementById('modal-add-order').classList.remove('hidden');
+			});
+
+			document.getElementById('form-add-order')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const firstname = document.getElementById('new-order-firstname').value.trim();
+				const lastname = document.getElementById('new-order-lastname').value.trim();
+				const phone = document.getElementById('new-order-phone').value.trim();
+				const problem = document.getElementById('new-order-problem').value.trim();
+				const status = document.getElementById('new-order-status').value || 'new';
+
+				const prodSelect = document.getElementById('new-order-product');
+				const selectedOpt = prodSelect.selectedOptions[0];
+				const productId = selectedOpt && selectedOpt.value ? Number(selectedOpt.value) : null;
+				const productName = selectedOpt && selectedOpt.value ? selectedOpt.getAttribute('data-name') : null;
+
+				try {
+					const { error } = await window.supabaseClient
+						.from('service_requests')
+						.insert([{
+							first_name: firstname,
+							last_name: lastname,
+							phone: phone,
+							problem_description: problem,
+							product_id: productId,
+							product_name: productName,
+							status: status
+						}]);
+
+					if (error) throw error;
+
+					alert('Պատվերը հաջողությամբ ավելացվեց։');
+					closeModal('modal-add-order');
+					fetchOrders();
+				} catch (err) {
+					alert('Պատվերի ավելացման սխալ: ' + (err.message || err));
 				}
 			});
 
