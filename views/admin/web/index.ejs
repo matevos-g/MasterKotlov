@@ -166,9 +166,10 @@
 			<section id="page-products" class="hidden space-y-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-lg font-bold text-slate-900">Ապրանքների Տեսականի</h2>
-					<button id="add-product-btn" class="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 transition">
+					<a href="/admin/web/products/new/" class="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 transition">
 						+ Ավելացնել Ապրանք
-					</button>
+					</a>
+
 				</div>
 
 				<div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -685,24 +686,11 @@
 							${p.top ? '<span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded border border-emerald-200">Այո</span>' : '<span class="text-xs text-slate-400">Ոչ</span>'}
 						</td>
 						<td class="px-4 py-2.5 text-right space-x-1">
-							<button onclick="editProduct(${p.id})" class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200">Խմբագրել</button>
+							<a href="/admin/web/products/${p.id}/" class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 inline-block">Խմբագրել</a>
 							<button onclick="promptConfirm('Ջնջե՞լ այս ապրանքը:', () => deleteProduct(${p.id}))" class="rounded-lg bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-100">Ջնջել</button>
 						</td>
 					</tr>
 				`).join('');
-			}
-
-			function editProduct(id) {
-				const prod = allProducts.find(p => p.id === id);
-				if (!prod) return;
-				document.getElementById('prod-id').value = prod.id;
-				document.getElementById('prod-name').value = prod.name;
-				document.getElementById('prod-price').value = prod.price;
-				document.getElementById('prod-desk').value = prod.desk;
-				document.getElementById('prod-images').value = (prod.images || []).join(', ');
-				document.getElementById('prod-top').checked = Boolean(prod.top);
-				document.getElementById('product-modal-title').textContent = 'Խմբագրել Ապրանքը';
-				document.getElementById('modal-product').classList.remove('hidden');
 			}
 
 			async function deleteProduct(id) {
@@ -714,43 +702,10 @@
 				}
 			}
 
-			document.getElementById('add-product-btn').addEventListener('click', () => {
-				document.getElementById('prod-id').value = '';
-				document.getElementById('form-product').reset();
-				document.getElementById('product-modal-title').textContent = 'Ավելացնել Ապրանք';
-				document.getElementById('modal-product').classList.remove('hidden');
-			});
-
-			document.getElementById('form-product').addEventListener('submit', async (e) => {
-				e.preventDefault();
-				const id = document.getElementById('prod-id').value;
-				const imagesStr = document.getElementById('prod-images').value.trim();
-				const images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-				const payload = {
-					name: document.getElementById('prod-name').value.trim(),
-					price: document.getElementById('prod-price').value.trim(),
-					desk: document.getElementById('prod-desk').value.trim(),
-					images,
-					top: document.getElementById('prod-top').checked
-				};
-
-				try {
-					if (id) {
-						await window.supabaseClient.from('products').update(payload).eq('id', id);
-					} else {
-						await window.supabaseClient.from('products').insert([payload]);
-					}
-					closeModal('modal-product');
-					fetchProducts();
-				} catch (err) {
-					alert('Սխալ ապրանքը պահպանելիս');
-				}
-			});
-
 			function closeModal(id) {
 				document.getElementById(id)?.classList.add('hidden');
 			}
+
 
 			document.getElementById('refresh-orders-btn')?.addEventListener('click', fetchOrders);
 			document.getElementById('logout-btn')?.addEventListener('click', async () => {

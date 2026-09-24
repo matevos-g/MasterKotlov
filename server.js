@@ -97,13 +97,18 @@ app.get('/admin/web/login', (req, res) => {
 	res.render('admin/web/login');
 });
 
+app.get('/admin/web/products/:id', (req, res) => {
+	res.render('admin/web/product-edit');
+});
+
 app.get('/admin/web', (req, res) => {
 	res.render('admin/web/index');
 });
 
 app.get('/admin', (req, res) => {
-	res.redirect('/admin/web');
+	res.render('admin/router');
 });
+
 
 
 // Admin Orders API
