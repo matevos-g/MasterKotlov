@@ -172,17 +172,18 @@ async function build() {
 		fs.writeFileSync(path.join(productDir, 'index.html'), productHtml, 'utf8');
 	}
 
-	// 3.5 Render Admin Pages
-	console.log('Rendering Admin pages...');
-	const adminDashboardHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'dashboard.ejs'), {});
-	const adminLoginHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'login.ejs'), {});
+	// 3.5 Render Admin Web Pages
+	console.log('Rendering Admin Web pages...');
+	const adminWebIndexHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'web', 'index.ejs'), {});
+	const adminWebLoginHtml = await ejs.renderFile(path.join(viewsDir, 'admin', 'web', 'login.ejs'), {});
 	
 	fs.mkdirSync(path.join(distDir, 'admin'), { recursive: true });
-	fs.mkdirSync(path.join(distDir, 'admin', 'login'), { recursive: true });
-	fs.mkdirSync(path.join(distDir, 'admin', 'dashboard'), { recursive: true });
-	fs.writeFileSync(path.join(distDir, 'admin', 'index.html'), adminDashboardHtml, 'utf8');
-	fs.writeFileSync(path.join(distDir, 'admin', 'dashboard', 'index.html'), adminDashboardHtml, 'utf8');
-	fs.writeFileSync(path.join(distDir, 'admin', 'login', 'index.html'), adminLoginHtml, 'utf8');
+	fs.mkdirSync(path.join(distDir, 'admin', 'web'), { recursive: true });
+	fs.mkdirSync(path.join(distDir, 'admin', 'web', 'login'), { recursive: true });
+	fs.writeFileSync(path.join(distDir, 'admin', 'index.html'), adminWebIndexHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'web', 'index.html'), adminWebIndexHtml, 'utf8');
+	fs.writeFileSync(path.join(distDir, 'admin', 'web', 'login', 'index.html'), adminWebLoginHtml, 'utf8');
+
 
 	// 4. Copy static assets
 	console.log('Copying static assets...');

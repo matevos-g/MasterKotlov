@@ -27,33 +27,45 @@ CREATE TABLE IF NOT EXISTS public.service_requests (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Enable Row Level Security (RLS)
+-- 3. Create Finance Ledger Table
+CREATE TABLE IF NOT EXISTS public.finance_ledger (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES public.service_requests(id) ON DELETE SET NULL,
+    amount NUMERIC NOT NULL,
+    client_name TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
 
--- 4. RLS Policies for Products
--- Public read access (anyone can view products)
+-- 5. RLS Policies for Products
 DROP POLICY IF EXISTS "Public read products" ON public.products;
 CREATE POLICY "Public read products" ON public.products
     FOR SELECT USING (true);
 
--- Authenticated admins can create, update, delete products
 DROP POLICY IF EXISTS "Admin full control products" ON public.products;
 CREATE POLICY "Admin full control products" ON public.products
     FOR ALL USING (auth.role() = 'authenticated');
 
--- 5. RLS Policies for Service Requests
--- Anyone can submit a service request / order
+-- 6. RLS Policies for Service Requests
 DROP POLICY IF EXISTS "Public insert service requests" ON public.service_requests;
 CREATE POLICY "Public insert service requests" ON public.service_requests
     FOR INSERT WITH CHECK (true);
 
--- Authenticated admins can read, update, delete service requests
 DROP POLICY IF EXISTS "Admin full control service requests" ON public.service_requests;
 CREATE POLICY "Admin full control service requests" ON public.service_requests
     FOR ALL USING (auth.role() = 'authenticated');
 
--- 6. Setup Supabase Storage Bucket for Product Images
+-- 7. RLS Policies for Finance Ledger
+DROP POLICY IF EXISTS "Admin full control finance ledger" ON public.finance_ledger;
+CREATE POLICY "Admin full control finance ledger" ON public.finance_ledger
+    FOR ALL USING (auth.role() = 'authenticated');
+
+-- 8. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
@@ -71,7 +83,7 @@ DROP POLICY IF EXISTS "Admin Delete Product Images" ON storage.objects;
 CREATE POLICY "Admin Delete Product Images" ON storage.objects
     FOR DELETE USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
 
--- 7. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
+-- 9. Seed Initial Product Data
 INSERT INTO public.products (id, name, price, desk, top, images) VALUES
 (1, 'Հոսքի սենսոր', '18000-25000 դրամ', 'Վերահսկում է ջրի հոսքը կաթսայի համակարգում և ապահովում սարքի ճիշտ աշխատանքը տաք ջրի օգտագործման ժամանակ։', true, ARRAY['/parts/1/photo_2026-09-24_22-10-10.jpg', '/parts/1/photo_2026-09-24_22-10-11 (2).jpg', '/parts/1/photo_2026-09-24_22-10-11.jpg', '/parts/1/photo_2026-09-24_22-10-12.jpg', '/parts/1/photo_2026-09-24_22-10-13 (2).jpg', '/parts/1/photo_2026-09-24_22-10-13.jpg', '/parts/1/photo_2026-09-24_22-10-14.jpg', '/parts/1/photo_2026-09-24_22-10-15.jpg']),
 (2, 'Նասոս', '45000-85000 դրամ', 'Ապահովում է ջրի մշտական շրջանառությունը ջեռուցման համակարգում՝ պահպանելով արդյունավետ ջերմափոխանակությունը։', true, ARRAY['/parts/2/photo_2026-09-24_22-10-33 (2).jpg', '/parts/2/photo_2026-09-24_22-10-33.jpg', '/parts/2/photo_2026-09-24_22-10-34.jpg']),

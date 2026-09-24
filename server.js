@@ -93,32 +93,18 @@ app.post('/api/service-request', async (req, res) => {
 // ADMIN DASHBOARD & MANAGEMENT ROUTES
 // ==========================================
 
-app.get('/admin/login', (req, res) => {
-	res.render('admin/login', {
-		supabaseUrl: process.env.SUPABASE_URL || '',
-		supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
-	});
+app.get('/admin/web/login', (req, res) => {
+	res.render('admin/web/login');
 });
 
-app.post('/admin/api/login', (req, res) => {
-	const { email, password } = req.body;
-	// Default dev admin fallback if Supabase auth is not active yet
-	if (email === 'admin@masterkotlov.am' && password === 'admin123') {
-		return res.json({ success: true, message: 'Logged in successfully' });
-	}
-	res.status(401).json({ success: false, message: 'Անվավեր էլ. փոստ կամ գաղտնաբառ' });
-});
-
-app.get('/admin/dashboard', (req, res) => {
-	res.render('admin/dashboard', {
-		supabaseUrl: process.env.SUPABASE_URL || '',
-		supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
-	});
+app.get('/admin/web', (req, res) => {
+	res.render('admin/web/index');
 });
 
 app.get('/admin', (req, res) => {
-	res.redirect('/admin/dashboard');
+	res.redirect('/admin/web');
 });
+
 
 // Admin Orders API
 app.get('/admin/api/orders', async (req, res) => {
