@@ -36,7 +36,7 @@
 		<h3 class="mt-4 text-lg font-semibold text-blue-900"><%= product.name %></h3>
 		<p class="mt-2 text-sm leading-relaxed text-slate-700"><%= product.desk %></p>
 		<% if (product.price) { %>
-			<p class="mt-3 text-base font-semibold text-slate-900"><%= product.price %></p>
+			<p class="mt-3 text-base font-semibold text-slate-900"><%= product.price.includes('դրամ') ? product.price : (product.price + ' դրամ') %></p>
 		<% } %>
 	</div>
 

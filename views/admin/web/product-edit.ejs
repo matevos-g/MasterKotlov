@@ -67,8 +67,8 @@
 							</div>
 
 							<div>
-								<label for="prod-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Գին *</label>
-								<input type="text" id="prod-price" required placeholder="18000-25000 դրամ" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
+								<label for="prod-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Գին (18000-25000) *</label>
+								<input type="text" id="prod-price" required placeholder="18000-25000" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
 							</div>
 						</div>
 
@@ -341,9 +341,18 @@
 				const feedback = document.getElementById('form-feedback');
 				feedback.classList.add('hidden');
 
+				let rawPrice = document.getElementById('prod-price').value.replace(/\s*դրամ|\s*Դրամ/gi, '').trim();
+				const priceParts = rawPrice.split('-').map(s => Number(s.trim()));
+				const isValidPrice = priceParts.length > 0 && priceParts.every(n => !isNaN(n) && n >= 18000 && n <= 25000);
+
+				if (!isValidPrice) {
+					alert('Գինը պետք է լինի 18000-25000 միջակայքում (օրինակ՝ 18000 կամ 18000-25000)։');
+					return;
+				}
+
 				const payload = {
 					name: document.getElementById('prod-name').value.trim(),
-					price: document.getElementById('prod-price').value.trim(),
+					price: rawPrice,
 					desk: document.getElementById('prod-desk').value.trim(),
 					description: document.getElementById('prod-description').value.trim(),
 					top: document.getElementById('prod-top').checked,

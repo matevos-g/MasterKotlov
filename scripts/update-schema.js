@@ -12,7 +12,8 @@ const fullProducts = products.map((p) => {
 		files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 		images = files.map((f) => `/parts/${p.id}/${f}`);
 	}
-	return { id: p.id, name: p.name, price: p.price, desk: p.desk, top: p.top, images };
+	const priceClean = String(p.price || '').replace(/\s*դրամ|\s*Դրամ/g, '').trim();
+	return { id: p.id, name: p.name, price: priceClean, desk: p.desk, top: p.top, images };
 });
 
 const valuesSql = fullProducts
@@ -64,50 +65,56 @@ CREATE TABLE IF NOT EXISTS public.finance_ledger (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Create Admin Users Table
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS Policies for Products (Open Read/Write)
-DROP POLICY IF EXISTS "Public read products" ON public.products;
-DROP POLICY IF EXISTS "Admin full control products" ON public.products;
+-- 6. RLS Policies (Open Read/Write for Client App Integration)
 DROP POLICY IF EXISTS "Allow all for products" ON public.products;
-CREATE POLICY "Allow all for products" ON public.products
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for products" ON public.products FOR ALL USING (true) WITH CHECK (true);
 
--- 6. RLS Policies for Service Requests (Open Read/Write)
-DROP POLICY IF EXISTS "Public insert service requests" ON public.service_requests;
-DROP POLICY IF EXISTS "Admin full control service requests" ON public.service_requests;
 DROP POLICY IF EXISTS "Allow all for service requests" ON public.service_requests;
-CREATE POLICY "Allow all for service requests" ON public.service_requests
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for service requests" ON public.service_requests FOR ALL USING (true) WITH CHECK (true);
 
--- 7. RLS Policies for Finance Ledger (Open Read/Write)
-DROP POLICY IF EXISTS "Admin full control finance ledger" ON public.finance_ledger;
 DROP POLICY IF EXISTS "Allow all for finance ledger" ON public.finance_ledger;
-CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger FOR ALL USING (true) WITH CHECK (true);
 
--- 8. Setup Supabase Storage Bucket for Product Images
+DROP POLICY IF EXISTS "Allow all for admin users" ON public.admin_users;
+CREATE POLICY "Allow all for admin users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
+
+-- 7. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS Policies
 DROP POLICY IF EXISTS "Public Read Product Images" ON storage.objects;
-CREATE POLICY "Public Read Product Images" ON storage.objects
-    FOR SELECT USING (bucket_id = 'product-images');
+CREATE POLICY "Public Read Product Images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Public Upload Product Images" ON storage.objects;
-CREATE POLICY "Public Upload Product Images" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = 'product-images');
+CREATE POLICY "Public Upload Product Images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Public Delete Product Images" ON storage.objects;
-CREATE POLICY "Public Delete Product Images" ON storage.objects
-    FOR DELETE USING (bucket_id = 'product-images');
+CREATE POLICY "Public Delete Product Images" ON storage.objects FOR DELETE USING (bucket_id = 'product-images');
 
--- 9. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
+-- 8. Seed Initial Admin User
+INSERT INTO public.admin_users (name, username, email, status) VALUES
+('Գոռ', 'admin', 'admin@masterkotlov.am', 'active')
+ON CONFLICT (username) DO NOTHING;
+
+-- 9. Seed Initial Product Data (Raw prices without ' դրամ')
 INSERT INTO public.products (id, name, price, desk, top, images) VALUES
 ${valuesSql}
 ON CONFLICT (id) DO UPDATE SET 
@@ -122,4 +129,4 @@ SELECT setval('products_id_seq', (SELECT MAX(id) FROM public.products));
 `;
 
 fs.writeFileSync('./supabase/schema.sql', schemaContent, 'utf8');
-console.log('Updated supabase/schema.sql successfully!');
+console.log('Updated supabase/schema.sql with admin_users and cleaned prices!');

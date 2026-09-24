@@ -76,7 +76,7 @@
 			${buildCarouselMarkup(product)}
 			<h3 class="mt-4 text-lg font-semibold text-blue-900">${escapeHtml(product.name)}</h3>
 			<p class="mt-2 text-sm leading-relaxed text-slate-700">${escapeHtml(product.desk || '')}</p>
-			${product.price ? `<p class="mt-4 text-base font-semibold text-slate-900">${escapeHtml(product.price)}</p>` : ''}
+			${product.price ? `<p class="mt-4 text-base font-semibold text-slate-900">${escapeHtml(product.price.includes('դրամ') ? product.price : product.price + ' դրամ')}</p>` : ''}
 		</article>
 	`;
 

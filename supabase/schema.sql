@@ -37,70 +37,76 @@ CREATE TABLE IF NOT EXISTS public.finance_ledger (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Create Admin Users Table
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.finance_ledger ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS Policies for Products (Open Read/Write)
-DROP POLICY IF EXISTS "Public read products" ON public.products;
-DROP POLICY IF EXISTS "Admin full control products" ON public.products;
+-- 6. RLS Policies (Open Read/Write for Client App Integration)
 DROP POLICY IF EXISTS "Allow all for products" ON public.products;
-CREATE POLICY "Allow all for products" ON public.products
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for products" ON public.products FOR ALL USING (true) WITH CHECK (true);
 
--- 6. RLS Policies for Service Requests (Open Read/Write)
-DROP POLICY IF EXISTS "Public insert service requests" ON public.service_requests;
-DROP POLICY IF EXISTS "Admin full control service requests" ON public.service_requests;
 DROP POLICY IF EXISTS "Allow all for service requests" ON public.service_requests;
-CREATE POLICY "Allow all for service requests" ON public.service_requests
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for service requests" ON public.service_requests FOR ALL USING (true) WITH CHECK (true);
 
--- 7. RLS Policies for Finance Ledger (Open Read/Write)
-DROP POLICY IF EXISTS "Admin full control finance ledger" ON public.finance_ledger;
 DROP POLICY IF EXISTS "Allow all for finance ledger" ON public.finance_ledger;
-CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger
-    FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for finance ledger" ON public.finance_ledger FOR ALL USING (true) WITH CHECK (true);
 
--- 8. Setup Supabase Storage Bucket for Product Images
+DROP POLICY IF EXISTS "Allow all for admin users" ON public.admin_users;
+CREATE POLICY "Allow all for admin users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
+
+-- 7. Setup Supabase Storage Bucket for Product Images
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS Policies
 DROP POLICY IF EXISTS "Public Read Product Images" ON storage.objects;
-CREATE POLICY "Public Read Product Images" ON storage.objects
-    FOR SELECT USING (bucket_id = 'product-images');
+CREATE POLICY "Public Read Product Images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Public Upload Product Images" ON storage.objects;
-CREATE POLICY "Public Upload Product Images" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = 'product-images');
+CREATE POLICY "Public Upload Product Images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images');
 
 DROP POLICY IF EXISTS "Public Delete Product Images" ON storage.objects;
-CREATE POLICY "Public Delete Product Images" ON storage.objects
-    FOR DELETE USING (bucket_id = 'product-images');
+CREATE POLICY "Public Delete Product Images" ON storage.objects FOR DELETE USING (bucket_id = 'product-images');
 
--- 9. Seed Initial Product Data (All 19 Products with Complete Image Arrays)
+-- 8. Seed Initial Admin User
+INSERT INTO public.admin_users (name, username, email, status) VALUES
+('Գոռ', 'admin', 'admin@masterkotlov.am', 'active')
+ON CONFLICT (username) DO NOTHING;
+
+-- 9. Seed Initial Product Data (Raw prices without ' դրամ')
 INSERT INTO public.products (id, name, price, desk, top, images) VALUES
-(1, 'Հոսքի սենսոր', '18000-25000 դրամ', 'Վերահսկում է ջրի հոսքը կաթսայի համակարգում և ապահովում սարքի ճիշտ աշխատանքը տաք ջրի օգտագործման ժամանակ։', true, ARRAY['/parts/1/photo_2026-09-24_22-10-10.jpg', '/parts/1/photo_2026-09-24_22-10-11 (2).jpg', '/parts/1/photo_2026-09-24_22-10-11.jpg', '/parts/1/photo_2026-09-24_22-10-12.jpg', '/parts/1/photo_2026-09-24_22-10-13 (2).jpg', '/parts/1/photo_2026-09-24_22-10-13.jpg', '/parts/1/photo_2026-09-24_22-10-14.jpg', '/parts/1/photo_2026-09-24_22-10-15.jpg']),
-(2, 'Նասոս', '45000-85000 դրամ', 'Ապահովում է ջրի մշտական շրջանառությունը ջեռուցման համակարգում՝ պահպանելով արդյունավետ ջերմափոխանակությունը։', true, ARRAY['/parts/2/photo_2026-09-24_22-10-33 (2).jpg', '/parts/2/photo_2026-09-24_22-10-33.jpg', '/parts/2/photo_2026-09-24_22-10-34.jpg']),
-(3, 'Պանտուս', '18000 դրամ', 'Կաթսայի հիդրավլիկ համակարգի կարևոր բաղադրիչ, որը նպաստում է ջրի հոսքի և ճնշման կայուն աշխատանքին։', true, ARRAY['/parts/3/photo_2026-09-24_22-10-45.jpg', '/parts/3/photo_2026-09-24_22-10-46.jpg', '/parts/3/photo_2026-09-24_22-10-47.jpg']),
-(4, 'Պլատայի Վերանորոգում', '25000 դրամ', 'Էլեկտրոնային կառավարման պլատայի ախտորոշում և վերանորոգում՝ սարքի անխափան աշխատանքը վերականգնելու համար։', true, ARRAY['/parts/4/photo_2026-09-24_22-11-02.jpg']),
-(5, 'Եռակողմ Փականի Շարժիչ', '25000 դրամ', 'Կառավարում է եռակողմ փականի դիրքը՝ ջեռուցման և տաք ջրի ռեժիմների միջև անցումն ապահովելու համար։', true, ARRAY['/parts/5/photo_2026-09-24_22-11-34.jpg']),
-(6, 'Երկրորդական Ջերմափոխանակիչ', '50000 դրամ', 'Ապահովում է կենցաղային տաք ջրի արդյունավետ տաքացումը՝ ջերմությունը փոխանցելով առաջնային համակարգից։', true, ARRAY['/parts/6/photo_2026-09-24_22-11-18.jpg']),
-(7, 'Ճնշման Սենսոր', '18000-23000 դրամ', 'Չափում և վերահսկում է համակարգի ճնշումը՝ կանխելով վթարային իրավիճակները։', true, ARRAY['/parts/7/photo_2026-09-24_22-11-48 (2).jpg', '/parts/7/photo_2026-09-24_22-11-48.jpg', '/parts/7/photo_2026-09-24_22-11-49.jpg']),
-(8, 'Օդի Սենսոր', '25000 դրամ', 'Վերահսկում է օդի հոսքը և նպաստում այրման գործընթացի անվտանգ ու արդյունավետ աշխատանքին։', true, ARRAY['/parts/8/photo_2026-09-24_22-12-00.jpg']),
-(9, 'Ճնշման Ցուցիչ', '18000 դրամ', 'Ցուցադրում է համակարգի ընթացիկ ճնշումը՝ հեշտացնելով վերահսկումն ու սպասարկումը։', true, ARRAY['/parts/9/photo_2026-09-24_22-12-08.jpg']),
-(10, 'Օդամղիչ', '45000-65000 դրամ', 'Ապահովում է անհրաժեշտ օդամատակարարումը և ծխագազերի հեռացումը այրման խցիկից։', true, ARRAY['/parts/10/photo_2026-09-24_22-12-19.jpg']),
-(11, 'Գազի Փական', '30000-65000 դրամ', 'Կարգավորում և վերահսկում է գազի մատակարարումը՝ ապահովելով անվտանգ և կայուն այրում։', true, ARRAY['/parts/11/photo_2026-09-24_22-12-31.jpg']),
-(12, 'Այրման Մոմիկ', '13000-18000 դրամ', 'Ստեղծում է կայծ՝ գազի այրումը մեկնարկելու և այրիչի աշխատանքը ապահովելու համար։', true, ARRAY['/parts/12/photo_2026-09-24_22-12-41.jpg', '/parts/12/photo_2026-09-24_22-12-44.jpg']),
-(13, 'Ռոտոր', '25000-30000 դրամ', 'Պոմպի շարժական տարր, որը պատասխանատու է ջրի արդյունավետ շրջանառության համար։', true, ARRAY['/parts/13/photo_2026-09-24_22-12-56.jpg']),
-(14, 'Հիդրողումբ', '25000-90000 դրամ', 'Հիդրավլիկ հանգույց, որը բաշխում և կարգավորում է ջրի հոսքը կաթսայի տարբեր հատվածներում։', true, ARRAY['/parts/14/photo_2026-09-24_22-13-02.jpg', '/parts/14/photo_2026-09-24_22-13-03.jpg', '/parts/14/photo_2026-09-24_22-13-04.jpg']),
-(15, 'Ջերմափոխանակիչ', '75000-105000 դրամ', 'Կաթսայի հիմնական բաղադրիչներից մեկը, որը փոխանցում է ջերմությունը այրման համակարգից ջրին։', true, ARRAY['/parts/15/photo_2026-09-24_22-13-17.jpg', '/parts/15/photo_2026-09-24_22-13-18 (2).jpg', '/parts/15/photo_2026-09-24_22-13-18.jpg', '/parts/15/photo_2026-09-24_22-13-19 (2).jpg', '/parts/15/photo_2026-09-24_22-13-19.jpg']),
-(16, 'Լրացման Փական', '18000-23000 դրամ', 'Օգտագործվում է համակարգում ջուր ավելացնելու և անհրաժեշտ ճնշումը վերականգնելու համար։', true, ARRAY['/parts/16/photo_2026-09-24_22-13-31 (2).jpg', '/parts/16/photo_2026-09-24_22-13-31.jpg', '/parts/16/photo_2026-09-24_22-13-32 (2).jpg', '/parts/16/photo_2026-09-24_22-13-32.jpg', '/parts/16/photo_2026-09-24_22-13-33.jpg']),
-(17, 'Անվտանգության Փական', '18000 դրամ', 'Պաշտպանում է համակարգը գերճնշումից՝ ավտոմատ կերպով բացվելով անհրաժեշտության դեպքում։', true, ARRAY['/parts/17/photo_2026-09-24_22-13-48 (2).jpg', '/parts/17/photo_2026-09-24_22-13-48.jpg', '/parts/17/photo_2026-09-24_22-13-49.jpg']),
-(18, 'Եռակողմ Փական', '25000-30000 դրամ', 'Բաշխում է ջրի հոսքը ջեռուցման և տաք ջրի համակարգերի միջև՝ ըստ պահանջի։', true, ARRAY['/parts/18/photo_2026-09-24_22-13-59.jpg', '/parts/18/photo_2026-09-24_22-14-00 (2).jpg', '/parts/18/photo_2026-09-24_22-14-00.jpg', '/parts/18/photo_2026-09-24_22-14-01 (2).jpg', '/parts/18/photo_2026-09-24_22-14-01.jpg']),
-(19, 'Ընդարձակման Բաք', '45000-55000 դրամ', 'Փոխհատուցում է ջրի ծավալի փոփոխությունները տաքացման ընթացքում՝ պահպանելով համակարգի կայուն ճնշումը։', true, ARRAY['/parts/19/photo_2026-09-24_22-14-19 (2).jpg', '/parts/19/photo_2026-09-24_22-14-19.jpg', '/parts/19/photo_2026-09-24_22-14-20.jpg', '/parts/19/photo_2026-09-24_22-14-21.jpg'])
+(1, 'Հոսքի սենսոր', '18000-25000', 'Վերահսկում է ջրի հոսքը կաթսայի համակարգում և ապահովում սարքի ճիշտ աշխատանքը տաք ջրի օգտագործման ժամանակ։', true, ARRAY['/parts/1/photo_2026-09-24_22-10-10.jpg', '/parts/1/photo_2026-09-24_22-10-11 (2).jpg', '/parts/1/photo_2026-09-24_22-10-11.jpg', '/parts/1/photo_2026-09-24_22-10-12.jpg', '/parts/1/photo_2026-09-24_22-10-13 (2).jpg', '/parts/1/photo_2026-09-24_22-10-13.jpg', '/parts/1/photo_2026-09-24_22-10-14.jpg', '/parts/1/photo_2026-09-24_22-10-15.jpg']),
+(2, 'Նասոս', '45000-85000', 'Ապահովում է ջրի մշտական շրջանառությունը ջեռուցման համակարգում՝ պահպանելով արդյունավետ ջերմափոխանակությունը։', true, ARRAY['/parts/2/photo_2026-09-24_22-10-33 (2).jpg', '/parts/2/photo_2026-09-24_22-10-33.jpg', '/parts/2/photo_2026-09-24_22-10-34.jpg']),
+(3, 'Պանտուս', '18000', 'Կաթսայի հիդրավլիկ համակարգի կարևոր բաղադրիչ, որը նպաստում է ջրի հոսքի և ճնշման կայուն աշխատանքին։', true, ARRAY['/parts/3/photo_2026-09-24_22-10-45.jpg', '/parts/3/photo_2026-09-24_22-10-46.jpg', '/parts/3/photo_2026-09-24_22-10-47.jpg']),
+(4, 'Պլատայի Վերանորոգում', '25000', 'Էլեկտրոնային կառավարման պլատայի ախտորոշում և վերանորոգում՝ սարքի անխափան աշխատանքը վերականգնելու համար։', true, ARRAY['/parts/4/photo_2026-09-24_22-11-02.jpg']),
+(5, 'Եռակողմ Փականի Շարժիչ', '25000', 'Կառավարում է եռակողմ փականի դիրքը՝ ջեռուցման և տաք ջրի ռեժիմների միջև անցումն ապահովելու համար։', true, ARRAY['/parts/5/photo_2026-09-24_22-11-34.jpg']),
+(6, 'Երկրորդական Ջերմափոխանակիչ', '50000', 'Ապահովում է կենցաղային տաք ջրի արդյունավետ տաքացումը՝ ջերմությունը փոխանցելով առաջնային համակարգից։', true, ARRAY['/parts/6/photo_2026-09-24_22-11-18.jpg']),
+(7, 'Ճնշման Սենսոր', '18000-23000', 'Չափում և վերահսկում է համակարգի ճնշումը՝ կանխելով վթարային իրավիճակները։', true, ARRAY['/parts/7/photo_2026-09-24_22-11-48 (2).jpg', '/parts/7/photo_2026-09-24_22-11-48.jpg', '/parts/7/photo_2026-09-24_22-11-49.jpg']),
+(8, 'Օդի Սենսոր', '25000', 'Վերահսկում է օդի հոսքը և նպաստում այրման գործընթացի անվտանգ ու արդյունավետ աշխատանքին։', true, ARRAY['/parts/8/photo_2026-09-24_22-12-00.jpg']),
+(9, 'Ճնշման Ցուցիչ', '18000', 'Ցուցադրում է համակարգի ընթացիկ ճնշումը՝ հեշտացնելով վերահսկումն ու սպասարկումը։', true, ARRAY['/parts/9/photo_2026-09-24_22-12-08.jpg']),
+(10, 'Օդամղիչ', '45000-65000', 'Ապահովում է անհրաժեշտ օդամատակարարումը և ծխագազերի հեռացումը այրման խցիկից։', true, ARRAY['/parts/10/photo_2026-09-24_22-12-19.jpg']),
+(11, 'Գազի Փական', '30000-65000', 'Կարգավորում և վերահսկում է գազի մատակարարումը՝ ապահովելով անվտանգ և կայուն այրում։', true, ARRAY['/parts/11/photo_2026-09-24_22-12-31.jpg']),
+(12, 'Այրման Մոմիկ', '13000-18000', 'Ստեղծում է կայծ՝ գազի այրումը մեկնարկելու և այրիչի աշխատանքը ապահովելու համար։', true, ARRAY['/parts/12/photo_2026-09-24_22-12-41.jpg', '/parts/12/photo_2026-09-24_22-12-44.jpg']),
+(13, 'Ռոտոր', '25000-30000', 'Պոմպի շարժական տարր, որը պատասխանատու է ջրի արդյունավետ շրջանառության համար։', true, ARRAY['/parts/13/photo_2026-09-24_22-12-56.jpg']),
+(14, 'Հիդրողումբ', '25000-90000', 'Հիդրավլիկ հանգույց, որը բաշխում և կարգավորում է ջրի հոսքը կաթսայի տարբեր հատվածներում։', true, ARRAY['/parts/14/photo_2026-09-24_22-13-02.jpg', '/parts/14/photo_2026-09-24_22-13-03.jpg', '/parts/14/photo_2026-09-24_22-13-04.jpg']),
+(15, 'Ջերմափոխանակիչ', '75000-105000', 'Կաթսայի հիմնական բաղադրիչներից մեկը, որը փոխանցում է ջերմությունը այրման համակարգից ջրին։', true, ARRAY['/parts/15/photo_2026-09-24_22-13-17.jpg', '/parts/15/photo_2026-09-24_22-13-18 (2).jpg', '/parts/15/photo_2026-09-24_22-13-18.jpg', '/parts/15/photo_2026-09-24_22-13-19 (2).jpg', '/parts/15/photo_2026-09-24_22-13-19.jpg']),
+(16, 'Լրացման Փական', '18000-23000', 'Օգտագործվում է համակարգում ջուր ավելացնելու և անհրաժեշտ ճնշումը վերականգնելու համար։', true, ARRAY['/parts/16/photo_2026-09-24_22-13-31 (2).jpg', '/parts/16/photo_2026-09-24_22-13-31.jpg', '/parts/16/photo_2026-09-24_22-13-32 (2).jpg', '/parts/16/photo_2026-09-24_22-13-32.jpg', '/parts/16/photo_2026-09-24_22-13-33.jpg']),
+(17, 'Անվտանգության Փական', '18000', 'Պաշտպանում է համակարգը գերճնշումից՝ ավտոմատ կերպով բացվելով անհրաժեշտության դեպքում։', true, ARRAY['/parts/17/photo_2026-09-24_22-13-48 (2).jpg', '/parts/17/photo_2026-09-24_22-13-48.jpg', '/parts/17/photo_2026-09-24_22-13-49.jpg']),
+(18, 'Եռակողմ Փական', '25000-30000', 'Բաշխում է ջրի հոսքը ջեռուցման և տաք ջրի համակարգերի միջև՝ ըստ պահանջի։', true, ARRAY['/parts/18/photo_2026-09-24_22-13-59.jpg', '/parts/18/photo_2026-09-24_22-14-00 (2).jpg', '/parts/18/photo_2026-09-24_22-14-00.jpg', '/parts/18/photo_2026-09-24_22-14-01 (2).jpg', '/parts/18/photo_2026-09-24_22-14-01.jpg']),
+(19, 'Ընդարձակման Բաք', '45000-55000', 'Փոխհատուցում է ջրի ծավալի փոփոխությունները տաքացման ընթացքում՝ պահպանելով համակարգի կայուն ճնշումը։', true, ARRAY['/parts/19/photo_2026-09-24_22-14-19 (2).jpg', '/parts/19/photo_2026-09-24_22-14-19.jpg', '/parts/19/photo_2026-09-24_22-14-20.jpg', '/parts/19/photo_2026-09-24_22-14-21.jpg'])
 ON CONFLICT (id) DO UPDATE SET 
     name = EXCLUDED.name,
     price = EXCLUDED.price,
