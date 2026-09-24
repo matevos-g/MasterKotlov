@@ -371,7 +371,7 @@
 					if (href && (href.startsWith('/') || href.includes(window.location.host))) {
 						if (!href.startsWith('tel:') && !href.startsWith('mailto:')) {
 							event.preventDefault();
-							window.location.href = href;
+							window.location.replace(href);
 						}
 					}
 				}
@@ -411,12 +411,12 @@
 
 			async function initAuth() {
 				if (!window.supabaseClient) {
-					window.location.href = '/admin/mobile/login/';
+					window.location.replace('/admin/mobile/login/');
 					return;
 				}
 				const { data: { session } } = await window.supabaseClient.auth.getSession();
 				if (!session) {
-					window.location.href = '/admin/mobile/login/';
+					window.location.replace('/admin/mobile/login/');
 					return;
 				}
 				currentSessionUser = session.user;
@@ -447,7 +447,7 @@
 
 			async function handleLogout() {
 				if (window.supabaseClient) await window.supabaseClient.auth.signOut();
-				window.location.href = '/admin/mobile/login/';
+				window.location.replace('/admin/mobile/login/');
 			}
 
 			document.getElementById('order-status-select')?.addEventListener('change', (e) => {

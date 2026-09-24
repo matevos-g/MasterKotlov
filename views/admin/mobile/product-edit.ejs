@@ -10,6 +10,29 @@
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 		<script src="/supabase-config.js"></script>
+		<!-- PWA Manifest & iOS Standalone Meta Tags -->
+		<link rel="manifest" href="/manifest.json" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="MasterKotlov" />
+		<link rel="apple-touch-icon" href="/images/icon.svg" />
+		<meta name="theme-color" content="#2563eb" />
+		<script>
+			// Prevent iOS Safari standalone PWA mode from opening external browser window
+			if (('standalone' in window.navigator) && window.navigator.standalone) {
+				document.addEventListener('click', function(e) {
+					let node = e.target;
+					while (node && node.nodeName !== 'A' && node !== document.body) {
+						node = node.parentNode;
+					}
+					if (node && node.nodeName === 'A' && node.getAttribute('href') && !node.getAttribute('target')) {
+						e.preventDefault();
+						window.location.replace(node.getAttribute('href'));
+					}
+				}, false);
+			}
+		</script>
 		<style>
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
 			.tab-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
@@ -164,12 +187,12 @@
 
 			async function initAuth() {
 				if (!window.supabaseClient) {
-					window.location.href = '/admin/mobile/login/';
+					window.location.replace('/admin/mobile/login/');
 					return;
 				}
 				const { data: { session } } = await window.supabaseClient.auth.getSession();
 				if (!session) {
-					window.location.href = '/admin/mobile/login/';
+					window.location.replace('/admin/mobile/login/');
 					return;
 				}
 				const userEmail = session.user.email || '';
@@ -303,7 +326,7 @@
 					feedback.textContent = '✓ Պահպանված է։';
 					feedback.classList.remove('hidden');
 					setTimeout(() => {
-						window.location.href = '/admin/mobile/';
+						window.location.replace('/admin/mobile/');
 					}, 1000);
 				} catch (err) {
 					alert('Պահպանման սխալ: ' + (err.message || err));
@@ -325,7 +348,7 @@
 				if (!currentProductId) return;
 				try {
 					const { error } = await window.supabaseClient.from('products').delete().eq('id', currentProductId);
-					if (!error) window.location.href = '/admin/mobile/';
+					if (!error) window.location.replace('/admin/mobile/');
 				} catch (err) {
 					alert('Ջնջման սխալ');
 				}
