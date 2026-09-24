@@ -54,8 +54,8 @@
 
 			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ) -->
 			<section id="page-orders" class="space-y-4">
-				<!-- Top Bar: ONLY Status Picker Dropdown + '+' Add Order Button -->
-				<div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-200">
+				<!-- Top Bar: Status Picker Dropdown + Refresh Button + '+' SVG Add Order Button -->
+				<div class="flex items-center justify-between gap-2.5 pb-3 border-b border-slate-200">
 					<select id="order-status-select" class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-slate-900 outline-none focus:border-blue-600 shadow-xs transition cursor-pointer">
 						<option value="new">Սպասող</option>
 						<option value="in_progress">Ընթացքի մեջ</option>
@@ -63,8 +63,16 @@
 						<option value="cancelled">Չեղարկված</option>
 					</select>
 
-					<button id="add-order-btn" type="button" class="h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl bg-blue-600 text-white font-extrabold text-3xl shadow-md hover:bg-blue-700 active:scale-95 transition" title="Ավելացնել Պատվեր">
-						+
+					<button id="refresh-orders-btn" type="button" onclick="refreshMobileOrders(this)" class="h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 shadow-xs hover:bg-slate-50 active:scale-95 transition" title="Թարմացնել">
+						<svg id="refresh-icon-svg" class="h-6 w-6 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+						</svg>
+					</button>
+
+					<button id="add-order-btn" type="button" class="h-12 w-12 shrink-0 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md hover:bg-blue-700 active:scale-95 transition" title="Ավելացնել Պատվեր">
+						<svg class="h-6 w-6 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+						</svg>
 					</button>
 				</div>
 
@@ -477,6 +485,20 @@
 			async function handleLogout() {
 				if (window.supabaseClient) await window.supabaseClient.auth.signOut();
 				window.location.replace('/admin/mobile/login/');
+			}
+
+			async function refreshMobileOrders() {
+				const icon = document.getElementById('refresh-icon-svg');
+				if (icon) icon.classList.add('animate-spin');
+				try {
+					await fetchOrders();
+				} catch (e) {
+					console.warn('Refresh error:', e);
+				} finally {
+					setTimeout(() => {
+						if (icon) icon.classList.remove('animate-spin');
+					}, 500);
+				}
 			}
 
 			document.getElementById('order-status-select')?.addEventListener('change', (e) => {
