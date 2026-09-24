@@ -34,18 +34,23 @@
 			}
 		</script>
 		<style>
+			html, body {
+				min-height: 100vh;
+				min-height: 100dvh;
+				background-color: #f8fafc;
+			}
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
 		</style>
 	</head>
-	<body class="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-100">
+	<body class="min-h-screen min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-100">
 		<!-- Top Safe Area Bar with Title -->
-		<header class="w-full text-center py-4" style="padding-top: max(16px, env(safe-area-inset-top));">
+		<header class="w-full text-center pb-4" style="padding-top: max(36px, calc(env(safe-area-inset-top) + 24px));">
 			<span class="text-xl font-bold tracking-tight text-slate-900">MasterKotlov</span>
 			<span class="ml-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">MOBILE</span>
 		</header>
 
 		<!-- Centered Login Form (No Visible Container / Card Box) -->
-		<main class="flex-1 flex items-center justify-center px-6 pb-12 w-full max-w-sm mx-auto">
+		<main class="flex-1 flex items-center justify-center px-6 w-full max-w-sm mx-auto" style="padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px));">
 			<form id="admin-login-form" class="w-full space-y-5">
 				<div id="login-error" class="hidden rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-600 border border-red-100 text-center"></div>
 

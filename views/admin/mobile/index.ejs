@@ -19,17 +19,22 @@
 		<link rel="apple-touch-icon" href="/images/icon.svg" />
 		<meta name="theme-color" content="#2563eb" />
 		<style>
+			html, body {
+				min-height: 100vh;
+				min-height: 100dvh;
+				background-color: #f8fafc;
+			}
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
 			.mobile-nav-item.active { color: #2563eb; }
 			.mobile-nav-item.active svg { stroke: #2563eb; fill: rgba(37, 99, 235, 0.1); }
 		</style>
 	</head>
-	<body class="min-h-full flex flex-col bg-slate-50 selection:bg-blue-100 overflow-x-hidden">
+	<body class="min-h-screen min-h-[100dvh] flex flex-col bg-slate-50 selection:bg-blue-100 overflow-x-hidden">
 
 		<!-- ========================================== -->
 		<!-- MAIN CONTENT AREA                          -->
 		<!-- ========================================== -->
-		<main class="w-full flex-1 px-4 pb-28" style="padding-top: max(16px, env(safe-area-inset-top));">
+		<main class="w-full flex-1 px-4 pb-32" style="padding-top: max(36px, calc(env(safe-area-inset-top) + 24px));">
 
 			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ) -->
 			<section id="page-orders" class="space-y-4">
@@ -102,7 +107,7 @@
 		<!-- ========================================== -->
 		<!-- BOTTOM APP NAVBAR                          -->
 		<!-- ========================================== -->
-		<nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
+		<nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg" style="padding-bottom: max(16px, env(safe-area-inset-bottom));">
 			<div class="grid grid-cols-4 items-center h-16 max-w-md mx-auto px-2">
 				<!-- Tab 1: Orders -->
 				<button id="mobile-nav-orders" type="button" class="mobile-nav-item active flex flex-col items-center justify-center gap-1 py-1 text-slate-400 transition">
@@ -145,7 +150,7 @@
 		<!-- SLIDE PAGE 1: ORDER DETAILS (ONE INFO PER ROW - BIGGER TEXT) -->
 		<div id="slide-page-order-details" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
-			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(24px, calc(env(safe-area-inset-top) + 16px));">
 				<button onclick="closeSlidePage('slide-page-order-details')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
 					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -196,7 +201,7 @@
 			</div>
 
 			<!-- Bottom 3 Armenian Buttons -->
-			<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-4 flex flex-col gap-3">
+			<div id="detail-drawer-actions" class="border-t border-slate-200 bg-slate-50 p-4 flex flex-col gap-3" style="padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));">
 				<!-- Injected dynamically -->
 			</div>
 		</div>
@@ -204,7 +209,7 @@
 		<!-- SLIDE PAGE 2: ADD NEW ORDER -->
 		<div id="slide-page-add-order" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
-			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(24px, calc(env(safe-area-inset-top) + 16px));">
 				<button onclick="closeSlidePage('slide-page-add-order')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
 					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -215,7 +220,7 @@
 				<div class="w-10"></div>
 			</div>
 
-			<form id="form-add-order-drawer" class="flex-1 p-5 space-y-5">
+			<form id="form-add-order-drawer" class="flex-1 p-5 space-y-5" style="padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px));">
 				<div>
 					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Անուն *</label>
 					<input type="text" id="new-order-firstname" required placeholder="Արմեն" class="w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-base text-slate-900 outline-none focus:border-blue-600 transition" />
@@ -254,7 +259,7 @@
 		<!-- SLIDE PAGE 3: PRODUCT EDIT / CREATE -->
 		<div id="slide-page-product-edit" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
 			<!-- iOS Navigation Bar -->
-			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(12px, env(safe-area-inset-top));">
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(24px, calc(env(safe-area-inset-top) + 16px));">
 				<button onclick="closeSlidePage('slide-page-product-edit')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
 					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -265,7 +270,7 @@
 				<div class="w-10"></div>
 			</div>
 
-			<form id="form-product-edit" class="flex-1 p-5 space-y-4">
+			<form id="form-product-edit" class="flex-1 p-5 space-y-4" style="padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px));">
 				<input type="hidden" id="edit-prod-id" />
 				<div>
 					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Անվանում *</label>
