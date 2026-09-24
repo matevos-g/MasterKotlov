@@ -51,9 +51,26 @@
 		});
 	};
 
+	const initDoubleClickGuard = () => {
+		document.addEventListener('click', (event) => {
+			const btn = event.target.closest('button, .btn, [type="submit"], a.btn');
+			if (!btn) return;
+			if (btn.dataset.isClicking === 'true') {
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			}
+			btn.dataset.isClicking = 'true';
+			setTimeout(() => {
+				delete btn.dataset.isClicking;
+			}, 700);
+		}, true);
+	};
+
 	document.addEventListener('DOMContentLoaded', () => {
 		initNav();
 		initCallModal();
+		initDoubleClickGuard();
 		window.initProductCarousels?.();
 	});
 })();

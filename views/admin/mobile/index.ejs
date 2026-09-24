@@ -842,6 +842,13 @@
 
 			document.getElementById('form-earnings-drawer')?.addEventListener('submit', async (e) => {
 				e.preventDefault();
+				const submitBtn = e.target.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					if (submitBtn.disabled) return;
+					submitBtn.disabled = true;
+					submitBtn.style.opacity = '0.5';
+				}
+
 				const orderId = document.getElementById('earnings-order-id').value;
 				const amount = Number(document.getElementById('earnings-amount').value);
 				const order = allOrders.find(o => o.id === orderId);
@@ -860,6 +867,11 @@
 					fetchLedger();
 				} catch (err) {
 					alert('Սխալ պատվերը ավարտելիս');
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.style.opacity = '';
+					}
 				}
 			});
 
@@ -996,6 +1008,13 @@
 
 			document.getElementById('form-product-edit')?.addEventListener('submit', async (e) => {
 				e.preventDefault();
+				const submitBtn = e.target.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					if (submitBtn.disabled) return;
+					submitBtn.disabled = true;
+					submitBtn.style.opacity = '0.5';
+				}
+
 				const id = document.getElementById('edit-prod-id').value;
 				const name = document.getElementById('edit-prod-name').value.trim();
 				const price = document.getElementById('edit-prod-price').value.trim();
@@ -1016,6 +1035,11 @@
 					fetchProducts();
 				} catch (err) {
 					alert('Ապրանքի պահպանման սխալ: ' + (err.message || err));
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.style.opacity = '';
+					}
 				}
 			});
 
@@ -1050,6 +1074,13 @@
 
 			document.getElementById('form-add-order-drawer')?.addEventListener('submit', async (e) => {
 				e.preventDefault();
+				const submitBtn = e.target.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					if (submitBtn.disabled) return;
+					submitBtn.disabled = true;
+					submitBtn.style.opacity = '0.5';
+				}
+
 				const firstname = document.getElementById('new-order-firstname').value.trim();
 				const lastname = document.getElementById('new-order-lastname').value.trim();
 				const phone = document.getElementById('new-order-phone').value.trim();
@@ -1080,6 +1111,11 @@
 					fetchOrders();
 				} catch (err) {
 					alert('Պատվերի ավելացման սխալ: ' + (err.message || err));
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.style.opacity = '';
+					}
 				}
 			});
 

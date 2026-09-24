@@ -1128,6 +1128,13 @@
 
 			document.getElementById('form-add-order')?.addEventListener('submit', async (e) => {
 				e.preventDefault();
+				const submitBtn = e.target.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					if (submitBtn.disabled) return;
+					submitBtn.disabled = true;
+					submitBtn.style.opacity = '0.5';
+				}
+
 				const firstname = document.getElementById('new-order-firstname').value.trim();
 				const lastname = document.getElementById('new-order-lastname').value.trim();
 				const phone = document.getElementById('new-order-phone').value.trim();
@@ -1158,8 +1165,28 @@
 					fetchOrders();
 				} catch (err) {
 					alert('Պատվերի ավելացման սխալ: ' + (err.message || err));
+				} finally {
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.style.opacity = '';
+					}
 				}
 			});
+
+			// Prevent double clicking on any button globally
+			document.addEventListener('click', function(e) {
+				const btn = e.target.closest('button, [type="submit"], a.btn');
+				if (!btn) return;
+				if (btn.dataset.isClicking === 'true') {
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				}
+				btn.dataset.isClicking = 'true';
+				setTimeout(() => {
+					delete btn.dataset.isClicking;
+				}, 700);
+			}, true);
 
 			function closeModal(id) {
 				document.getElementById(id)?.classList.add('hidden');

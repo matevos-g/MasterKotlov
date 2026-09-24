@@ -115,6 +115,11 @@
 
 		form?.addEventListener('submit', async function(e) {
 			e.preventDefault();
+			if (submitBtn.disabled) return;
+			submitBtn.disabled = true;
+			submitBtn.style.opacity = '0.6';
+			submitBtn.style.pointerEvents = 'none';
+			submitBtn.innerText = 'Ուղարկվում է...';
 			errorMsg.classList.add('hidden');
 			successMsg.classList.add('hidden');
 
@@ -124,9 +129,6 @@
 			const problemDescription = document.getElementById('req-problem').value.trim();
 			const productId = reqProductId.value ? Number(reqProductId.value) : null;
 			const productName = reqProductName.value || null;
-
-			submitBtn.disabled = true;
-			submitBtn.innerText = 'Ուղարկվում է...';
 
 			try {
 				if (window.supabaseClient) {
@@ -166,6 +168,8 @@
 				errorMsg.classList.remove('hidden');
 			} finally {
 				submitBtn.disabled = false;
+				submitBtn.style.opacity = '';
+				submitBtn.style.pointerEvents = '';
 				submitBtn.innerHTML = `<span>Ուղարկել Հայտը</span> <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>`;
 			}
 		});
