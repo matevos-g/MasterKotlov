@@ -2,7 +2,7 @@
 <html lang="hy" class="h-full bg-slate-50 text-slate-900">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 		<title>MasterKotlov - Կառավարման Համակարգ</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,10 +11,17 @@
 		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script src="/supabase-config.js"></script>
+		<!-- PWA Meta Tags -->
+		<link rel="manifest" href="/manifest.json" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="MasterKotlov" />
+		<link rel="apple-touch-icon" href="/images/icon.svg" />
+		<meta name="theme-color" content="#2563eb" />
 		<style>
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
 			.nav-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
-			.order-tab.active { background-color: #ffffff; color: #0f172a; font-weight: 600; shadow: 0 1px 2px rgba(0,0,0,0.05); }
 		</style>
 	</head>
 	<body class="min-h-full flex flex-col bg-slate-50">
@@ -22,9 +29,9 @@
 		<header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6">
 				<div class="flex items-center gap-8">
-					<div class="py-4">
-						<span class="text-base font-bold text-slate-900 tracking-tight">MasterKotlov</span>
-						<span class="ml-2 text-xs font-semibold text-slate-400">WEB ADMIN</span>
+					<div class="py-4 flex items-center gap-2">
+						<span class="text-base font-extrabold text-slate-900 tracking-tight">MasterKotlov</span>
+						<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">PWA ADMIN</span>
 					</div>
 
 					<!-- 5 Main Navigation Pages -->
@@ -72,31 +79,18 @@
 			<!-- PAGE 1: ORDERS (ՊԱՏՎԵՐՆԵՐ)                  -->
 			<!-- ========================================== -->
 			<section id="page-orders" class="space-y-4">
-				<!-- Top Status Picker Tabs -->
-				<div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
-					<div class="flex rounded-xl bg-slate-200/60 p-1 text-xs">
-						<button id="tab-order-pending" type="button" class="order-tab active rounded-lg px-4 py-2 text-slate-600 transition">
-							Սպասող (<span id="count-pending">0</span>)
-						</button>
-						<button id="tab-order-inprogress" type="button" class="order-tab rounded-lg px-4 py-2 text-slate-600 transition">
-							Ընթացքի մեջ (<span id="count-inprogress">0</span>)
-						</button>
-						<button id="tab-order-completed" type="button" class="order-tab rounded-lg px-4 py-2 text-slate-600 transition">
-							Ավարտված (<span id="count-completed">0</span>)
-						</button>
-						<button id="tab-order-cancelled" type="button" class="order-tab rounded-lg px-4 py-2 text-slate-600 transition">
-							Չեղարկված (<span id="count-cancelled">0</span>)
-						</button>
-					</div>
+				<!-- Top Bar: ONLY Status Picker Dropdown + '+' Add Order Button -->
+				<div class="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
+					<select id="order-status-select" class="flex-1 max-w-xs rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-blue-600 shadow-xs transition cursor-pointer">
+						<option value="new">Սպասող</option>
+						<option value="in_progress">Ընթացքի մեջ</option>
+						<option value="completed">Ավարտված</option>
+						<option value="cancelled">Չեղարկված</option>
+					</select>
 
-					<div class="flex items-center gap-2">
-						<button id="add-order-btn" type="button" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition">
-							+ Ավելացնել Պատվեր
-						</button>
-						<button id="refresh-orders-btn" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-xl px-3.5 py-2 shadow-xs transition">
-							Թարմացնել
-						</button>
-					</div>
+					<button id="add-order-btn" type="button" class="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-2xl shadow-sm hover:bg-blue-700 active:scale-95 transition" title="Ավելացնել Պատվեր">
+						+
+					</button>
 				</div>
 
 				<!-- Grid List: 1 item per row container -->
@@ -614,6 +608,17 @@
 			let confirmCallback = null;
 			let currentSessionUser = null;
 
+			// Service Worker PWA registration
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js').then(reg => {
+						console.log('PWA ServiceWorker registered successfully:', reg);
+					}).catch(err => {
+						console.log('ServiceWorker registration error:', err);
+					});
+				});
+			}
+
 			function escapeHtml(str) {
 				if (!str) return '';
 				return String(str)
@@ -667,23 +672,10 @@
 				document.getElementById(`mobile-nav-${p}`)?.addEventListener('click', () => switchPage(p));
 			});
 
-			// Order Sub-tabs
-			const orderTabsMap = {
-				'pending': 'new',
-				'inprogress': 'in_progress',
-				'completed': 'completed',
-				'cancelled': 'cancelled'
-			};
-
-			Object.keys(orderTabsMap).forEach(key => {
-				document.getElementById(`tab-order-${key}`)?.addEventListener('click', () => {
-					Object.keys(orderTabsMap).forEach(k => {
-						document.getElementById(`tab-order-${k}`).classList.remove('active');
-					});
-					document.getElementById(`tab-order-${key}`).classList.add('active');
-					currentOrderTab = orderTabsMap[key];
-					renderOrdersGridList();
-				});
+			// Order Status Select Change
+			document.getElementById('order-status-select')?.addEventListener('change', (e) => {
+				currentOrderTab = e.target.value;
+				renderOrdersGridList();
 			});
 
 			// Fetch Data
@@ -700,7 +692,6 @@
 
 					if (!error && data) {
 						allOrders = data;
-						updateOrderCounts();
 						renderOrdersGridList();
 					}
 				} catch (err) {
@@ -741,13 +732,6 @@
 				} catch (err) {
 					console.error('Fetch ledger error:', err);
 				}
-			}
-
-			function updateOrderCounts() {
-				document.getElementById('count-pending').textContent = allOrders.filter(o => o.status === 'new').length;
-				document.getElementById('count-inprogress').textContent = allOrders.filter(o => o.status === 'in_progress').length;
-				document.getElementById('count-completed').textContent = allOrders.filter(o => o.status === 'completed').length;
-				document.getElementById('count-cancelled').textContent = allOrders.filter(o => o.status === 'cancelled').length;
 			}
 
 			function getStatusBadgeHTML(status) {
@@ -1420,7 +1404,6 @@
 				}
 			});
 
-			document.getElementById('refresh-orders-btn')?.addEventListener('click', fetchOrders);
 			document.getElementById('logout-btn')?.addEventListener('click', async () => {
 				await window.supabaseClient.auth.signOut();
 				window.location.href = '/admin/web/login/';
