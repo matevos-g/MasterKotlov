@@ -1,10 +1,12 @@
 {
   "name": "MasterKotlov Admin",
   "short_name": "MasterKotlov",
+  "id": "/admin/mobile/",
   "description": "MasterKotlov Mobile Admin Panel & Service Requests Management",
   "start_url": "/admin/mobile/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#2563eb",
