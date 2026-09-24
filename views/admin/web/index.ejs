@@ -169,7 +169,6 @@
 					<a href="/admin/web/products/new/" class="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 transition">
 						+ Ավելացնել Ապրանք
 					</a>
-
 				</div>
 
 				<div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -196,18 +195,24 @@
 			<section id="page-users" class="hidden space-y-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-lg font-bold text-slate-900">Ադմինիստրատորներ</h2>
+					<button id="add-user-btn" class="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm hover:bg-blue-700 transition">
+						+ Ավելացնել Ադմին
+					</button>
 				</div>
 
-				<div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm max-w-lg space-y-4">
-					<div class="flex items-center justify-between border-b border-slate-100 pb-3">
-						<div>
-							<div class="text-sm font-semibold text-slate-900" id="current-user-email">admin@masterkotlov.am</div>
-							<span class="text-xs text-emerald-600 font-medium">● Ակտիվ Ադմինիստրատոր</span>
-						</div>
-					</div>
-					<p class="text-xs text-slate-500 leading-relaxed">
-						Supabase Auth համակարգով ադմինիստրատորների ավելացումը կատարվում է Supabase Dashboard-ից։
-					</p>
+				<div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+					<table class="w-full text-left text-xs sm:text-sm">
+						<thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">
+							<tr>
+								<th class="px-4 py-3">Օգտանուն</th>
+								<th class="px-4 py-3">Կարգավիճակ</th>
+								<th class="px-4 py-3 text-right">Գործողություն</th>
+							</tr>
+						</thead>
+						<tbody id="users-tbody" class="divide-y divide-slate-100">
+							<tr><td colspan="3" class="p-6 text-center text-slate-400">Բեռնվում է...</td></tr>
+						</tbody>
+					</table>
 				</div>
 			</section>
 
@@ -293,40 +298,41 @@
 		</div>
 
 		<!-- ========================================== -->
-		<!-- MODAL 4: PRODUCT EDIT / ADD MODAL          -->
+		<!-- MODAL 4: ADD ADMIN USER MODAL              -->
 		<!-- ========================================== -->
-		<div id="modal-product" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-			<div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<div class="flex items-center justify-between border-b border-slate-100 pb-3">
-					<h3 id="product-modal-title" class="text-base font-bold text-slate-900">Ավելացնել Ապրանք</h3>
-					<button onclick="closeModal('modal-product')" class="text-slate-400 hover:text-slate-700 text-sm">✕</button>
-				</div>
+		<div id="modal-add-user" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Ավելացնել Նոր Ադմին</h3>
+				<form id="form-add-user" class="space-y-3">
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Օգտանուն *</label>
+						<input type="text" id="new-user-name" required placeholder="gor_admin" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-slate-700 mb-1">Գաղտնաբառ *</label>
+						<input type="password" id="new-user-pass" required placeholder="••••••••" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+					</div>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-add-user')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
+						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Ավելացնել</button>
+					</div>
+				</form>
+			</div>
+		</div>
 
-				<form id="form-product" class="space-y-3">
-					<input type="hidden" id="prod-id" />
+		<!-- ========================================== -->
+		<!-- MODAL 5: RESET PASSWORD MODAL              -->
+		<!-- ========================================== -->
+		<div id="modal-reset-pass" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
+				<h3 class="text-base font-bold text-slate-900">Փոխել Գաղտնաբառը</h3>
+				<form id="form-reset-pass" class="space-y-3">
 					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Անվանում *</label>
-						<input type="text" id="prod-name" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+						<label class="block text-xs font-medium text-slate-700 mb-1">Նոր Գաղտնաբառ *</label>
+						<input type="password" id="reset-new-pass" required placeholder="••••••••" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
 					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Գին *</label>
-						<input type="text" id="prod-price" required placeholder="25000 դրամ" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Նկարագրություն *</label>
-						<textarea id="prod-desk" rows="2" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 resize-none"></textarea>
-					</div>
-					<div>
-						<label class="block text-xs font-medium text-slate-700 mb-1">Նկարների URL-ներ (ստորակետով բաժանված)</label>
-						<input type="text" id="prod-images" placeholder="/parts/1/photo_1.jpg, /parts/1/photo_2.jpg" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div class="flex items-center gap-2 pt-1">
-						<input type="checkbox" id="prod-top" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-						<label for="prod-top" class="text-xs font-medium text-slate-700">Ցուցադրել Գլխավոր Էջում (Top Product)</label>
-					</div>
-
-					<div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-						<button type="button" onclick="closeModal('modal-product')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
+					<div class="flex justify-end gap-2 pt-2">
+						<button type="button" onclick="closeModal('modal-reset-pass')" class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200">Չեղարկել</button>
 						<button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 shadow-sm">Պահպանել</button>
 					</div>
 				</form>
@@ -340,6 +346,7 @@
 			let allLedger = [];
 			let currentOrderTab = 'new';
 			let confirmCallback = null;
+			let currentSessionUser = null;
 
 			// Auth check
 			async function initAuth() {
@@ -352,14 +359,16 @@
 					window.location.href = '/admin/web/login/';
 					return;
 				}
-				const userEmail = session.user.email || '';
+				currentSessionUser = session.user;
+				const userEmail = currentSessionUser.email || '';
 				const usernameDisplay = userEmail.endsWith('@masterkotlov.am') ? userEmail.replace('@masterkotlov.am', '') : userEmail;
 				document.getElementById('admin-user-badge').textContent = usernameDisplay;
-				document.getElementById('current-user-email').textContent = session.user.email;
+				
 				loadAllData();
+				renderUsersTable();
 			}
 
-			// Main Page Switching (Orders, Finance, Products, Users)
+			// Main Page Switching
 			const pages = ['orders', 'finance', 'products', 'users'];
 			function switchPage(activePage) {
 				pages.forEach(p => {
@@ -383,7 +392,7 @@
 				document.getElementById(`mobile-nav-${p}`)?.addEventListener('click', () => switchPage(p));
 			});
 
-			// Order Sub-tabs (Pending, In Progress, Completed, Cancelled)
+			// Order Sub-tabs
 			const orderTabsMap = {
 				'pending': 'new',
 				'inprogress': 'in_progress',
@@ -575,7 +584,7 @@
 				document.getElementById('modal-earnings').classList.remove('hidden');
 			}
 
-			// Submit Earnings Form -> Creates Finance Ledger Entry + Marks Order Completed
+			// Submit Earnings Form
 			document.getElementById('form-earnings').addEventListener('submit', async (e) => {
 				e.preventDefault();
 				const orderId = document.getElementById('earnings-order-id').value;
@@ -583,13 +592,11 @@
 				const order = allOrders.find(o => o.id === orderId);
 
 				try {
-					// 1. Mark order completed
 					await window.supabaseClient
 						.from('service_requests')
 						.update({ status: 'completed' })
 						.eq('id', orderId);
 
-					// 2. Add entry to finance_ledger
 					await window.supabaseClient
 						.from('finance_ledger')
 						.insert([{
@@ -702,10 +709,83 @@
 				}
 			}
 
+			// Admin Users Management
+			function renderUsersTable() {
+				const tbody = document.getElementById('users-tbody');
+				if (!currentSessionUser) {
+					tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-400">Օգտատերեր չկան</td></tr>`;
+					return;
+				}
+
+				const email = currentSessionUser.email || '';
+				const username = email.endsWith('@masterkotlov.am') ? email.replace('@masterkotlov.am', '') : email;
+
+				tbody.innerHTML = `
+					<tr class="hover:bg-slate-50 transition">
+						<td class="px-4 py-3 font-semibold text-slate-900">${escapeHtml(username)}</td>
+						<td class="px-4 py-3">
+							<span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">Ակտիվ Ադմին</span>
+						</td>
+						<td class="px-4 py-3 text-right space-x-1">
+							<button onclick="openResetPasswordModal()" class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200">Փոխել Գաղտնաբառը</button>
+						</td>
+					</tr>
+				`;
+			}
+
+			// Add Admin User Action
+			document.getElementById('add-user-btn')?.addEventListener('click', () => {
+				document.getElementById('new-user-name').value = '';
+				document.getElementById('new-user-pass').value = '';
+				document.getElementById('modal-add-user').classList.remove('hidden');
+			});
+
+			document.getElementById('form-add-user')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				let uname = document.getElementById('new-user-name').value.trim();
+				const pass = document.getElementById('new-user-pass').value.trim();
+
+				let email = uname;
+				if (!email.includes('@')) {
+					email = `${email.toLowerCase()}@masterkotlov.am`;
+				}
+
+				try {
+					const { data, error } = await window.supabaseClient.auth.signUp({ email, password: pass });
+					if (error) throw error;
+
+					alert(`Ադմին օգտատերը (${uname}) հաջողությամբ ավելացվեց։`);
+					closeModal('modal-add-user');
+					renderUsersTable();
+				} catch (err) {
+					alert('Օգտատիրոջ ավելացման սխալ: ' + (err.message || err));
+				}
+			});
+
+			// Reset Password Action
+			function openResetPasswordModal() {
+				document.getElementById('reset-new-pass').value = '';
+				document.getElementById('modal-reset-pass').classList.remove('hidden');
+			}
+
+			document.getElementById('form-reset-pass')?.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const newPassword = document.getElementById('reset-new-pass').value.trim();
+
+				try {
+					const { data, error } = await window.supabaseClient.auth.updateUser({ password: newPassword });
+					if (error) throw error;
+
+					alert('Գաղտնաբառը հաջողությամբ թարմացվեց։');
+					closeModal('modal-reset-pass');
+				} catch (err) {
+					alert('Գաղտնաբառի փոփոխման սխալ: ' + (err.message || err));
+				}
+			});
+
 			function closeModal(id) {
 				document.getElementById(id)?.classList.add('hidden');
 			}
-
 
 			document.getElementById('refresh-orders-btn')?.addEventListener('click', fetchOrders);
 			document.getElementById('logout-btn')?.addEventListener('click', async () => {

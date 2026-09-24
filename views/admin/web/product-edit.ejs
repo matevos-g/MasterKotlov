@@ -12,6 +12,7 @@
 		<script src="/supabase-config.js"></script>
 		<style>
 			body { font-family: 'Inter', 'Noto Sans Armenian', sans-serif; }
+			.tab-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
 		</style>
 	</head>
 	<body class="min-h-full flex flex-col bg-slate-50">
@@ -30,8 +31,10 @@
 
 		<!-- Main Edit Container -->
 		<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6">
-			<div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 space-y-6">
-				<div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+			<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+				
+				<!-- Top Bar Title & Tabs -->
+				<div class="p-6 sm:p-8 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
 					<div>
 						<h1 id="page-title" class="text-xl font-bold text-slate-900">Խմբագրել Ապրանքը</h1>
 						<p class="text-xs text-slate-500" id="page-subtitle">Կառավարեք ապրանքի տվյալները և նկարները</p>
@@ -42,47 +45,82 @@
 					</button>
 				</div>
 
-				<form id="product-form" class="space-y-6">
-					<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-						<div>
-							<label for="prod-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Անվանում *</label>
-							<input type="text" id="prod-name" required placeholder="Հոսքի սենսոր" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
+				<!-- Section Sub-Tabs (Տվյալներ / Նկարներ) -->
+				<div class="flex border-b border-slate-200 bg-slate-50/50 px-6">
+					<button id="tab-btn-details" type="button" class="tab-btn active px-4 py-3 text-xs font-medium text-slate-600 hover:text-blue-600 transition">
+						Տվյալներ
+					</button>
+					<button id="tab-btn-images" type="button" class="tab-btn px-4 py-3 text-xs font-medium text-slate-600 hover:text-blue-600 transition flex items-center gap-1.5">
+						<span>Նկարներ</span>
+						<span id="images-badge-count" class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700">0</span>
+					</button>
+				</div>
+
+				<form id="product-form" class="p-6 sm:p-8 space-y-6">
+					
+					<!-- TAB 1: DETAILS -->
+					<div id="section-details" class="space-y-5">
+						<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+							<div>
+								<label for="prod-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Անվանում *</label>
+								<input type="text" id="prod-name" required placeholder="Հոսքի սենսոր" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
+							</div>
+
+							<div>
+								<label for="prod-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Գին *</label>
+								<input type="text" id="prod-price" required placeholder="18000-25000 դրամ" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
+							</div>
 						</div>
 
 						<div>
-							<label for="prod-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Գին *</label>
-							<input type="text" id="prod-price" required placeholder="18000-25000 դրամ" class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition" />
+							<label for="prod-desk" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Համառոտ Նկարագրություն *</label>
+							<textarea id="prod-desk" rows="2" required placeholder="Վերահսկում է ջրի հոսքը..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition resize-none"></textarea>
+						</div>
+
+						<div>
+							<label for="prod-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Մանրամասն Նկարագրություն</label>
+							<textarea id="prod-description" rows="4" placeholder="Լրացուցիչ տեղեկություններ տեղադրման կամ մոդելի համապատասխանության մասին..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition resize-none"></textarea>
+						</div>
+
+						<div class="flex items-center gap-2 pt-1">
+							<input type="checkbox" id="prod-top" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+							<label for="prod-top" class="text-xs font-semibold text-slate-700">Ցուցադրել Գլխավոր Էջում (Top Product)</label>
 						</div>
 					</div>
 
-					<div>
-						<label for="prod-desk" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Համառոտ Նկարագրություն *</label>
-						<textarea id="prod-desk" rows="2" required placeholder="Վերահսկում է ջրի հոսքը..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition resize-none"></textarea>
-					</div>
+					<!-- TAB 2: IMAGES MANAGEMENT -->
+					<div id="section-images" class="hidden space-y-6">
+						<div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+							<div>
+								<h3 class="text-sm font-semibold text-slate-900">Ապրանքի Նկարներ</h3>
+								<p class="text-xs text-slate-500">Ավելացրեք, բեռնեք կամ հեռացրեք նկարները</p>
+							</div>
 
-					<div>
-						<label for="prod-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Մանրամասն Նկարագրություն</label>
-						<textarea id="prod-description" rows="4" placeholder="Լրացուցիչ տեղեկություններ տեղադրման կամ մոդելի համապատասխանության մասին..." class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition resize-none"></textarea>
-					</div>
-
-					<div class="flex items-center gap-2 pt-1">
-						<input type="checkbox" id="prod-top" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-						<label for="prod-top" class="text-sm font-semibold text-slate-700">Ցուցադրել Գլխավոր Էջում (Top Product)</label>
-					</div>
-
-					<!-- Photos Management Section -->
-					<div class="space-y-3 border-t border-slate-100 pt-5">
-						<label class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Ապրանքի Նկարներ</label>
-
-						<div id="images-grid" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-							<!-- Image previews injected dynamically -->
+							<div class="flex items-center gap-2">
+								<input type="file" id="file-upload-input" accept="image/*" multiple class="hidden" />
+								<button type="button" onclick="document.getElementById('file-upload-input').click()" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition flex items-center gap-1.5">
+									<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+									</svg>
+									<span>Բեռնել Նկարներ (Upload)</span>
+								</button>
+							</div>
 						</div>
 
-						<div class="flex gap-2 pt-2">
-							<input type="text" id="new-image-url" placeholder="/parts/1/photo_1.jpg կամ https://..." class="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
-							<button type="button" id="add-image-btn" class="rounded-xl bg-slate-100 border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition">
-								+ Ավելացնել Նկար
-							</button>
+						<!-- Grid View with Hover Delete Icon -->
+						<div id="images-grid" class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+							<!-- Photo thumbnails injected dynamically -->
+						</div>
+
+						<!-- Add URL option -->
+						<div class="rounded-xl bg-slate-50 p-4 border border-slate-200/80 space-y-2">
+							<label class="block text-xs font-medium text-slate-600">Ավելացնել Նկարի URL հղում</label>
+							<div class="flex gap-2">
+								<input type="text" id="new-image-url" placeholder="/parts/1/photo_1.jpg կամ https://..." class="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-900 outline-none focus:border-blue-600" />
+								<button type="button" id="add-url-btn" class="rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition">
+									Ավելացնել
+								</button>
+							</div>
 						</div>
 					</div>
 
@@ -116,7 +154,25 @@
 			let currentProductId = null;
 			let currentImages = [];
 
-			// Determine product ID from URL path (e.g. /admin/web/products/1/ or /admin/web/products/new/)
+			const tabBtnDetails = document.getElementById('tab-btn-details');
+			const tabBtnImages = document.getElementById('tab-btn-images');
+			const sectionDetails = document.getElementById('section-details');
+			const sectionImages = document.getElementById('section-images');
+
+			tabBtnDetails.addEventListener('click', () => {
+				tabBtnDetails.classList.add('active');
+				tabBtnImages.classList.remove('active');
+				sectionDetails.classList.remove('hidden');
+				sectionImages.classList.add('hidden');
+			});
+
+			tabBtnImages.addEventListener('click', () => {
+				tabBtnImages.classList.add('active');
+				tabBtnDetails.classList.remove('active');
+				sectionImages.classList.remove('hidden');
+				sectionDetails.classList.add('hidden');
+			});
+
 			function getProductIdFromUrl() {
 				const segments = window.location.pathname.split('/').filter(Boolean);
 				const last = segments[segments.length - 1];
@@ -189,19 +245,28 @@
 				}
 			}
 
+			// Render Grid View with Hover Delete Icon
 			function renderImagesGrid() {
 				const grid = document.getElementById('images-grid');
+				document.getElementById('images-badge-count').textContent = currentImages.length;
+
 				if (!currentImages.length) {
-					grid.innerHTML = `<div class="col-span-full rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400 border border-slate-100">Նկարներ ավելացված չեն</div>`;
+					grid.innerHTML = `<div class="col-span-full rounded-xl bg-slate-50 p-8 text-center text-xs text-slate-400 border border-slate-200/60">Նկարներ ավելացված չեն</div>`;
 					return;
 				}
 
 				grid.innerHTML = currentImages.map((img, idx) => `
-					<div class="relative group rounded-xl border border-slate-200 overflow-hidden bg-white shadow-xs">
-						<img src="${escapeHtml(img)}" class="h-24 w-full object-cover" />
-						<button type="button" onclick="removeImage(${idx})" class="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 transition">
-							✕
-						</button>
+					<div class="relative group rounded-xl border border-slate-200 overflow-hidden bg-white shadow-xs aspect-square flex items-center justify-center">
+						<img src="${escapeHtml(img)}" class="h-full w-full object-cover" />
+						
+						<!-- Hover Reveal Delete Icon -->
+						<div class="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+							<button type="button" onclick="removeImage(${idx})" title="Ջնջել Նկարը" class="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 active:scale-90 transition">
+								<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+								</svg>
+							</button>
+						</div>
 					</div>
 				`).join('');
 			}
@@ -211,7 +276,55 @@
 				renderImagesGrid();
 			}
 
-			document.getElementById('add-image-btn').addEventListener('click', () => {
+			// File Upload Handling
+			document.getElementById('file-upload-input').addEventListener('change', async function(e) {
+				const files = Array.from(e.target.files);
+				if (!files.length) return;
+
+				for (const file of files) {
+					try {
+						if (window.supabaseClient) {
+							const fileExt = file.name.split('.').pop();
+							const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+							const filePath = `products/${fileName}`;
+
+							const { data, error } = await window.supabaseClient.storage
+								.from('product-images')
+								.upload(filePath, file);
+
+							if (!error) {
+								const { data: { publicUrl } } = window.supabaseClient.storage
+									.from('product-images')
+									.getPublicUrl(filePath);
+								currentImages.push(publicUrl);
+							} else {
+								// Fallback data URL if storage upload failed
+								const dataUrl = await readFileAsDataURL(file);
+								currentImages.push(dataUrl);
+							}
+						} else {
+							const dataUrl = await readFileAsDataURL(file);
+							currentImages.push(dataUrl);
+						}
+					} catch (err) {
+						console.error('File upload error:', err);
+					}
+				}
+
+				e.target.value = '';
+				renderImagesGrid();
+			});
+
+			function readFileAsDataURL(file) {
+				return new Promise((resolve) => {
+					const reader = new FileReader();
+					reader.onload = (e) => resolve(e.target.result);
+					reader.readAsDataURL(file);
+				});
+			}
+
+			// Add URL Handling
+			document.getElementById('add-url-btn').addEventListener('click', () => {
 				const input = document.getElementById('new-image-url');
 				const url = input.value.trim();
 				if (url) {
