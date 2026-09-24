@@ -308,27 +308,42 @@
 			</form>
 		</div>
 
-		<!-- ========================================== -->
-		<!-- MODAL: EARNINGS AMOUNT ENTRY MODAL          -->
-		<!-- ========================================== -->
-		<div id="modal-earnings" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-			<div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
-				<h3 class="text-lg font-bold text-slate-900">Ավարտել Պատվերը</h3>
-				<p class="text-xs text-slate-500">Մուտքագրեք այս պատվերից ստացված վերջնական գումարը (Դրամ)։</p>
-
-				<form id="form-earnings" class="space-y-4">
-					<input type="hidden" id="earnings-order-id" />
-					<div>
-						<label class="block text-xs font-bold text-slate-700 mb-1">Վաստակած Գումար (Դրամ) *</label>
-						<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base font-bold text-slate-900 outline-none focus:border-blue-600" />
-					</div>
-					<div class="flex justify-end gap-2 pt-2">
-						<button type="button" onclick="closeModal('modal-earnings')" class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-700">Չեղարկել</button>
-						<button type="submit" class="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm">Հաստատել</button>
-					</div>
-				</form>
+		<!-- SLIDE PAGE 4: ENTER FINANCE / EARNINGS AMOUNT WHEN COMPLETING ORDER -->
+		<div id="slide-page-earnings" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out bg-white overflow-y-auto flex flex-col justify-between">
+			<!-- iOS Navigation Bar -->
+			<div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3" style="padding-top: max(24px, calc(env(safe-area-inset-top) + 16px));">
+				<button onclick="closeSlidePage('slide-page-earnings')" class="flex items-center gap-1 text-base font-bold text-blue-600 hover:text-blue-700 active:scale-95 transition">
+					<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+					</svg>
+					<span>Հետ</span>
+				</button>
+				<span class="text-base font-extrabold text-slate-900 tracking-tight">Ավարտել Պատվերը</span>
+				<div class="w-10"></div>
 			</div>
+
+			<form id="form-earnings-drawer" class="flex-1 p-5 space-y-5" style="padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px));">
+				<input type="hidden" id="earnings-order-id" />
+
+				<div class="p-4 rounded-2xl bg-blue-50/80 border border-blue-100 space-y-1">
+					<span class="text-xs font-extrabold uppercase tracking-wider text-blue-600 block">Պատվերի Հաճախորդ</span>
+					<div id="earnings-client-name" class="text-xl font-extrabold text-slate-900"></div>
+				</div>
+
+				<div>
+					<label class="block text-xs font-extrabold uppercase text-slate-600 mb-1.5">Վաստակած Գումար (Դրամ) *</label>
+					<input type="number" id="earnings-amount" min="0" step="1000" required placeholder="25000" class="w-full rounded-2xl border border-slate-200 px-4 py-4 text-xl font-extrabold text-slate-900 outline-none focus:border-blue-600 transition" />
+					<p class="text-xs text-slate-400 mt-1.5 font-medium">Մուտքագրեք պատվերից ստացված վերջնական գումարը՝ ֆինանսների բաժնում գրանցելու համար։</p>
+				</div>
+
+				<div class="pt-4">
+					<button type="submit" class="w-full rounded-2xl bg-emerald-600 py-4 text-base font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition">
+						✓ Հաստատել և Գրանցել Ֆինանսներում
+					</button>
+				</div>
+			</form>
 		</div>
+
 
 		<!-- ========================================== -->
 		<!-- MODAL: ARE YOU SURE? CONFIRMATION PROMPT    -->
@@ -524,7 +539,7 @@
 			}
 
 			async function requestNotificationPermission() {
-				if ('Notification' in window && Notification.permission === 'default') {
+				if ('Notification' in window && Notification.permission !== 'granted') {
 					try {
 						await Notification.requestPermission();
 					} catch (e) {
@@ -532,6 +547,18 @@
 					}
 				}
 			}
+
+			// Force prompt on first touch/click if not already granted
+			document.addEventListener('click', function promptNotifPermissionOnce() {
+				if ('Notification' in window && Notification.permission !== 'granted') {
+					Notification.requestPermission().catch(() => {});
+				}
+			}, { once: true });
+			document.addEventListener('touchstart', function promptNotifPermissionOnceTouch() {
+				if ('Notification' in window && Notification.permission !== 'granted') {
+					Notification.requestPermission().catch(() => {});
+				}
+			}, { once: true });
 
 			function setupSupabaseRealtime() {
 				if (window.supabaseClient) {
@@ -670,7 +697,7 @@
 				if (o.status === 'new') {
 					continueBtnHTML = `<button onclick="changeOrderStatus('${o.id}', 'in_progress'); closeSlidePage('slide-page-order-details');" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>▶</span> <span>Սկսել / Շարունակել</span></button>`;
 				} else if (o.status === 'in_progress') {
-					continueBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details'); openEarningsModal('${o.id}');" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
+					continueBtnHTML = `<button onclick="closeSlidePage('slide-page-order-details'); openEarningsSlide('${o.id}');" class="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2"><span>✓</span> <span>Ավարտել Պատվերը</span></button>`;
 				} else if (o.status === 'completed') {
 					continueBtnHTML = `<button disabled class="w-full rounded-2xl bg-slate-100 py-4 text-sm font-bold text-slate-400 cursor-not-allowed">Պատվերն Ավարտված է</button>`;
 				} else {
@@ -712,13 +739,16 @@
 				}
 			}
 
-			function openEarningsModal(orderId) {
+			function openEarningsSlide(orderId) {
+				const order = allOrders.find(o => o.id === orderId);
 				document.getElementById('earnings-order-id').value = orderId;
 				document.getElementById('earnings-amount').value = '';
-				document.getElementById('modal-earnings').classList.remove('hidden');
+				const fullName = order ? (`${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Հաճախորդ') : 'Հաճախորդ';
+				document.getElementById('earnings-client-name').textContent = fullName;
+				openSlidePage('slide-page-earnings');
 			}
 
-			document.getElementById('form-earnings').addEventListener('submit', async (e) => {
+			document.getElementById('form-earnings-drawer')?.addEventListener('submit', async (e) => {
 				e.preventDefault();
 				const orderId = document.getElementById('earnings-order-id').value;
 				const amount = Number(document.getElementById('earnings-amount').value);
@@ -733,7 +763,7 @@
 						notes: order ? (order.product_name || order.problem_description || '') : ''
 					}]);
 
-					closeModal('modal-earnings');
+					closeSlidePage('slide-page-earnings');
 					fetchOrders();
 					fetchLedger();
 				} catch (err) {
