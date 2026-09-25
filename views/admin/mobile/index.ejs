@@ -36,6 +36,19 @@
 		<!-- ========================================== -->
 		<main class="w-full flex-1 px-4 pb-32" style="padding-top: max(36px, calc(env(safe-area-inset-top) + 24px));">
 
+			<!-- IOS PWA INSTALLATION INSTRUCTION BANNER (For Safari browser users on iOS) -->
+			<div id="notif-ios-install-banner" class="hidden mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-4 text-white shadow-md transition-all">
+				<div class="flex items-start gap-3">
+					<span class="text-2xl mt-0.5">📱</span>
+					<div class="space-y-1">
+						<h4 class="text-sm font-extrabold">Ավելացրեք Home Screen-ում (iOS PWA)</h4>
+						<p class="text-xs text-blue-100 font-medium leading-relaxed">
+							iPhone-ում ծանուցումներ ստանալու համար՝ սեղմեք <strong>Կիսվել (Share) <span class="inline-block px-1 bg-white/20 rounded">⎋</span></strong> դիտարկչի ներքևում, ապա ընտրեք <strong>«Ավելացնել «Գլխավոր Էջում»» (Add to Home Screen)</strong>։
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<!-- NOTIFICATION PERMISSION BANNER FOR MOBILE / IOS -->
 			<div id="notif-permission-banner" class="hidden mb-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white shadow-md transition-all">
 				<div class="flex items-center justify-between gap-3">
@@ -697,6 +710,19 @@
 			function checkNotificationBannerState() {
 				const banner = document.getElementById('notif-permission-banner');
 				const activeBar = document.getElementById('notif-active-bar');
+				const iosInstallBanner = document.getElementById('notif-ios-install-banner');
+
+				const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+				const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+				if (isIOS && !isStandalone) {
+					iosInstallBanner?.classList.remove('hidden');
+					banner?.classList.add('hidden');
+					activeBar?.classList.add('hidden');
+					return;
+				} else {
+					iosInstallBanner?.classList.add('hidden');
+				}
 
 				if ('Notification' in window && Notification.permission === 'granted') {
 					banner?.classList.add('hidden');
