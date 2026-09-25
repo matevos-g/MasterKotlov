@@ -54,28 +54,58 @@ self.addEventListener('fetch', (event) => {
 
 // Push Event Listener for Web Push Notifications
 self.addEventListener('push', (event) => {
-  let data = {};
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data = { body: event.data.text() };
+  event.waitUntil((async () => {
+    let data = {};
+    if (event.data) {
+      try {
+        data = event.data.json();
+      } catch (e) {
+        try { data = { body: event.data.text() }; } catch (e2) {}
+      }
     }
-  }
 
-  const title = data.title || 'Նոր Պատվեր';
-  const options = {
-    body: data.body || 'Հաճախորդ',
-    icon: data.icon || '/images/icon.svg',
-    badge: '/images/icon.svg',
-    vibrate: [200, 100, 200],
-    data: { url: data.url || '/admin/mobile/' },
-    tag: 'new-order-notification',
-    renotify: true
-  };
+    let title = data.title || 'Նոր Պատվեր';
+    let body = data.body || 'Հաճախորդ';
 
-  event.waitUntil(self.registration.showNotification(title, options));
+    // If body is fallback, fetch the latest request from Supabase REST API
+    if (!data.body || body === 'Հաճախորդ') {
+      try {
+        const resp = await fetch('https://givjzuweurhdqkizbjhr.supabase.co/rest/v1/service_requests?select=*&order=created_at.desc&limit=1', {
+          headers: {
+            'apikey': 'sb_publishable_0Deg4PTUFtSg8uAE5PeXmQ_WnCNpeRJ',
+            'Authorization': 'Bearer sb_publishable_0Deg4PTUFtSg8uAE5PeXmQ_WnCNpeRJ'
+          }
+        });
+        if (resp.ok) {
+          const rows = await resp.json();
+          if (rows && rows.length > 0) {
+            const latest = rows[0];
+            const name = `${latest.first_name || ''} ${latest.last_name || ''}`.trim() || latest.name || 'Հաճախորդ';
+            body = name;
+            if (latest.problem_description) {
+              body += ` - ${latest.problem_description.slice(0, 30)}`;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('SW fetch latest request fallback error:', err);
+      }
+    }
+
+    const options = {
+      body: body,
+      icon: '/images/icon.svg',
+      badge: '/images/icon.svg',
+      vibrate: [200, 100, 200, 100, 200],
+      data: { url: data.url || '/admin/mobile/' },
+      tag: 'new-order-notification-' + Date.now(),
+      renotify: true
+    };
+
+    return self.registration.showNotification(title, options);
+  })());
 });
+
 
 // Notification Click Handler
 self.addEventListener('notificationclick', (event) => {

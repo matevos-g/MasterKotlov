@@ -601,7 +601,10 @@
 			function triggerArmenianPushNotification(order) {
 				const clientName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || order.name || order.customer_name || 'Հաճախորդ';
 				const title = 'Նոր Պատվեր';
-				const body = clientName;
+				let body = clientName;
+				if (order.problem_description) {
+					body += ` - ${order.problem_description.slice(0, 30)}`;
+				}
 
 				// Play audio sound on mobile
 				playOrderNotificationSound();
@@ -622,9 +625,9 @@
 					};
 
 					if ('serviceWorker' in navigator) {
-						navigator.serviceWorker.getRegistration().then(reg => {
+						navigator.serviceWorker.ready.then(reg => {
 							if (reg && reg.showNotification) {
-								reg.showNotification(title, options).catch(() => {});
+								reg.showNotification(title, options).catch((err) => console.warn('showNotification error:', err));
 							}
 						}).catch(() => {});
 					}
@@ -709,20 +712,43 @@
 			}
 
 			async function sendTestBackgroundPush() {
-				alert('Թեստային push ծանուցումն ուղարկվեց։ Անմիջապես փակեք հավելվածը (Close PWA app / lock screen) և ստուգեք 2-3 վայրկյանից։');
-				try {
-					await fetch('/api/send-push', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							title: 'Նոր Պատվեր (Թեստ)',
-							body: 'Արմեն Սարգսյան',
-							url: '/admin/mobile/'
-						})
-					});
-				} catch (e) {
-					console.warn('Test push trigger error:', e);
+				// 1. Immediately trigger in-app notification & sound
+				playOrderNotificationSound();
+				if (navigator.vibrate) {
+					try { navigator.vibrate([200, 100, 200]); } catch (e) {}
 				}
+
+				if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+					try {
+						const reg = await navigator.serviceWorker.ready;
+						if (reg && reg.showNotification) {
+							await reg.showNotification('Նոր Պատվեր (Թեստ)', {
+								body: 'Արմեն Սարգսյան - 099 331516',
+								icon: '/images/icon.svg',
+								badge: '/images/icon.svg',
+								vibrate: [200, 100, 200],
+								data: { url: '/admin/mobile/' },
+								tag: 'test-inapp-' + Date.now(),
+								renotify: true
+							});
+						}
+					} catch (e) {
+						console.warn('In-app test notification error:', e);
+					}
+				}
+
+				alert('✅ Թեստային ծանուցումը ցուցադրվեց ներսում։ 5 վայրկյանից կուղարկվի նաև փակ վիճակի Push ծանուցում (ԱՆՄԻՋԱՊԵՍ ՓԱԿԵՔ հավելվածը կամ կողպեք էկրանը)։');
+
+				// 2. Send background Web Push after 5 seconds
+				setTimeout(async () => {
+					if (window.dispatchWebPushToAll) {
+						await window.dispatchWebPushToAll({
+							title: 'Նոր Պատվեր (Թեստ)',
+							body: 'Արմեն Սարգսյան - 099 331516',
+							url: '/admin/mobile/'
+						});
+					}
+				}, 5000);
 			}
 
 			async function enableNotificationsFromBanner() {
